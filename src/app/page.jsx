@@ -1,69 +1,152 @@
-import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
+
+// A reference page for the Volt tokens, so both themes can be checked by eye.
+// It's temporary as the home page: the component catalog replaces it later.
+//
+// Class names are written out in full ("bg-primary", not `bg-${name}`)
+// because Tailwind finds the classes to generate by scanning source text.
+
+const colors = [
+  { volt: "surface", className: "bg-background", token: "background", use: "Page background" },
+  { volt: "surface-raised", className: "bg-card", token: "card", use: "Cards, panels, inputs, menus" },
+  { volt: "line", className: "bg-border", token: "border", use: "Decorative hairlines and dividers" },
+  { volt: "line-strong", className: "bg-input", token: "input", use: "Borders of inputs and other controls" },
+  { volt: "ink", className: "bg-foreground", token: "foreground", use: "Primary text and icons" },
+  { volt: "ink-muted", className: "bg-muted-foreground", token: "muted-foreground", use: "Secondary text and captions" },
+  { volt: "primary", className: "bg-primary", token: "primary", use: "Main action, links, focus, selection" },
+  { volt: "primary-tint", className: "bg-primary-tint", token: "primary-tint", use: "Drop targets, highlighted code lines" },
+  { volt: "accent", className: "bg-highlight", token: "highlight", use: "Badges and “new” markers. Fill only" },
+  { volt: "success", className: "bg-success", token: "success", use: "Confirmations and positive status" },
+  { volt: "danger", className: "bg-destructive", token: "destructive", use: "Errors and destructive actions" },
+  { volt: "hover surface", className: "bg-accent", token: "accent", use: "Hover rows and menu items" },
+];
+
+const typeStyles = [
+  { name: "display", className: "type-display", spec: "Space Grotesk 700 · 56/60 (40/44 on mobile)" },
+  { name: "heading-1", className: "type-heading-1", spec: "Space Grotesk 600 · 36/42 (28/34 on mobile)" },
+  { name: "heading-2", className: "type-heading-2", spec: "Space Grotesk 600 · 24/30" },
+  { name: "body", className: "type-body", spec: "Inter 400 · 16/24" },
+  { name: "small", className: "type-small", spec: "Inter 400 · 14/20" },
+  { name: "label", className: "type-label", spec: "Inter 600 · 12/16 · uppercase" },
+  { name: "code", className: "type-code", spec: "JetBrains Mono 400 · 13/20" },
+];
+
+const spacing = [
+  { name: "space-2", className: "w-2", px: 8 },
+  { name: "space-4", className: "w-4", px: 16 },
+  { name: "space-6", className: "w-6", px: 24 },
+  { name: "space-10", className: "w-10", px: 40 },
+];
+
+const radii = [
+  { name: "radius-sm", className: "rounded-sm", px: "6px", use: "Inputs, chips" },
+  { name: "radius-md", className: "rounded-md", px: "12px", use: "Cards, panels" },
+  { name: "radius-full", className: "rounded-full", px: "9999px", use: "Buttons, badges" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.jsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <header className="flex h-14 items-center justify-between border-b border-border px-4">
+        <span className="font-display text-xl font-bold">Volt</span>
+        <ThemeToggle />
+      </header>
+
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10">
+        <section className="flex flex-col gap-2">
+          <p className="type-label text-muted-foreground">Foundations</p>
+          <h1 className="type-heading-1">Volt design tokens</h1>
+          <p className="max-w-prose text-muted-foreground">
+            The colors, type, spacing and corners every Volt component is built from. Switch the
+            theme to check both.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        </section>
+
+        <section aria-labelledby="color-heading" className="flex flex-col gap-4">
+          <h2 id="color-heading" className="type-heading-2">
+            Color
+          </h2>
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {colors.map((color) => (
+              <li
+                key={color.token}
+                className="flex items-center gap-4 rounded-md border border-border bg-card p-4"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`size-12 shrink-0 rounded-sm border border-border ${color.className}`}
+                />
+                <div className="flex min-w-0 flex-col">
+                  <span className="font-semibold">{color.volt}</span>
+                  <code className="type-code text-muted-foreground">{color.className}</code>
+                  <span className="type-small text-muted-foreground">{color.use}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section aria-labelledby="type-heading" className="flex flex-col gap-4">
+          <h2 id="type-heading" className="type-heading-2">
+            Type
+          </h2>
+          <ul className="flex flex-col rounded-md border border-border bg-card">
+            {typeStyles.map((style) => (
+              <li
+                key={style.name}
+                className="flex flex-col gap-2 border-b border-border p-4 last:border-b-0 md:p-6"
+              >
+                <span className="type-small text-muted-foreground">
+                  <code className="type-code">{style.className}</code> · {style.spec}
+                </span>
+                {/* aria-hidden: these are visual samples, and "display" or
+                    "heading-1" read aloud as headings would break the outline. */}
+                <span aria-hidden="true" className={`${style.className} wrap-break-word`}>
+                  Drop real components into real pages
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <section aria-labelledby="spacing-heading" className="flex flex-col gap-4">
+            <h2 id="spacing-heading" className="type-heading-2">
+              Spacing
+            </h2>
+            <ul className="flex flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6">
+              {spacing.map((step) => (
+                <li key={step.name} className="flex items-center gap-4">
+                  <span aria-hidden="true" className={`h-4 rounded-sm bg-primary ${step.className}`} />
+                  <span className="type-small">
+                    {step.name} · {step.px}px ·{" "}
+                    <code className="type-code text-muted-foreground">{step.className.slice(2)}</code>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="radius-heading" className="flex flex-col gap-4">
+            <h2 id="radius-heading" className="type-heading-2">
+              Corners
+            </h2>
+            <ul className="flex flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6">
+              {radii.map((radius) => (
+                <li key={radius.name} className="flex items-center gap-4">
+                  <span
+                    aria-hidden="true"
+                    className={`h-10 w-16 shrink-0 border border-input bg-background ${radius.className}`}
+                  />
+                  <span className="type-small">
+                    {radius.name} · {radius.px} · {radius.use}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </main>
-    </div>
+    </>
   );
 }
