@@ -5,7 +5,9 @@ import { useEffect, useMemo, useRef } from "react";
 import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
+import { useStoredChoice } from "@/components/use-stored-choice";
 import { generatePageCode } from "@/lib/codegen";
+import { installCommand, PACKAGE_MANAGERS, packagesFor } from "@/lib/install/guide.js";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
 import { useEditor } from "./editor-context";
@@ -52,6 +54,7 @@ export function CodeView() {
         lineRef={firstHighlighted}
         className="min-h-0 flex-1"
       />
+      <PageRequirements tree={tree} />
     </div>
   );
 }
@@ -68,4 +71,45 @@ function download(filename, text) {
   link.click();
   // Free the memory once the browser has started the download.
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+/**
+ * What a project needs to use this page's code: one install command for every
+ * package its components use, and a link to each component's guide.
+ *
+ * @param {{ tree: import("./store/tree.js").Tree }} props
+ */
+function PageRequirements({ tree }) {
+  const [manager] = useStoredChoice("volt:package-manager", PACKAGE_MANAGERS, "npm");
+  const used = manifests.filter((manifest) =>
+    Object.values(tree.nodes).some((node) => node.kind === "block" && node.component === manifest.name),
+  );
+  if (used.length === 0) return null;
+  const packages = [...new Set(used.flatMap((manifest) => packagesFor(manifest)))].sort();
+  const command = installCommand(manager, packages);
+
+  return (
+    <section aria-labelledby="page-needs-heading" className="flex flex-col gap-2 border-t border-border pt-3">
+      <h2 id="page-needs-heading" className="type-label text-muted-foreground">
+        What this page needs
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <code className="rounded-sm bg-background px-2 py-1 type-code">{command}</code>
+        <CopyButton text={command} label="Copy install command" />
+      </div>
+      <p className="type-small text-muted-foreground">
+        Then copy each component into your project:{" "}
+        {used.map((manifest, index) => (
+          <span key={manifest.name}>
+            {index > 0 && ", "}
+            <a href={`/components/${manifest.name}#add-to-project`} target="_blank" rel="noreferrer" className="rounded-sm text-primary underline underline-offset-4">
+              {manifest.title}
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </span>
+        ))}
+        .
+      </p>
+    </section>
+  );
 }
