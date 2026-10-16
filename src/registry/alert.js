@@ -2,11 +2,12 @@ import { z } from "zod";
 import { defineManifest } from "./schema.js";
 
 export const alertProps = z.object({
-  title: z.string().min(1).max(60).default("Drafts save automatically").meta({ title: "Title" }),
+  // Generic example copy, not a claim about Volt's own features.
+  title: z.string().min(1).max(60).default("Scheduled maintenance").meta({ title: "Title" }),
   description: z
     .string()
     .max(160)
-    .default("Your page is kept in this browser until you export it.")
+    .default("The site may be slow on Sunday between 2 and 3 a.m.")
     .meta({ title: "Description" }),
   tone: z.enum(["info", "success", "danger"]).default("info").meta({ title: "Tone" }),
   // Off for messages that are on the page from the start (screen readers read
