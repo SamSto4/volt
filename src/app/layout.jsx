@@ -1,4 +1,5 @@
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -39,7 +40,10 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SiteHeader />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
