@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -13,5 +14,6 @@ import { Card } from "@/components/ui/card";
  */
 export const componentsByName = {
   button: Button,
+  badge: Badge,
   card: Card,
 };
