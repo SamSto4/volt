@@ -30,7 +30,8 @@ Positioning line: *Drop real components into real pages, then learn exactly how 
 
 | Concern | Choice |
 | --- | --- |
-| App | Next.js App Router, React, TypeScript `strict`, Tailwind CSS v4, shadcn/ui |
+| App | Next.js App Router, React, **JavaScript** (`.js` / `.jsx`) with JSDoc types, Tailwind CSS v4, shadcn/ui |
+| Type checking | `tsc` in `checkJs` mode over the JavaScript, configured in `jsconfig.json`. No `.ts` / `.tsx` source files (see "Language") |
 | Design system | Volt (see `DESIGN.md`), mapped onto shadcn CSS variables |
 | Drag-and-drop | `@dnd-kit/react` + `@dnd-kit/helpers`, **exact version pinned** (npm and the changelog have disagreed; check the registry before installing) |
 | Editor state | Zustand with a normalized `nodes` map; `zundo` `temporal` middleware for undo/redo |
@@ -46,6 +47,19 @@ Positioning line: *Drop real components into real pages, then learn exactly how 
 
 Do not add a dependency without saying why in the PR description. Avoid: react-dnd, react-beautiful-dnd, Craft.js, Monaco, WebContainers, Clerk, Contentlayer.
 
+## Language
+
+Sam is learning JavaScript, so **this codebase is written in JavaScript, not TypeScript.** See `docs/adr/0001-javascript-with-jsdoc.md`.
+
+- Source files are `.js` (logic) and `.jsx` (components). Config files are `.mjs` or `.js`. Don't add `.ts` / `.tsx` files; if a tool truly requires one, explain why in the PR.
+- Types live in **JSDoc comments**: `@param`, `@returns`, `@typedef`, `@type`. Export shared shapes as `@typedef`s from the module that owns them (e.g. the tree types next to the store) and pull them in with `@import`.
+- Derive types from Zod schemas instead of writing them twice: `/** @typedef {import("zod").infer<typeof buttonProps>} ButtonProps */`.
+- `pnpm typecheck` runs `tsc` with `checkJs` and `strict`, so JSDoc types are actually enforced. Type errors fail CI just like lint errors.
+- Prefer modern, plain JavaScript a learner can read: `const`/`let`, arrow functions, destructuring, `?.` and `??`, array methods over manual loops. Avoid clever one-liners.
+- When you use a JavaScript feature or pattern Sam may not know yet (closures in store actions, immutability with spread, `async` iterators for streaming, `structuredClone`), add a one-line comment saying what it does, and explain it in the PR's "What to understand" section.
+- shadcn components are added with `"tsx": false` in `components.json`, so the CLI writes `.jsx`.
+- **Generated code for users is a product decision, not a codebase one.** The exporter emits TSX by default (what shadcn users expect) and may offer a JSX option. That's separate from the language this repo is written in.
+
 ## Architecture
 
 ```
@@ -55,7 +69,7 @@ src/
   components/ui/        # the components themselves (shadcn-style, Volt-themed)
   editor/               # editor UI: palette, canvas, layers, inspector, toolbar, DnD wiring
   editor/store/         # Zustand store, actions, selectors, history
-  lib/codegen/          # PURE TypeScript: tree -> TSX / HTML / registry JSON. No React, no DOM imports
+  lib/codegen/          # PURE JavaScript: tree -> TSX / HTML / registry JSON. No React, no DOM imports
   lib/ai/               # prompts, schemas, model client, eval fixtures
   db/                   # Drizzle schema, migrations, queries
 content/docs/           # MDX tutorials
@@ -118,7 +132,7 @@ Sam has to be able to defend every part of this codebase in an interview. Optimi
 pnpm dev          # local dev server
 pnpm build        # production build
 pnpm lint         # ESLint
-pnpm typecheck    # tsc --noEmit
+pnpm typecheck    # tsc -p jsconfig.json (checks JSDoc types in .js/.jsx)
 pnpm test         # Vitest unit + integration
 pnpm test:e2e     # Playwright (includes axe scans)
 pnpm eval         # AI feature evals (needs API key)
@@ -151,7 +165,7 @@ A change is done when:
 
 ## Roadmap (current focus first)
 
-1. **Foundations:** repo, strict TS, lint, CI, Vercel deploy; 8 components with manifests; pure codegen with golden tests.
+1. **Foundations:** repo, JavaScript with strict JSDoc type checking, lint, CI, Vercel deploy; 8 components with manifests; pure codegen with golden tests.
 2. **v0.1 interview slice:** catalog pages; one example page with slots; drag + click-add + action bar; inspector; undo/redo; iframe preview at 3 widths; TSX export; Next.js tutorial; README with demo GIF; "Copy prompt for your AI agent."
 3. **v1.0 full-stack:** GitHub OAuth, saved projects and `/p/[slug]` share links; `/r` registry; Vite and HTML tutorials plus HTML export; keyboard DnD announcements; layers panel; Cmd+K; Playwright + axe; ADRs; "Explain this block" with evals.
 4. **Feedback and depth:** public launch, feedback-driven fixes, accessibility reviewer, ZIP / StackBlitz export, more example pages.
