@@ -1,4 +1,5 @@
 import { Alert } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,4 +22,5 @@ export const componentsByName = {
   // The manifest maps to the labeled field, so generated code is accessible by default.
   input: InputField,
   alert: Alert,
+  avatar: Avatar,
 };
