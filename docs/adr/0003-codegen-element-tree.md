@@ -1,6 +1,6 @@
 # 0003. Codegen: manifests describe an element tree; one printer turns it into code
 
-- Status: **proposed** (implemented on `feat/codegen-block`, waiting for Sam's go-ahead before merge)
+- Status: accepted (approved by Sam, 2026-10-16)
 - Date: 2026-10-16
 
 ## Context
