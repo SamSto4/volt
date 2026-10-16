@@ -133,7 +133,8 @@ pnpm dev          # local dev server
 pnpm build        # production build
 pnpm lint         # ESLint
 pnpm typecheck    # tsc -p jsconfig.json (checks JSDoc types in .js/.jsx)
-pnpm test         # Vitest unit + integration
+pnpm test         # Vitest unit + integration (one run)
+pnpm test:watch   # Vitest in watch mode while you code
 pnpm test:e2e     # Playwright (includes axe scans)
 pnpm eval         # AI feature evals (needs API key)
 pnpm db:generate  # Drizzle migrations
