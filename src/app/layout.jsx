@@ -1,4 +1,5 @@
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <SiteHeader />
           {children}
+          <SiteFooter />
         </ThemeProvider>
       </body>
     </html>
