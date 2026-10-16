@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { SegmentedControl } from "@/components/segmented-control";
 import { Button } from "@/components/ui/button";
 import { PageCanvas } from "./canvas";
+import { CanvasErrorBoundary } from "./canvas-error-boundary";
 import { CodeView } from "./code-view";
 import { ComponentsPanel } from "./components-panel";
 import { EditorProvider, useEditor, useEditorStore, useHistory } from "./editor-context";
@@ -111,7 +112,7 @@ function EditorShell() {
           {showCanvas && (
             <ScaledFrame width={width}>
               <Frame title={mode === "edit" ? "Page canvas (editing)" : "Page canvas (try it)"} width={width} onDocument={setFrameDoc}>
-                <PageCanvas mode={mode} />
+                <SafeCanvas mode={mode} />
               </Frame>
             </ScaledFrame>
           )}
@@ -162,6 +163,41 @@ function ScaledFrame({ width, children }) {
         {children}
       </div>
     </div>
+  );
+}
+
+/**
+ * The canvas inside an error boundary: if a block fails to render, the
+ * editor keeps working and offers a way back.
+ *
+ * @param {{ mode: "edit" | "try" }} props
+ */
+function SafeCanvas({ mode }) {
+  const store = useEditorStore();
+  const tree = useEditor((state) => state.tree);
+  return (
+    <CanvasErrorBoundary
+      resetKey={tree}
+      fallback={() => (
+        <div role="alert" className="flex flex-col items-start gap-4 p-10">
+          <p className="type-heading-2">This page couldn&apos;t be shown.</p>
+          <p className="max-w-prose text-muted-foreground">
+            Something in the last change stopped it from rendering. Your page is still here: undo the change, or load
+            the example to start again.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" onClick={() => undo(store)}>
+              Undo the last change
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample()}>
+              Load the example
+            </Button>
+          </div>
+        </div>
+      )}
+    >
+      <PageCanvas mode={mode} />
+    </CanvasErrorBoundary>
   );
 }
 
