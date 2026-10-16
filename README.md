@@ -2,34 +2,45 @@
 
 UI/UX creation and learning: drop real components into real pages, then learn exactly how to put them in your project.
 
-> **Status: Phase 1 (foundations).** The design system and eight accessible components with manifests and tests are built. There's no catalog, editor or export yet; today the home page is a reference page showing the tokens and components. See the roadmap in [`CLAUDE.md`](CLAUDE.md).
+> **Status: early version.** The catalog, the editor and code export work. The component registry (`npx shadcn add …`), accounts and share links are next. See the roadmap in [`CLAUDE.md`](CLAUDE.md).
 
-## What it will be
+## What you can do
 
-A component workbench for website creators and junior developers:
+- **Browse the catalog** (`/components`). Eight accessible components (Button, Badge, Card, Input, Alert, Avatar, Tabs, Accordion). Each one has:
+  - a **live playground**: pick a preset, change any prop in a schema-generated inspector, and watch the preview and the exact code update together;
+  - **step-by-step instructions** for Next.js or Vite, for npm, pnpm, yarn or bun;
+  - a **"Copy prompt for your AI agent"** button, which builds a prompt for Claude Code or Cursor from the same facts.
+- **Compose a page** (`/editor`). An example landing page with sections and slots.
+  - **Add** blocks by dragging, by clicking "Add to page", or with the keyboard.
+  - **Change** them in the inspector, or with the action bar (move, duplicate, delete). Undo and redo anything.
+  - **Preview** at 375, 768 or 1280 px in an iframe, so breakpoints really respond. Switch to **Try it** to use the page.
+  - **See the code** in Split view, with the selected block's lines highlighted.
+  - **Copy or download** `Page.jsx`.
+  - Your page is **saved in this browser**.
 
-1. Browse a catalog of accessible, shadcn-style components.
-2. Drop them into slots on example pages (landing page, dashboard, blog post) by drag, click or keyboard.
-3. Tweak props, see the exact generated code, and follow a step-by-step guide for Next.js, Vite or plain HTML.
+## How it's built
 
-## What's built so far
+| Piece | Where | Decision |
+| --- | --- | --- |
+| One manifest per component (Zod props, presets, slots, a11y notes, install info) drives the catalog, inspector, codegen and guides | [`src/registry/`](src/registry/) | [ADR 0002](docs/adr/0002-component-manifests.md) |
+| Pure codegen: manifests describe an element tree; one printer turns it into JSX. The canvas renders the *same* tree, so preview and code can't disagree | [`src/lib/codegen/`](src/lib/codegen/) | [ADR 0003](docs/adr/0003-codegen-element-tree.md) |
+| Page tree (sections → named slots) changed only by pure functions; Zustand + zundo for undo/redo | [`src/editor/store/`](src/editor/store/) | [ADR 0004](docs/adr/0004-page-tree-and-editor-store.md) |
+| Canvas: an iframe rendered through a React portal | [`src/editor/frame.jsx`](src/editor/frame.jsx) | [ADR 0005](docs/adr/0005-canvas-iframe-portal.md) |
+| Drag and drop with native HTML5 events, sharing one placement rule with click and keyboard | [`src/editor/canvas.jsx`](src/editor/canvas.jsx) | [ADR 0006](docs/adr/0006-native-drag-and-drop.md) |
 
-- **Volt design tokens** for light and dark themes, mapped onto shadcn's CSS variables ([`DESIGN.md`](DESIGN.md)). Contrast for every text pair is measured and recorded.
-- **Eight components** in [`src/components/ui/`](src/components/ui/): Button, Badge, Card, Input, Alert, Avatar, Tabs and Accordion.
-  - **Tabs** and **Accordion** implement the WAI-ARIA patterns by hand, with no headless library: roving tabindex, arrow keys, Home and End.
-  - **Input** links its label, hint and error with `htmlFor`, `aria-describedby` and `aria-invalid`.
-  - **Alert** only interrupts screen readers when told to (`role="alert"` for errors, `role="status"` otherwise).
-- **One manifest per component** in [`src/registry/`](src/registry/): a Zod props schema with defaults, presets, slot kinds, accessibility notes and install info. It's the single source of truth for everything else ([ADR 0002](docs/adr/0002-component-manifests.md)).
-- **Tests:**
-  - behavior and ARIA tests for every component, with React Testing Library and `user-event`;
-  - checks that run over every manifest;
-  - sync tests that fail if a component and its manifest disagree.
+**Accessibility:**
+- Tabs and Accordion implement the WAI-ARIA keyboard patterns by hand.
+- Every drag has a click and keyboard alternative (WCAG 2.5.7).
+- The editor announces each action in one polite live region.
+- axe scans the home, foundations, catalog and editor pages on every change.
 
-**In review:** pure code generation with golden files ([ADR 0003](docs/adr/0003-codegen-element-tree.md), [PR #14](https://github.com/SamSto4/volt/pull/14)).
+**Tests:** about 590 Vitest tests, covering:
+- behavior and ARIA for every component;
+- invariants for every tree operation, with inputs deep-frozen so a mutation throws;
+- golden files for the generated code, each parsed as TSX;
+- the editor driven end to end inside its iframe.
 
-## Tech
-
-Next.js (App Router), React, JavaScript with JSDoc types checked by `tsc` ([why](docs/adr/0001-javascript-with-jsdoc.md)), Tailwind CSS v4, Zod, Vitest + React Testing Library, and the Volt design system.
+**Tech:** Next.js (App Router), React, JavaScript with JSDoc types checked by `tsc` ([why](docs/adr/0001-javascript-with-jsdoc.md)), Tailwind CSS v4, Zod, Zustand + zundo, Vitest + React Testing Library + axe-core, and the Volt design system ([`DESIGN.md`](DESIGN.md)).
 
 ## Running it
 
@@ -47,11 +58,13 @@ pnpm build
 
 CI runs lint, typecheck, test and build on every pull request.
 
-## How it's built
+## Built with AI, in the open
 
-This project is built with AI assistance (Claude Code), in the open:
+This project is built with AI assistance (Claude Code):
 
 - [`CLAUDE.md`](CLAUDE.md) holds the agent's instructions.
-- Decisions are recorded as ADRs in [`docs/adr/`](docs/adr/).
-- Every change goes through a pull request whose description ends with a "What to understand" section.
+- Every decision is an ADR in [`docs/adr/`](docs/adr/).
+- Every change is a pull request ending in a "What to understand" section.
 - Commits the agent wrote carry a co-author trailer.
+
+ADRs 0004–0006 were written while the agent worked without check-ins, and they record where it departed from the original plan (the canvas and drag and drop). Those are marked for review.
