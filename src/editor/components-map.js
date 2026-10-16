@@ -1,3 +1,4 @@
+import { AccordionBlock } from "@/components/ui/accordion";
 import { Alert } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,4 +26,5 @@ export const componentsByName = {
   alert: Alert,
   avatar: Avatar,
   tabs: TabsBlock,
+  accordion: AccordionBlock,
 };
