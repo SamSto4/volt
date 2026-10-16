@@ -5,7 +5,9 @@ import axe from "axe-core";
 import { describe, expect, it } from "vitest";
 import Home from "./page";
 
-// Same axe settings and limits as src/app/foundations/page.a11y.test.jsx.
+// axe at WCAG 2.1 A/AA + best practice. jsdom doesn't lay out or paint, so
+// color contrast isn't checked here (it's measured by hand in DESIGN.md), and
+// automated checks only catch part of WCAG: keyboard flows are tested too.
 
 describe("home page", () => {
   it("has no axe violations at WCAG 2.1 AA and best practice", async () => {

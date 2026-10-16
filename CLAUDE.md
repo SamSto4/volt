@@ -33,10 +33,10 @@ Positioning line: *Drop real components into real pages, then learn exactly how 
 | App | Next.js App Router, React, **JavaScript** (`.js` / `.jsx`) with JSDoc types, Tailwind CSS v4, shadcn/ui |
 | Type checking | `tsc` in `checkJs` mode over the JavaScript, configured in `jsconfig.json`. No `.ts` / `.tsx` source files (see "Language") |
 | Design system | Volt (see `DESIGN.md`), mapped onto shadcn CSS variables |
-| Drag-and-drop | `@dnd-kit/react` + `@dnd-kit/helpers`, **exact version pinned** (npm and the changelog have disagreed; check the registry before installing) |
+| Drag-and-drop | Native HTML5 drag and drop, sharing one placement rule (`canPlace`) with click and keyboard (ADR 0006). dnd-kit stays the candidate if touch press-and-hold or a keyboard drag mode is needed |
 | Editor state | Zustand with a normalized `nodes` map; `zundo` `temporal` middleware for undo/redo |
 | Schemas | Zod. One manifest per component drives catalog, palette, inspector, codegen and registry |
-| Preview | Same-origin `/preview` route rendered in an iframe at 375 / 768 / 1280 px |
+| Preview | An iframe at 375 / 768 / 1280 px, rendered through a React portal from the editor's own tree (ADR 0005) |
 | Code display | Shiki (server-rendered in docs, lazy on the client), Prettier standalone (lazy-loaded) |
 | Tutorials | MDX via Fumadocs or content-collections (not Contentlayer, not next-mdx-remote) |
 | Data | Neon Postgres + Drizzle ORM (page trees stored as JSONB) |
@@ -150,7 +150,7 @@ Keep this list accurate as scripts are added or renamed.
 - **Store:** invariant tests for insert, move, remove, duplicate, undo and redo (no orphan nodes, slot rules respected, one drag = one history entry).
 - **Components:** RTL tests for behavior and ARIA, not snapshots of markup.
 - **E2E:** drag a component into a slot (pointer: `mouse.down`, stepped `mouse.move`, `mouse.up`), click-to-add, keyboard move with live-region assertion, copy code, save and reopen a share link.
-- **Accessibility:** axe scans on catalog, editor and preview at WCAG 2.1 AA tags. Until Playwright lands, the `*.a11y.test.jsx` files run axe on the home, foundations, catalog and editor pages in jsdom (structure only: jsdom can't check color contrast). Automated checks don't catch everything, so also test keyboard flows by hand.
+- **Accessibility:** axe scans on catalog, editor and preview at WCAG 2.1 AA tags. Until Playwright lands, the `*.a11y.test.jsx` files run axe on the home, catalog and editor pages in jsdom (structure only: jsdom can't check color contrast). Automated checks don't catch everything, so also test keyboard flows by hand.
 - Bugs get a failing test first, then the fix.
 
 ## Definition of done

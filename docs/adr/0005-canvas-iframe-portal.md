@@ -1,6 +1,6 @@
 # 0005. Canvas: a same-tree iframe (portal), not a separate /preview route
 
-- Status: accepted. Recorded for review afterwards (Sam asked the agent to keep building without check-ins, 2026-10-16). **This departs from CLAUDE.md's stack table** ("Same-origin `/preview` route rendered in an iframe"), so it needs Sam's explicit OK. If he prefers the route, the canvas can be moved behind it without touching the store or codegen.
+- Status: accepted. Approved by Sam on 2026-10-17, replacing CLAUDE.md's original `/preview` route plan.
 - Date: 2026-10-16
 
 ## Context

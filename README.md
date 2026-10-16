@@ -32,7 +32,7 @@ UI/UX creation and learning: drop real components into real pages, then learn ex
 - Tabs and Accordion implement the WAI-ARIA keyboard patterns by hand.
 - Every drag has a click and keyboard alternative (WCAG 2.5.7).
 - The editor announces each action in one polite live region.
-- axe scans the home, foundations, catalog and editor pages on every change.
+- axe scans the home, catalog and editor pages on every change.
 
 **Tests:** about 590 Vitest tests, covering:
 - behavior and ARIA for every component;
@@ -67,4 +67,4 @@ This project is built with AI assistance (Claude Code):
 - Every change is a pull request ending in a "What to understand" section.
 - Commits the agent wrote carry a co-author trailer.
 
-ADRs 0004–0006 were written while the agent worked without check-ins, and they record where it departed from the original plan (the canvas and drag and drop). Those are marked for review.
+ADRs 0004–0006 were written while the agent worked without check-ins and approved afterwards. Two of them changed the original plan: the canvas and drag and drop.

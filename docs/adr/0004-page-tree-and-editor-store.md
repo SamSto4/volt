@@ -1,6 +1,6 @@
 # 0004. Page tree, section templates and the editor store
 
-- Status: accepted. Sam asked the agent to keep building without check-ins (2026-10-16), so this is recorded for review afterwards rather than approved up front.
+- Status: accepted. Written while Sam had asked for no check-ins (2026-10-16); approved by Sam on 2026-10-17.
 - Date: 2026-10-16
 
 ## Context
