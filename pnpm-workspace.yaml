@@ -1,0 +1,24 @@
+# pnpm settings for this repo (pnpm 12 reads them from this file).
+
+# pnpm blocks dependency install scripts unless they're listed here.
+# unrs-resolver (used by eslint-config-next) only needs its script to download
+# a fallback binary on unusual platforms, so we deny it.
+allowBuilds:
+  unrs-resolver: false
+
+# pnpm 12 refuses packages that were published very recently (supply-chain safety).
+# Next 16.4.2 came out 2026-10-15, so pnpm wrote these exceptions on install.
+# They can be removed once those versions are past the release-age window.
+minimumReleaseAgeExclude:
+  - '@next/env@16.4.2'
+  - '@next/eslint-plugin-next@16.4.2'
+  - '@next/swc-darwin-arm64@16.4.2'
+  - '@next/swc-darwin-x64@16.4.2'
+  - '@next/swc-linux-arm64-gnu@16.4.2'
+  - '@next/swc-linux-arm64-musl@16.4.2'
+  - '@next/swc-linux-x64-gnu@16.4.2'
+  - '@next/swc-linux-x64-musl@16.4.2'
+  - '@next/swc-win32-arm64-msvc@16.4.2'
+  - '@next/swc-win32-x64-msvc@16.4.2'
+  - eslint-config-next@16.4.2
+  - next@16.4.2
