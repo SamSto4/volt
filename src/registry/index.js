@@ -6,6 +6,7 @@ import button from "./button.js";
 import card from "./card.js";
 import input from "./input.js";
 import tabs from "./tabs.js";
+import tooltip from "./tooltip.js";
 
 /**
  * Every component manifest, in catalog order. Adding a component means adding
@@ -13,4 +14,4 @@ import tabs from "./tabs.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button, badge, card, input, alert, avatar, tabs, accordion];
+export const manifests = [button, badge, card, input, alert, avatar, tabs, accordion, tooltip];
