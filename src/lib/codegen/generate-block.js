@@ -41,8 +41,15 @@ export function generateBlockCode(block, manifests) {
 
   // Import only the components the JSX actually uses. Lowercase types are
   // HTML tags (p, span) and need no import.
-  const names = collectTypes(element).filter((type) => /^[A-Z]/.test(type));
-  const imports = printImports(new Map(names.length > 0 ? [[manifest.code.from, new Set(names)]] : []));
+  // Group the used component names by the module each comes from (most
+  // come from the manifest's own module; `code.uses` names the others).
+  /** @type {Map<string, Set<string>>} */
+  const namesByModule = new Map();
+  for (const type of collectTypes(element).filter((name) => /^[A-Z]/.test(name))) {
+    const from = manifest.code.uses?.[type] ?? manifest.code.from;
+    namesByModule.set(from, (namesByModule.get(from) ?? new Set()).add(type));
+  }
+  const imports = printImports(namesByModule);
 
   const jsx = printJsx(element);
   return { imports, jsx, module: printModule(imports, jsx, "Example") };

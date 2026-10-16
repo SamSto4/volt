@@ -17,7 +17,7 @@
 //   agents "tidying up" code often drop ARIA attributes or keyboard handlers.
 // - It ends with a **definition of done** the agent can check itself against.
 
-import { installCommand, packagesFor, paths, REPO_URL } from "../install/guide.js";
+import { componentDependencies, installCommand, packagesFor, paths, REPO_URL } from "../install/guide.js";
 
 export const AGENT_PROMPT_VERSION = 1;
 
@@ -32,6 +32,14 @@ export function buildAgentPrompt(manifest, framework, manager, exampleCode) {
   const p = paths(manifest, framework);
   const frameworkName = framework === "next" ? "Next.js (App Router)" : "Vite + React";
   const packages = packagesFor(manifest);
+  // Components it's built on come first, so its imports resolve.
+  const copySteps = [
+    ...componentDependencies(manifest).map(
+      (dependency) =>
+        `Fetch ${REPO_URL}/blob/main/src/components/ui/${dependency.name}.jsx (${manifest.title} is built on it) and save it unchanged as \`${p.components}/${dependency.name}.jsx\`.`,
+    ),
+    `Fetch ${REPO_URL}/blob/main/src/components/ui/${manifest.name}.jsx and save it unchanged as \`${p.component}\`.`,
+  ];
 
   return `Add the Volt "${manifest.title}" component to this ${frameworkName} project.
 
@@ -42,7 +50,7 @@ ${manifest.description} ${manifest.usage.whenToUse}
 1. Install the dependencies: \`${installCommand(manager, packages)}\`
 2. Make sure Tailwind CSS v4 is set up, and copy Volt's CSS variables, @theme block and type-* utilities from ${REPO_URL}/blob/main/src/app/globals.css into \`${p.css}\`.
 3. If \`${p.utils}\` doesn't exist, create it with a \`cn()\` helper: \`twMerge(clsx(inputs))\`, exported as \`cn\`.
-4. Fetch ${REPO_URL}/blob/main/src/components/ui/${manifest.name}.jsx and save it unchanged as \`${p.component}\`. Keep the \`@/\` imports; set up the \`@/\` path alias if the project doesn't have one.
+4. ${copySteps.join(" Then ")} Keep the \`@/\` imports; set up the \`@/\` path alias if the project doesn't have one.
 5. Use it in \`${p.usage}\` like this:
 
 \`\`\`jsx

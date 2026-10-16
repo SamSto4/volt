@@ -29,8 +29,8 @@ describe.each(cases)("$manifest.name / $variant.name", ({ manifest, variant, fil
 
   it("imports exactly the components its JSX uses", () => {
     const used = [...code.jsx.matchAll(/<([A-Z][A-Za-z0-9]*)/g)].map((match) => match[1]);
-    const imported = code.imports.match(/\{ (.*) \}/)?.[1].split(", ") ?? [];
-    expect(imported).toEqual([...new Set(used)].sort());
+    const imported = [...code.imports.matchAll(/\{ (.*) \}/g)].flatMap((match) => match[1].split(", "));
+    expect(imported.sort()).toEqual([...new Set(used)].sort());
   });
 });
 

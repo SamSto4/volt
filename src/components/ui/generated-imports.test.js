@@ -10,9 +10,11 @@ import { manifests } from "@/registry";
 describe.each(manifests)("generated code for $name", (manifest) => {
   it.each(manifest.variants)("imports only real exports ($name)", async (variant) => {
     const { imports } = generateBlockCode({ component: manifest.name, props: variant.props }, manifests);
-    const names = imports.match(/\{ (.*) \}/)?.[1].split(", ") ?? [];
-    // "@/components/ui/card" -> the actual module, through the same @/ alias.
-    const componentModule = await import(/* @vite-ignore */ manifest.code.from);
-    for (const name of names) expect(componentModule, `${manifest.code.from} should export ${name}`).toHaveProperty(name);
+    // One line per module: import { A, B } from "@/components/ui/x";
+    for (const [, names, from] of imports.matchAll(/import \{ (.*) \} from "(.*)";/g)) {
+      // "@/components/ui/card" -> the actual module, through the same @/ alias.
+      const componentModule = await import(/* @vite-ignore */ from);
+      for (const name of names.split(", ")) expect(componentModule, `${from} should export ${name}`).toHaveProperty(name);
+    }
   });
 });

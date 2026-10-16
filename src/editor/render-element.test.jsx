@@ -39,7 +39,7 @@ describe("preview scope", () => {
 
   it.each(cases)("previews $manifest.name / $variant.name with the components its code imports", ({ manifest, variant }) => {
     const { imports } = generateBlockCode({ component: manifest.name, props: variant.props }, manifests);
-    const names = imports.match(/\{ (.*) \}/)?.[1].split(", ") ?? [];
+    const names = [...imports.matchAll(/\{ (.*) \}/g)].flatMap((match) => match[1].split(", "));
     // Same names in the code and in the preview: one tree, two outputs.
     for (const name of names) expect(scope).toHaveProperty(name);
   });

@@ -1,3 +1,5 @@
+import { manifests } from "@/registry";
+
 // "Add it to your project": the steps for one component, per framework,
 // derived from its manifest (single source of truth, CLAUDE.md). Pure: data
 // in, steps out, so every framework's instructions are tested.
@@ -37,12 +39,26 @@ export function cn(...inputs) {
 const REGISTRY_PACKAGES = /** @type {Record<string, string[]>} */ ({ utils: ["clsx", "tailwind-merge"] });
 
 /**
+ * Other Volt components a component is built on (Tooltip uses Button), in
+ * the order to copy them. Registry dependencies that name a manifest.
+ *
+ * @param {import("@/registry/schema").Manifest} manifest
+ * @returns {import("@/registry/schema").Manifest[]}
+ */
+export function componentDependencies(manifest) {
+  return manifest.install.registryDependencies.flatMap((name) => manifests.filter((candidate) => candidate.name === name));
+}
+
+/**
+ * Every npm package needed, including those of the components it's built on.
+ *
  * @param {import("@/registry/schema").Manifest} manifest
  * @returns {string[]} sorted, without duplicates
  */
 export function packagesFor(manifest) {
   const fromRegistry = manifest.install.registryDependencies.flatMap((name) => REGISTRY_PACKAGES[name] ?? []);
-  return [...new Set([...fromRegistry, ...manifest.install.dependencies])].sort();
+  const fromComponents = componentDependencies(manifest).flatMap((dependency) => packagesFor(dependency));
+  return [...new Set([...fromRegistry, ...fromComponents, ...manifest.install.dependencies])].sort();
 }
 
 /** @param {PackageManager} manager @param {string[]} packages */
@@ -127,6 +143,12 @@ export default defineConfig({
       body: `Every Volt component imports cn() to combine class names. Create ${p.utils}${framework === "next" ? " (or src/lib/utils.js if your project uses a src folder)" : ""}.`,
       code: { filename: p.utils, text: UTILS_SOURCE },
     },
+    // Components this one is built on come first, so its imports resolve.
+    ...componentDependencies(manifest).map((dependency) => ({
+      title: `Copy the ${dependency.title} component`,
+      body: `${manifest.title} is built on ${dependency.title}. Save its source as ${p.components}/${dependency.name}.jsx.`,
+      link: { href: `${SOURCE_URL}/src/components/ui/${dependency.name}.jsx`, label: `${dependency.name}.jsx on GitHub` },
+    })),
     {
       title: `Copy the ${manifest.title} component`,
       body: `Save the component's source as ${p.component}. It's plain JavaScript (JSX), so it works in .jsx and .tsx projects.`,
