@@ -13,6 +13,8 @@ import * as ops from "./tree.js";
  * @property {string | null} selectedId
  * @property {string} announcement  the latest message for the polite live region
  * @property {number} announcementId  bumps on every message, so the same sentence twice is still announced
+ * @property {{ id: number, message: string } | null} toast  the undo toast after a removal (not history)
+ * @property {() => void} dismissToast
  * @property {(id: string | null) => void} select
  * @property {(template: string, index?: number) => string | null} addSection
  * @property {(component: string, target?: import("./tree.js").Target) => string | null} insertBlock
@@ -97,6 +99,7 @@ export function createEditorStore(initial = {}) {
       selectedId: initial.selectedId === undefined ? (initial.tree ? null : example.heroId) : initial.selectedId,
       announcement: "",
       announcementId: 0,
+      toast: null,
 
       select: (id) => set({ selectedId: id }),
 
@@ -127,10 +130,22 @@ export function createEditorStore(initial = {}) {
 
       duplicate: (id) => apply(ops.duplicateBlock(get().tree, id, makeId)),
 
+      // A removal shows the undo toast ("Hero removed." + Undo, DESIGN.md §9),
+      // and the announcement says undo is possible, so screen-reader users
+      // learn it too without focus jumping to the toast.
       remove: (id) => {
         const { tree } = get();
-        return apply(tree.nodes[id]?.kind === "section" ? ops.removeSection(tree, id) : ops.removeBlock(tree, id));
+        const node = tree.nodes[id];
+        if (!node) return false;
+        const title = node.kind === "section" ? ops.getSectionTemplate(node.template).title : ops.getManifest(node.component).title;
+        const result = node.kind === "section" ? ops.removeSection(tree, id) : ops.removeBlock(tree, id);
+        if ("error" in result) return apply(result);
+        const ok = apply({ ...result, message: `${result.message} Undo brings it back.` });
+        set({ toast: { id: get().announcementId, message: `${title} removed.` } });
+        return ok;
       },
+
+      dismissToast: () => set({ toast: null }),
 
       updateProps: (nodeId, props, coalesceKey) => {
         const now = Date.now();

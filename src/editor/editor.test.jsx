@@ -2,7 +2,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PageCanvas } from "./canvas";
 import { EditorProvider } from "./editor-context";
 import { Editor } from "./editor";
@@ -211,6 +211,48 @@ describe("Editor", () => {
       fireEvent.click(within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Select section" }));
       expect(properties().getByText("Selected section")).toBeInTheDocument();
       expect(canvas().getByRole("button", { name: "Features section" })).toHaveFocus();
+    });
+  });
+
+  describe("undo toast", () => {
+    it("offers Undo after a removal, and Undo brings the block back", async () => {
+      const { user, canvas, status } = await setup();
+      const card = canvas().getByRole("button", { name: "Card: Works on any screen" });
+      fireEvent.click(card);
+      fireEvent.keyDown(card, { key: "Delete" });
+
+      expect(screen.getByText("Card removed.")).toBeInTheDocument();
+      // Screen-reader users hear that undo is possible; focus doesn't jump to the toast.
+      expect(status()).toHaveTextContent("Card removed from Features · Items. Undo brings it back.");
+      // The toast's own Undo (the top bar has one too).
+      const toast = within(/** @type {HTMLElement} */ (screen.getByText("Card removed.").closest("[data-slot=toast]")));
+      await user.click(toast.getByRole("button", { name: "Undo" }));
+
+      expect(canvas().getByRole("button", { name: "Card: Works on any screen" })).toBeInTheDocument();
+      expect(screen.queryByText("Card removed.")).not.toBeInTheDocument();
+    });
+
+    it("goes away after 5 seconds, but not while the pointer is on it", async () => {
+      const { canvas } = await setup();
+      vi.useFakeTimers();
+      try {
+        const card = canvas().getByRole("button", { name: "Card: Keyboard first" });
+        fireEvent.click(card);
+        fireEvent.keyDown(card, { key: "Delete" });
+        const toast = /** @type {HTMLElement} */ (screen.getByText("Card removed.").closest("[data-slot=toast]"));
+
+        fireEvent.pointerEnter(toast);
+        act(() => vi.advanceTimersByTime(8000));
+        expect(screen.getByText("Card removed.")).toBeInTheDocument();
+
+        fireEvent.pointerLeave(toast);
+        act(() => vi.advanceTimersByTime(4900));
+        expect(screen.getByText("Card removed.")).toBeInTheDocument();
+        act(() => vi.advanceTimersByTime(200));
+        expect(screen.queryByText("Card removed.")).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

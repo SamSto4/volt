@@ -20,6 +20,7 @@ import { Frame } from "./frame";
 import { InspectorPanel } from "./inspector-panel";
 import { download } from "./download.js";
 import { clearSavedTree, loadTree, saveTree } from "./persistence.js";
+import { UndoToast } from "./undo-toast";
 import { findParent, getManifest, getSectionTemplate, slotLabel } from "./store/tree.js";
 
 /** The editor page (DESIGN.md §11): top bar, components, canvas, properties. */
@@ -57,6 +58,7 @@ function EditorShell() {
     // A full-screen app (DESIGN.md §11): one 56px top bar, then the panels.
     <div className="flex h-dvh flex-col bg-background">
       <LiveRegion />
+      <UndoToast onUndo={() => undo(store)} />
 
       <header className="flex h-14 shrink-0 items-center gap-4 overflow-x-auto border-b border-border px-4">
         <Link href="/" className="shrink-0 rounded-sm font-display text-xl font-bold">
