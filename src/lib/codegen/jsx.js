@@ -89,10 +89,9 @@ export function printJsx(node, depth = 0) {
   const attributes = Object.entries(node.props)
     .map(([name, value]) => printAttribute(name, value))
     .join("");
-  // Drop false/null/undefined children (from `condition && h(...)`).
-  const children = /** @type {(Element | string)[]} */ (
-    node.children.filter((child) => child !== false && child !== null && child !== undefined)
-  );
+  // Drop children JSX wouldn't render: false/null/undefined, and "" (what
+  // `text && h(...)` gives when text is empty).
+  const children = /** @type {(Element | string)[]} */ (node.children.filter(isRenderable));
 
   if (children.length === 0) return `${pad}<${node.type}${attributes} />`;
 
@@ -103,6 +102,15 @@ export function printJsx(node, depth = 0) {
 
   const inner = children.map((child) => printJsx(child, depth + 1)).join("\n");
   return `${pad}<${node.type}${attributes}>\n${inner}\n${pad}</${node.type}>`;
+}
+
+/**
+ * Whether a child produces any output.
+ * @param {Child} child
+ * @returns {child is Element | string}
+ */
+export function isRenderable(child) {
+  return child !== false && child !== null && child !== undefined && child !== "";
 }
 
 /**

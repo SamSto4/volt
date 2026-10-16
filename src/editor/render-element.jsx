@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, InputField } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isRenderable } from "@/lib/codegen/jsx.js";
 
 // Renders the same element tree that codegen prints (ADR 0003) as real React.
 // Because the preview and the code come from one tree, what you see is
@@ -48,7 +49,7 @@ export const scope = {
  * @returns {import("react").ReactNode}
  */
 export function renderElement(node) {
-  if (node === false || node === null || node === undefined) return null;
+  if (!isRenderable(node)) return null;
   if (typeof node === "string") return node;
 
   // Capitalized names are components and must be in scope; lowercase ones

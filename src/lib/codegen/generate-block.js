@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { collectTypes, printJsx } from "./jsx.js";
+import { printImports, printModule } from "./module.js";
 
 /**
  * A block as stored in a page tree: which component, and its props.
@@ -40,30 +41,9 @@ export function generateBlockCode(block, manifests) {
 
   // Import only the components the JSX actually uses. Lowercase types are
   // HTML tags (p, span) and need no import.
-  const names = collectTypes(element)
-    .filter((type) => /^[A-Z]/.test(type))
-    .sort();
-  const imports = names.length > 0 ? `import { ${names.join(", ")} } from "${manifest.code.from}";` : "";
+  const names = collectTypes(element).filter((type) => /^[A-Z]/.test(type));
+  const imports = printImports(new Map(names.length > 0 ? [[manifest.code.from, new Set(names)]] : []));
 
   const jsx = printJsx(element);
-  return { imports, jsx, module: printModule(imports, jsx) };
-}
-
-/**
- * Wraps JSX in a small component file. Multi-line JSX gets parentheses, the
- * way people write it, so `return` isn't followed by a line break (which
- * would make JavaScript return undefined).
- *
- * @param {string} imports
- * @param {string} jsx
- */
-function printModule(imports, jsx) {
-  const body = jsx.includes("\n")
-    ? `  return (\n${jsx
-        .split("\n")
-        .map((line) => `    ${line}`)
-        .join("\n")}\n  );`
-    : `  return ${jsx};`;
-  const header = imports ? `${imports}\n\n` : "";
-  return `${header}export default function Example() {\n${body}\n}\n`;
+  return { imports, jsx, module: printModule(imports, jsx, "Example") };
 }
