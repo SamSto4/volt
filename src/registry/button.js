@@ -57,6 +57,7 @@ export default defineManifest({
           variant: props.variant === defaults.variant ? undefined : props.variant,
           size: props.size === defaults.size ? undefined : props.size,
           disabled: props.disabled,
+          loading: props.loading,
         },
         props.label,
       ),
