@@ -9,7 +9,7 @@ import { manifests } from "@/registry";
 import { finalIndex, insertionIndex, insertionLine } from "./drop-position.js";
 import { useDrag, useEditor, useEditorStore, useFocusRequests } from "./editor-context";
 import { renderElement } from "./render-element";
-import { canPlace, getManifest, getSectionTemplate } from "./store/tree.js";
+import { canPlace, findParent, getManifest, getSectionTemplate } from "./store/tree.js";
 
 // The page on the canvas, built from the same section and block element trees
 // codegen prints (ADR 0003/0004). In "edit" mode blocks are selectable and
@@ -92,6 +92,10 @@ function CanvasSection({ id }) {
         onClick={(event) => {
           event.stopPropagation();
           select(id);
+        }}
+        onKeyDown={(event) => {
+          // Escape on a section clears the selection: the top of the walk up.
+          if (event.key === "Escape") select(null);
         }}
         className="absolute top-2 left-2 z-10 rounded-full border border-input bg-card px-3 py-1 type-label text-muted-foreground hover:text-foreground"
       >
@@ -288,6 +292,13 @@ function CanvasBlock({ id }) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       select(id);
+    } else if (event.key === "Escape") {
+      // Escape walks up: block -> its section (Select parent, DESIGN.md §11).
+      const parent = findParent(store.getState().tree, id);
+      if (parent) {
+        event.preventDefault();
+        select(parent.sectionId);
+      }
     } else if (event.key === "Delete" || event.key === "Backspace") {
       event.preventDefault();
       if (remove(id)) focus.request(store.getState().selectedId);
@@ -327,13 +338,21 @@ function CanvasBlock({ id }) {
       }}
       onKeyDown={handleKeyDown}
       className={cn(
-        "relative cursor-pointer rounded-sm outline-offset-2",
+        "group relative cursor-pointer rounded-sm outline-offset-2",
         selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
         // The original stays in place, faded, while it's dragged (DESIGN.md §11).
         drag.payload?.kind === "block" && drag.payload.id === id && "opacity-40",
         drag.lastDropped === id && "animate-drop-flash",
       )}
     >
+      {/* The block's name on hover and keyboard focus (DESIGN.md §11). Hidden
+          from screen readers: the block's aria-label already says it. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-6 left-0 z-10 hidden rounded-full border border-border bg-card px-2 type-label whitespace-nowrap text-muted-foreground group-hover:block group-focus-visible:block"
+      >
+        {manifest.title}
+      </span>
       {/* inert: in edit mode the block is one selectable thing. Its own
           buttons and fields can't take focus or clicks until "Try it" mode. */}
       <div inert>{content}</div>

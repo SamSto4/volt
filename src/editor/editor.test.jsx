@@ -92,6 +92,18 @@ describe("Editor", () => {
     expect(canvas().queryByRole("button", { name: "Card: Works on any screen" })).not.toBeInTheDocument();
   });
 
+  it("Escape walks up the selection: block, then section, then nothing", async () => {
+    const { canvas, properties } = await setup();
+    const card = canvas().getByRole("button", { name: "Card: Fast to set up" });
+    fireEvent.click(card);
+    fireEvent.keyDown(card, { key: "Escape" });
+    expect(properties().getByText("Selected section")).toBeInTheDocument();
+    expect(properties().getByText("Features")).toBeInTheDocument();
+
+    fireEvent.keyDown(canvas().getByRole("button", { name: "Features section" }), { key: "Escape" });
+    expect(properties().getByText(/Select a block or section/)).toBeInTheDocument();
+  });
+
   it("moves a block with the action bar and keeps focus on the button", async () => {
     const { user, canvas, properties, status } = await setup();
     fireEvent.click(canvas().getByRole("button", { name: "Card: Fast to set up" }));
