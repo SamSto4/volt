@@ -174,6 +174,46 @@ describe("Editor", () => {
     expect(within(faq).getByRole("button", { name: "Card: Keyboard first" })).toBeInTheDocument();
   });
 
+  describe("floating action bar", () => {
+    it("appears over the selected block, with icon buttons named by tooltips", async () => {
+      const { canvas } = await setup();
+      fireEvent.click(canvas().getByRole("button", { name: "Card: Fast to set up" }));
+      const bar = within(canvas().getByRole("group", { name: "Card actions" }));
+      // Each icon-only button is named by its tooltip (aria-labelledby).
+      for (const name of ["Move up", "Move down", "Duplicate", "Select section", "Delete"]) {
+        expect(bar.getByRole("button", { name })).toBeInTheDocument();
+      }
+      expect(bar.getByRole("button", { name: "Move up" })).toBeDisabled();
+    });
+
+    it("moves the block and gives focus back to the pressed button", async () => {
+      const { canvas, status } = await setup();
+      fireEvent.click(canvas().getByRole("button", { name: "Card: Fast to set up" }));
+      const moveDown = within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Move down" });
+      fireEvent.click(moveDown);
+      expect(status()).toHaveTextContent("Card moved to Features · Items, position 2 of 3.");
+      const again = within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Move down" });
+      expect(again).toHaveFocus();
+    });
+
+    it("duplicates, and focus moves to the copy's bar", async () => {
+      const { canvas, status } = await setup();
+      fireEvent.click(canvas().getByRole("button", { name: "Card: Keyboard first" }));
+      fireEvent.click(within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Duplicate" }));
+      expect(status()).toHaveTextContent(/^Card duplicated\./);
+      expect(canvas().getAllByRole("button", { name: "Card: Keyboard first" })).toHaveLength(2);
+      expect(within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Duplicate" })).toHaveFocus();
+    });
+
+    it("selects the section, focusing its name button", async () => {
+      const { canvas, properties } = await setup();
+      fireEvent.click(canvas().getByRole("button", { name: "Card: Keyboard first" }));
+      fireEvent.click(within(canvas().getByRole("group", { name: "Card actions" })).getByRole("button", { name: "Select section" }));
+      expect(properties().getByText("Selected section")).toBeInTheDocument();
+      expect(canvas().getByRole("button", { name: "Features section" })).toHaveFocus();
+    });
+  });
+
   it("adds a component from a slot's + menu", async () => {
     const { canvas, status } = await setup();
     fireEvent.click(canvas().getByRole("button", { name: "Add to Above the headline" }));
@@ -225,7 +265,9 @@ describe("Editor", () => {
       expect(status()).toHaveTextContent("Card added to Features · Items, position 1 of 4.");
       expect(canvas().getAllByRole("button", { name: /^Card:/ })).toHaveLength(4);
       // The new block flashes and gets selected.
-      expect(canvas().getByRole("button", { name: "Card: Starter plan" })).toHaveClass("animate-drop-flash");
+      // The flash and the fade are on the block's wrapper, the drag source.
+      const wrapper = (/** @type {string} */ name) => canvas().getByRole("button", { name }).closest("[data-block-id]");
+      expect(wrapper("Card: Starter plan")).toHaveClass("animate-drop-flash");
       expect(canvas().getByRole("button", { name: "Card: Starter plan" })).toHaveAttribute("aria-pressed", "true");
     });
 
@@ -245,7 +287,7 @@ describe("Editor", () => {
       const features = slotIn(iframe, 1, "items");
 
       fireEvent.dragStart(first, { dataTransfer: dataTransfer() });
-      expect(first).toHaveClass("opacity-40");
+      expect(first.closest("[data-block-id]")).toHaveClass("opacity-40");
       // jsdom has no layout (every box is 0×0), so a pointer far right and
       // below counts as "after every block": the end of the slot. jsdom also
       // has no DragEvent, which would drop clientX/clientY, so these are

@@ -4,7 +4,7 @@ import { GripVertical, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { manifests } from "@/registry";
 import { sections as sectionTemplates } from "@/registry/sections";
-import { describeBlock } from "./canvas";
+import { describeBlock, setDragPreview } from "./canvas";
 import { useDrag, useEditor, useEditorStore } from "./editor-context";
 import { getManifest, getSection, getSectionTemplate } from "./store/tree.js";
 
@@ -33,6 +33,7 @@ export function ComponentsPanel() {
               onDragStart={(event) => {
                 event.dataTransfer.effectAllowed = "copy";
                 event.dataTransfer.setData("text/plain", manifest.title);
+                setDragPreview(event, manifest.title);
                 drag.setPayload({ kind: "component", name: manifest.name });
               }}
               onDragEnd={() => drag.setPayload(null)}
