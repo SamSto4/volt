@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog } from "@/components/ui/dialog";
 import { Input, InputField } from "@/components/ui/input";
 import { SelectField } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -42,6 +43,7 @@ export const scope = {
   CardHeader,
   CardTitle,
   Checkbox,
+  Dialog,
   Input,
   InputField,
   SelectField,

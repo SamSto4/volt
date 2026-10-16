@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog } from "@/components/ui/dialog";
 import { InputField } from "@/components/ui/input";
 import { SelectField } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -37,4 +38,5 @@ export const componentsByName = {
   select: SelectField,
   checkbox: Checkbox,
   switch: Switch,
+  dialog: Dialog,
 };

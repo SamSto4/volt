@@ -9,6 +9,23 @@ if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
 
+// jsdom has <dialog> but not its showModal()/close() methods. This stand-in
+// covers what the tests check (open state, the close event). It does NOT
+// provide what browsers add for modals: the focus trap, Escape and the inert
+// page. Those are the browser's job and need checking in a real browser.
+if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.open = true;
+    // Like browsers: focus the first focusable element inside.
+    /** @type {HTMLElement | null} */ (this.querySelector("button, [href], input, select, textarea, [tabindex]"))?.focus();
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    if (!this.open) return;
+    this.open = false;
+    this.dispatchEvent(new Event("close"));
+  };
+}
+
 // Unmount whatever a test rendered, so the next test starts with an empty page.
 afterEach(() => {
   cleanup();

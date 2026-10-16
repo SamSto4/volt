@@ -5,6 +5,7 @@ import badge from "./badge.js";
 import button from "./button.js";
 import card from "./card.js";
 import checkbox from "./checkbox.js";
+import dialog from "./dialog.js";
 import input from "./input.js";
 import select from "./select.js";
 import switchManifest from "./switch.js";
@@ -32,4 +33,5 @@ export const manifests = [
   tabs,
   accordion,
   tooltip,
+  dialog,
 ];
