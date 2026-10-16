@@ -1,4 +1,4 @@
-import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
 import { AccordionBlock } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
@@ -63,10 +63,6 @@ const radii = [
 export default function Home() {
   return (
     <>
-      <header className="flex h-14 items-center justify-between border-b border-border px-4">
-        <span className="font-display text-xl font-bold">Volt</span>
-        <ThemeToggle />
-      </header>
 
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10">
         <section className="flex flex-col gap-2">
@@ -75,6 +71,11 @@ export default function Home() {
           <p className="max-w-prose text-muted-foreground">
             The colors, type, spacing and corners every Volt component is built from. Switch the
             theme to check both.
+          </p>
+          <p>
+            <Link href="/components" className="rounded-sm text-primary underline underline-offset-4">
+              Browse the components with their code
+            </Link>
           </p>
         </section>
 
