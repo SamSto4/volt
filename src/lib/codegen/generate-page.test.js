@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createExamplePage } from "@/editor/store/example-page.js";
+import { createBlogPage, createExamplePage } from "@/editor/store/example-page.js";
 import { emptyTree, insertBlock, addSection } from "@/editor/store/tree.js";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
@@ -68,6 +68,14 @@ describe("generatePageCode", () => {
 
     // The marked printing produced exactly the same text as the plain one.
     expect(code.module).not.toContain("\u0000");
+  });
+
+  it("matches the blog example's golden file, with one h1 and paragraphs split at blank lines", async () => {
+    const blog = generatePageCode(createBlogPage(counter()).tree, registries);
+    await expect(blog.module).toMatchFileSnapshot("./__golden__/page.blog.tsx");
+    expect(syntaxErrors(blog.module)).toEqual([]);
+    expect(blog.jsx.match(/<h1/g)).toHaveLength(1);
+    expect(blog.jsx.match(/^\s*<p>/gm)).toHaveLength(2);
   });
 
   it("rejects a tree with invalid props", () => {

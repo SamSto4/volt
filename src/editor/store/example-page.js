@@ -42,3 +42,43 @@ export function createExamplePage(newId) {
 
   return { tree, heroId: sectionIds.hero };
 }
+
+/**
+ * A prefilled blog post: an article with a byline, a callout and a sign-up.
+ *
+ * @param {() => string} newId
+ * @returns {{ tree: import("./tree.js").Tree, heroId: string }}  heroId: the section to select first
+ */
+export function createBlogPage(newId) {
+  let tree = emptyTree();
+  /** @type {Record<string, string>} */
+  const sectionIds = {};
+
+  /** @param {import("./tree.js").Result} result */
+  const take = (result) => {
+    if ("error" in result) throw new Error(`Blog example is invalid: ${result.error}`);
+    tree = result.tree;
+    return /** @type {string} */ (result.id);
+  };
+
+  for (const template of ["article", "callout", "signup"]) {
+    sectionIds[template] = take(addSection(tree, template, newId));
+  }
+
+  /** @param {string} sectionId @param {string} slot @param {string} component @param {Record<string, unknown>} [props] */
+  const add = (sectionId, slot, component, props) => take(insertBlock(tree, component, { sectionId, slot }, newId, props));
+
+  // Not decorative: no name is written next to it, so the avatar itself must
+  // tell screen readers who wrote the post.
+  add(sectionIds.article, "byline", "avatar", { name: "Priya Shah", size: "sm" });
+  add(sectionIds.article, "byline", "badge", { label: "Performance" });
+  add(sectionIds.callout, "content", "alert", {
+    tone: "success",
+    title: "Measure first",
+    description: "Every change was checked against the same before-and-after numbers.",
+  });
+  add(sectionIds.signup, "fields", "input", { label: "Email", type: "email", placeholder: "you@example.com" });
+  add(sectionIds.signup, "actions", "button", { label: "Subscribe" });
+
+  return { tree, heroId: sectionIds.article };
+}

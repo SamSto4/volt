@@ -215,7 +215,7 @@ function LiveRegion() {
   );
 }
 
-/** "Reset to example" and "Start blank": both undoable. */
+/** Load an example, or start blank: all undoable. */
 function PageReset() {
   const store = useEditorStore();
   return (
@@ -223,8 +223,11 @@ function PageReset() {
       <h2 className="type-label text-muted-foreground">Page</h2>
       <p className="type-small text-muted-foreground">Your page is saved in this browser as you work.</p>
       <div className="flex flex-wrap gap-2">
-        <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample()}>
-          Load the example
+        <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample("landing")}>
+          Landing page example
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample("blog")}>
+          Blog post example
         </Button>
         <Button
           variant="ghost"

@@ -1,6 +1,6 @@
 import { temporal } from "zundo";
 import { create } from "zustand";
-import { createExamplePage } from "./example-page.js";
+import { createBlogPage, createExamplePage } from "./example-page.js";
 import * as ops from "./tree.js";
 
 // The editor store (ADR 0004): a thin wrapper around the pure functions in
@@ -23,7 +23,7 @@ import * as ops from "./tree.js";
  * @property {(nodeId: string, props: Record<string, unknown>, coalesceKey?: string) => boolean} updateProps
  * @property {(tree: import("./tree.js").Tree) => void} load
  * @property {() => void} startBlank
- * @property {() => void} loadExample
+ * @property {(kind?: "landing" | "blog") => void} loadExample
  * @property {(text: string) => void} announce
  * @property {() => void} beginTransaction
  * @property {() => void} commitTransaction
@@ -149,9 +149,9 @@ export function createEditorStore(initial = {}) {
 
       startBlank: () => set({ tree: ops.emptyTree(), selectedId: null, ...announce("Started a blank page.") }),
 
-      loadExample: () => {
-        const fresh = createExamplePage(makeId);
-        set({ tree: fresh.tree, selectedId: fresh.heroId, ...announce("Example page loaded.") });
+      loadExample: (kind = "landing") => {
+        const fresh = kind === "blog" ? createBlogPage(makeId) : createExamplePage(makeId);
+        set({ tree: fresh.tree, selectedId: fresh.heroId, ...announce(`${kind === "blog" ? "Blog post" : "Landing page"} example loaded.`) });
       },
 
       // For messages that aren't tree changes ("Undone.", "Restored…").

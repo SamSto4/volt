@@ -94,5 +94,72 @@ const signup = defineSection({
     ),
 });
 
+const article = defineSection({
+  name: "article",
+  title: "Article",
+  description: "A blog post or long read: title, intro and body text, with a byline.",
+  props: z.object({
+    title: z.string().min(1).max(100).default("How we cut our page load time in half").meta({ title: "Title" }),
+    // An article is usually the page's main heading (h1). Use 2 when it sits
+    // under another h1, like a hero, so the outline stays in order.
+    titleLevel: z.literal([1, 2]).default(1).meta({ title: "Title level" }),
+    intro: z
+      .string()
+      .max(300)
+      .default("Three small changes, measured before and after, and what we'd do differently next time.")
+      .meta({ title: "Intro" }),
+    // Paragraphs are separated by a blank line, the way people type them.
+    body: z
+      .string()
+      .max(4000)
+      .default(
+        "We started by measuring. Before changing anything, we recorded how long the page took to show its main content on a mid-range phone.\n\nThe biggest win was the smallest change: serving images at the size they're shown, instead of the size they were uploaded.",
+      )
+      .meta({ title: "Body (blank line between paragraphs)" }),
+  }),
+  slots: [{ name: "byline", title: "Byline", accepts: ["inline"], max: 3 }],
+  render: (props) =>
+    h(
+      "article",
+      { className: "mx-auto flex w-full max-w-prose flex-col gap-6 px-4 py-10" },
+      h(
+        "header",
+        { className: "flex flex-col gap-4" },
+        h(`h${props.titleLevel}`, { className: "type-heading-1" }, props.title),
+        props.intro && h("p", { className: "text-muted-foreground" }, props.intro),
+        h("Slot", { name: "byline", className: "flex flex-wrap items-center gap-2" }),
+      ),
+      ...paragraphs(props.body).map((text) => h("p", {}, text)),
+    ),
+});
+
+const callout = defineSection({
+  name: "callout",
+  title: "Callout",
+  description: "A short heading with a highlighted block, like a key takeaway or a warning.",
+  props: z.object({
+    title: z.string().min(1).max(60).default("Key takeaway").meta({ title: "Title" }),
+  }),
+  slots: [{ name: "content", title: "Content", accepts: ["content"], max: 2 }],
+  render: (props) =>
+    h(
+      "section",
+      { className: "mx-auto flex w-full max-w-prose flex-col gap-4 px-4 py-6" },
+      h("h2", { className: "type-heading-2" }, props.title),
+      h("Slot", { name: "content", className: "flex flex-col gap-4" }),
+    ),
+});
+
+/**
+ * Splits text into paragraphs at blank lines, dropping empty ones.
+ * @param {string} text
+ */
+function paragraphs(text) {
+  return text
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
 /** Every section template, in the order the "Add section" menu lists them. */
-export const sections = [hero, features, faq, signup];
+export const sections = [hero, features, faq, signup, article, callout];
