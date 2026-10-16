@@ -5,8 +5,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input, InputField } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TextareaField } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 import { isRenderable } from "@/lib/codegen/jsx.js";
 
@@ -37,12 +41,16 @@ export const scope = {
   CardFooter,
   CardHeader,
   CardTitle,
+  Checkbox,
   Input,
   InputField,
+  SelectField,
+  Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  TextareaField,
   Tooltip,
 };
 
