@@ -2,9 +2,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InputField } from "@/components/ui/input";
 import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
 import cardManifest, { cardProps } from "@/registry/card";
+import inputManifest, { inputProps } from "@/registry/input";
 
 // A reference page for the Volt tokens, so both themes can be checked by eye.
 // It's temporary as the home page: the component catalog replaces it later.
@@ -132,6 +134,16 @@ export default function Home() {
                   </Card>
                 );
               })}
+            </div>
+          </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={inputManifest}>
+          <ExampleRow label="Examples">
+            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
+              {inputManifest.variants.map((variant) => (
+                <InputField key={variant.name} {...inputProps.parse(variant.props)} />
+              ))}
             </div>
           </ExampleRow>
         </ComponentSection>
