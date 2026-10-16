@@ -1,10 +1,12 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
 import alertManifest, { alertProps } from "@/registry/alert";
+import avatarManifest, { avatarProps } from "@/registry/avatar";
 import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
 import cardManifest, { cardProps } from "@/registry/card";
@@ -163,6 +165,21 @@ export default function Home() {
                 );
               })}
             </div>
+          </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={avatarManifest}>
+          <ExampleRow label="Examples">
+            {avatarManifest.variants.map((variant) => (
+              <Avatar key={variant.name} {...avatarProps.parse(variant.props)} />
+            ))}
+          </ExampleRow>
+          <ExampleRow label="In context">
+            {/* The name is written next to it, so the avatar is decorative. */}
+            <span className="inline-flex items-center gap-2 type-small">
+              <Avatar name="Priya Shah" size="sm" decorative />
+              Priya Shah
+            </span>
           </ExampleRow>
         </ComponentSection>
 
