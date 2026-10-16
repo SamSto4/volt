@@ -1,6 +1,7 @@
 import badge from "./badge.js";
 import button from "./button.js";
 import card from "./card.js";
+import input from "./input.js";
 
 /**
  * Every component manifest, in catalog order. Adding a component means adding
@@ -8,4 +9,4 @@ import card from "./card.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button, badge, card];
+export const manifests = [button, badge, card, input];
