@@ -53,7 +53,7 @@ function BlockPanel({ id }) {
 
       {/* Focus stays on these buttons after each action, so several moves in
           a row are just repeated presses. */}
-      <div role="toolbar" aria-label={`${manifest.title} actions`} className="flex flex-wrap gap-1">
+      <div role="group" aria-label={`${manifest.title} actions`} className="flex flex-wrap gap-1">
         <Button variant="ghost" size="sm" disabled={parent.index === 0} onClick={() => moveBy(id, -1)}>
           <ArrowUp aria-hidden="true" strokeWidth={1.5} />
           Move up
@@ -184,7 +184,7 @@ function SectionPanel({ id }) {
           {template.description} Position {index + 1} of {sections.length}.
         </p>
       </header>
-      <div role="toolbar" aria-label={`${template.title} section actions`} className="flex flex-wrap gap-1">
+      <div role="group" aria-label={`${template.title} section actions`} className="flex flex-wrap gap-1">
         <Button variant="ghost" size="sm" disabled={index === 0} onClick={() => moveBy(id, -1)}>
           <ArrowUp aria-hidden="true" strokeWidth={1.5} />
           Move up

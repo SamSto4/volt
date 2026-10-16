@@ -10,6 +10,7 @@ import { generatePageCode } from "@/lib/codegen";
 import { installCommand, PACKAGE_MANAGERS, packagesFor } from "@/lib/install/guide.js";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
+import { download } from "./download.js";
 import { useEditor } from "./editor-context";
 
 /**
@@ -57,20 +58,6 @@ export function CodeView() {
       <PageRequirements tree={tree} />
     </div>
   );
-}
-
-/**
- * Saves text as a file. Nothing is uploaded: the file is built in the browser.
- * @param {string} filename @param {string} text
- */
-function download(filename, text) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  // Free the memory once the browser has started the download.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 /**

@@ -40,7 +40,7 @@ async function setup() {
   const canvas = () => within(/** @type {HTMLElement} */ (iframe.contentDocument?.body));
   const properties = () => within(screen.getByRole("complementary", { name: "Properties" }));
   const palette = () => within(screen.getByRole("complementary", { name: "Components and layers" }));
-  const status = () => screen.getByRole("status", { hidden: true });
+  const status = () => screen.getByRole("status", { name: "Editor announcements", hidden: true });
   return { ...utils, user, iframe, canvas, properties, palette, status };
 }
 
@@ -50,6 +50,51 @@ describe("Editor", () => {
     expect(canvas().getByRole("heading", { level: 1 })).toHaveTextContent("Launch pages people actually finish reading");
     expect(properties().getByText("Selected section")).toBeInTheDocument();
     expect(properties().getByText("Hero")).toBeInTheDocument();
+  });
+
+  describe("app shell", () => {
+    it("shows where the selection sits, and each level selects itself", async () => {
+      const { user, canvas, properties } = await setup();
+      fireEvent.click(canvas().getByRole("button", { name: "Card: Fast to set up" }));
+      const crumbs = within(screen.getByRole("navigation", { name: "Selection" }));
+      expect(crumbs.getAllByRole("listitem").map((item) => item.textContent)).toEqual(["Page", "Features", "Items", "Card"]);
+      expect(crumbs.getByText("Card")).toHaveAttribute("aria-current", "true");
+
+      await user.click(crumbs.getByRole("button", { name: "Features" }));
+      expect(properties().getByText("Selected section")).toBeInTheDocument();
+      await user.click(within(screen.getByRole("navigation", { name: "Selection" })).getByRole("button", { name: "Page" }));
+      expect(properties().getByText(/Select a block or section/)).toBeInTheDocument();
+    });
+
+    it("hides and shows each side panel from the top bar", async () => {
+      const { user } = await setup();
+      const toggle = screen.getByRole("button", { name: "Components panel" });
+      expect(toggle).toHaveAttribute("aria-pressed", "true");
+      await user.click(toggle);
+      expect(toggle).toHaveAttribute("aria-pressed", "false");
+      expect(screen.queryByRole("complementary", { name: "Components and layers" })).not.toBeInTheDocument();
+      await user.click(toggle);
+      expect(screen.getByRole("complementary", { name: "Components and layers" })).toBeInTheDocument();
+    });
+
+    it("names its icon-only buttons through their tooltips", async () => {
+      await setup();
+      for (const name of ["Undo", "Redo", "Components panel", "Properties panel"]) {
+        expect(screen.getByRole("button", { name })).toBeInTheDocument();
+      }
+    });
+
+    it("exports from a menu: copy or download, and Escape closes it", async () => {
+      const { user } = await setup();
+      const exportButton = screen.getByRole("button", { name: "Export" });
+      await user.click(exportButton);
+      expect(exportButton).toHaveAttribute("aria-expanded", "true");
+      await user.click(screen.getByRole("button", { name: "Copy page code" }));
+      expect(await navigator.clipboard.readText()).toContain("export default function Page()");
+      expect(screen.getByRole("button", { name: "Download Page.jsx" })).toBeInTheDocument();
+      await user.keyboard("{Escape}");
+      expect(exportButton).toHaveAttribute("aria-expanded", "false");
+    });
   });
 
   it("adds a component with 'Add to page', selects it and announces where it went", async () => {
