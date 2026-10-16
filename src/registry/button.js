@@ -30,6 +30,7 @@ export default defineManifest({
     { name: "Primary", props: {} },
     { name: "Secondary", props: { variant: "secondary", label: "Learn more" } },
     { name: "Ghost", props: { variant: "ghost", label: "Cancel" } },
+    { name: "Danger", props: { variant: "danger", label: "Delete page" } },
   ],
   fits: ["action"],
   a11y: {
@@ -41,8 +42,8 @@ export default defineManifest({
     ],
   },
   install: {
-    // STUB: filled in when the Button component itself is built (next PR).
-    // Empty here means "not decided yet", not "has no dependencies".
+    // Button needs no npm packages of its own. Its only helper, `cn`, comes
+    // from the "utils" registry item (which brings clsx and tailwind-merge).
     dependencies: [],
     registryDependencies: ["utils"],
   },

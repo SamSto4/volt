@@ -22,6 +22,7 @@
   --accent: #eef0f4;              /* shadcn hover surface, NOT Volt lime */
   --accent-foreground: #0e1116;
   --destructive: #d13438;         /* danger */
+  --destructive-foreground: #ffffff; /* text on danger: white in light */
   --success: #0b7f57;
   --border: #e3e6ec;              /* line */
   --input: #868f9e;               /* line-strong */
@@ -47,6 +48,7 @@
   --accent: #1c212c;
   --accent-foreground: #f2f4f8;
   --destructive: #ff6369;
+  --destructive-foreground: #0b0d12; /* surface in dark */
   --success: #3dd68c;
   --border: #252b36;
   --input: #646d7d;
@@ -74,6 +76,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-border: var(--border);
   --color-input: var(--input);
