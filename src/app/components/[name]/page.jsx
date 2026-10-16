@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { InstallGuide } from "@/components/install-guide";
 import { Playground } from "@/components/playground";
 import { manifests } from "@/registry";
 
@@ -49,6 +50,13 @@ export default async function ComponentPage({ params }) {
           works: click it, tab through it, type in it.
         </p>
         <Playground name={manifest.name} />
+      </section>
+
+      <section id="add-to-project" aria-labelledby="install-heading" className="flex flex-col gap-4">
+        <h2 id="install-heading" className="type-heading-2">
+          Add it to your project
+        </h2>
+        <InstallGuide name={manifest.name} />
       </section>
 
       <section aria-labelledby="usage-heading" className="flex flex-col gap-4">

@@ -88,11 +88,11 @@ function BlockPanel({ id }) {
           ))}
         </ul>
         <Link
-          href={`/components/${manifest.name}`}
+          href={`/components/${manifest.name}#add-to-project`}
           target="_blank"
           className="inline-flex items-center gap-1 self-start rounded-sm type-small text-primary underline underline-offset-4"
         >
-          {manifest.title} in the catalog
+          How to add {manifest.title} to your project
           <ExternalLink aria-hidden="true" size={16} strokeWidth={1.5} />
           <span className="sr-only">(opens in a new tab)</span>
         </Link>
