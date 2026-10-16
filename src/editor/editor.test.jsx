@@ -196,6 +196,20 @@ describe("Editor", () => {
     });
   });
 
+  it("lists what the page needs: one install command and a guide per component", async () => {
+    const { user } = await setup();
+    await user.click(screen.getByRole("radio", { name: "Code" }));
+    const needs = within(screen.getByRole("region", { name: "What this page needs" }));
+    expect(needs.getByText("npm install clsx lucide-react tailwind-merge")).toBeInTheDocument();
+    expect(needs.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+      "/components/button#add-to-project",
+      "/components/badge#add-to-project",
+      "/components/card#add-to-project",
+      "/components/input#add-to-project",
+      "/components/accordion#add-to-project",
+    ]);
+  });
+
   it("saves to this browser and restores on the next visit", async () => {
     const first = await setup();
     await first.user.click(first.palette().getByRole("button", { name: "Add Badge to page" }));
