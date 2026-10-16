@@ -150,7 +150,7 @@ Keep this list accurate as scripts are added or renamed.
 - **Store:** invariant tests for insert, move, remove, duplicate, undo and redo (no orphan nodes, slot rules respected, one drag = one history entry).
 - **Components:** RTL tests for behavior and ARIA, not snapshots of markup.
 - **E2E:** drag a component into a slot (pointer: `mouse.down`, stepped `mouse.move`, `mouse.up`), click-to-add, keyboard move with live-region assertion, copy code, save and reopen a share link.
-- **Accessibility:** axe scans on catalog, editor and preview at WCAG 2.1 AA tags. Automated checks don't catch everything, so also test keyboard flows by hand.
+- **Accessibility:** axe scans on catalog, editor and preview at WCAG 2.1 AA tags. Until Playwright lands, `src/app/page.a11y.test.jsx` runs axe on the home page in jsdom (structure only: jsdom can't check color contrast). Automated checks don't catch everything, so also test keyboard flows by hand.
 - Bugs get a failing test first, then the fix.
 
 ## Definition of done
