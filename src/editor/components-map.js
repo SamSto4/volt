@@ -4,8 +4,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { InputField } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { TabsBlock } from "@/components/ui/tabs";
+import { TextareaField } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 
 /**
@@ -29,4 +33,8 @@ export const componentsByName = {
   tabs: TabsBlock,
   accordion: AccordionBlock,
   tooltip: Tooltip,
+  textarea: TextareaField,
+  select: SelectField,
+  checkbox: Checkbox,
+  switch: Switch,
 };
