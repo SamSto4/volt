@@ -1,26 +1,178 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the `.dark` class that next-themes puts on <html>,
+   not the OS media query, so the user's toggle wins. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Volt color tokens, mapped onto shadcn's variable names (DESIGN.md §2 and §6).
+   Comments give the Volt name where it differs from the shadcn one. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f8fa;          /* surface */
+  --foreground: #0e1116;          /* ink */
+  --card: #ffffff;                /* surface-raised */
+  --card-foreground: #0e1116;
+  --popover: #ffffff;
+  --popover-foreground: #0e1116;
+  --primary: #2b5cff;
+  --primary-foreground: #ffffff;  /* on-primary */
+  --secondary: #ffffff;           /* secondary buttons: raised + strong border */
+  --secondary-foreground: #0e1116;
+  --muted: #ffffff;
+  --muted-foreground: #5a6372;    /* ink-muted */
+  --accent: #eef0f4;              /* shadcn hover surface, NOT Volt lime */
+  --accent-foreground: #0e1116;
+  --destructive: #d13438;         /* danger */
+  --success: #0b7f57;
+  --border: #e3e6ec;              /* line */
+  --input: #868f9e;               /* line-strong */
+  --ring: #2b5cff;
+  --highlight: #c6f432;           /* Volt accent (lime) */
+  --highlight-foreground: #0e1116;/* on-accent */
+  --primary-tint: rgba(43, 92, 255, 0.12);
 }
 
+.dark {
+  --background: #0b0d12;
+  --foreground: #f2f4f8;
+  --card: #151922;
+  --card-foreground: #f2f4f8;
+  --popover: #151922;
+  --popover-foreground: #f2f4f8;
+  --primary: #5b82ff;
+  --primary-foreground: #0b0d12;
+  --secondary: #151922;
+  --secondary-foreground: #f2f4f8;
+  --muted: #151922;
+  --muted-foreground: #9aa3b2;
+  --accent: #1c212c;
+  --accent-foreground: #f2f4f8;
+  --destructive: #ff6369;
+  --success: #3dd68c;
+  --border: #252b36;
+  --input: #646d7d;
+  --ring: #5b82ff;
+  --highlight: #c6f432;
+  --highlight-foreground: #0e1116;
+  --primary-tint: rgba(91, 130, 255, 0.18);
+}
+
+/* `inline` makes Tailwind use var(--primary) directly, so switching the class
+   on <html> re-themes every utility without rebuilding CSS. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-primary-tint: var(--primary-tint);
+
+  /* Set by next/font in layout.jsx. */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+
+  /* Volt: lines, not shadows. Neutralize every shadow utility, including ones
+     that shadcn components use by default. */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Volt type styles (DESIGN.md §3). One class per style, so components say
+   `type-heading-2` instead of repeating family + size + weight + tracking.
+   Sizes are rem (16px = 1rem); the px values from DESIGN.md are in comments.
+   Mobile first: display and heading-1 step up from 640px (40rem). */
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: 2.5rem; /* 40px */
+  line-height: 2.75rem; /* 44px */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  @media (width >= 40rem) {
+    font-size: 3.5rem; /* 56px */
+    line-height: 3.75rem; /* 60px */
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility type-heading-1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem; /* 28px */
+  line-height: 2.125rem; /* 34px */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  @media (width >= 40rem) {
+    font-size: 2.25rem; /* 36px */
+    line-height: 2.625rem; /* 42px */
+  }
+}
+
+@utility type-heading-2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem; /* 24px */
+  line-height: 1.875rem; /* 30px */
+  font-weight: 600;
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+  font-weight: 400;
+}
+
+@utility type-small {
+  font-family: var(--font-sans);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 400;
+}
+
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@utility type-code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 400;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground type-body;
+  }
+
+  /* Focus ring for every interactive element (DESIGN.md §10): 2px primary
+     outline, 2px offset, keyboard focus only. Never remove it. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
