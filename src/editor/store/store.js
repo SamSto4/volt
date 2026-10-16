@@ -12,6 +12,7 @@ import * as ops from "./tree.js";
  * @property {import("./tree.js").Tree} tree
  * @property {string | null} selectedId
  * @property {string} announcement  the latest message for the polite live region
+ * @property {number} announcementId  bumps on every message, so the same sentence twice is still announced
  * @property {(id: string | null) => void} select
  * @property {(template: string, index?: number) => string | null} addSection
  * @property {(component: string, target?: import("./tree.js").Target) => string | null} insertBlock
@@ -22,6 +23,8 @@ import * as ops from "./tree.js";
  * @property {(nodeId: string, props: Record<string, unknown>, coalesceKey?: string) => boolean} updateProps
  * @property {(tree: import("./tree.js").Tree) => void} load
  * @property {() => void} startBlank
+ * @property {() => void} loadExample
+ * @property {(text: string) => void} announce
  * @property {() => void} beginTransaction
  * @property {() => void} commitTransaction
  * @property {() => void} cancelTransaction
@@ -32,7 +35,15 @@ function newId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const example = createExamplePage(newId);
+// The example page gets predictable ids ("ex1", "ex2", …) so the server's HTML
+// and the browser's first render match. New nodes get random ids, but those
+// are only ever made in the browser, in response to a click.
+const example = createExamplePage(
+  (() => {
+    let n = 0;
+    return () => `ex${++n}`;
+  })(),
+);
 
 // Edits to the same field within this window become one undo step.
 const COALESCE_MS = 1000;
@@ -58,6 +69,9 @@ export function createEditorStore(initial = {}) {
    * @type {import("zustand").StateCreator<EditorState, [["temporal", unknown]], []>}
    */
   const creator = (set, get) => {
+    /** A message for the live region. @param {string} text */
+    const announce = (text) => ({ announcement: text, announcementId: get().announcementId + 1 });
+
     /**
      * Applies one pure operation: store the tree and message, or announce the error.
      * @param {import("./tree.js").Result & { nextSelection?: string | null }} result
@@ -65,7 +79,7 @@ export function createEditorStore(initial = {}) {
      */
     function apply(result, options = {}) {
       if ("error" in result) {
-        set({ announcement: result.error });
+        set(announce(result.error));
         return false;
       }
       // Who's selected next: an explicit choice, else what the operation
@@ -74,7 +88,7 @@ export function createEditorStore(initial = {}) {
       if ("select" in options) selectedId = options.select ?? null;
       else if (result.nextSelection !== undefined) selectedId = result.nextSelection;
       else if (result.id) selectedId = result.id;
-      set({ tree: result.tree, announcement: result.message, selectedId });
+      set({ tree: result.tree, selectedId, ...announce(result.message) });
       return true;
     }
 
@@ -82,6 +96,7 @@ export function createEditorStore(initial = {}) {
       tree: initial.tree ?? example.tree,
       selectedId: initial.selectedId === undefined ? (initial.tree ? null : example.heroId) : initial.selectedId,
       announcement: "",
+      announcementId: 0,
 
       select: (id) => set({ selectedId: id }),
 
@@ -96,7 +111,7 @@ export function createEditorStore(initial = {}) {
         const { tree, selectedId } = get();
         const destination = target ?? defaultTarget(tree, component, selectedId);
         if (!destination) {
-          set({ announcement: `There's no slot on this page that takes a ${ops.getManifest(component).title}. Add a section that does.` });
+          set(announce(`There's no slot on this page that takes a ${ops.getManifest(component).title}. Add a section that does.`));
           return null;
         }
         const result = ops.insertBlock(tree, component, destination, makeId);
@@ -130,9 +145,17 @@ export function createEditorStore(initial = {}) {
         return ok;
       },
 
-      load: (tree) => set({ tree, selectedId: null, announcement: "Page loaded." }),
+      load: (tree) => set({ tree, selectedId: null, ...announce("Page loaded.") }),
 
-      startBlank: () => set({ tree: ops.emptyTree(), selectedId: null, announcement: "Started a blank page." }),
+      startBlank: () => set({ tree: ops.emptyTree(), selectedId: null, ...announce("Started a blank page.") }),
+
+      loadExample: () => {
+        const fresh = createExamplePage(makeId);
+        set({ tree: fresh.tree, selectedId: fresh.heroId, ...announce("Example page loaded.") });
+      },
+
+      // For messages that aren't tree changes ("Undone.", "Restored…").
+      announce: (text) => set(announce(text)),
 
       // Drags (ADR 0004): one drag = one undo step, however many moves it
       // makes on the way. History is paused while dragging; on commit, the
@@ -154,7 +177,7 @@ export function createEditorStore(initial = {}) {
       },
       // Escape during a drag: put everything back and record nothing.
       cancelTransaction: () => {
-        if (transactionStart) set({ tree: transactionStart, announcement: "Move cancelled." });
+        if (transactionStart) set({ tree: transactionStart, ...announce("Move cancelled.") });
         store.temporal.getState().resume();
         transactionStart = null;
       },

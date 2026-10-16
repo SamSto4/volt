@@ -3,7 +3,7 @@
 // Pure (ADR 0003): the registries are passed in, nothing is imported from the editor.
 
 import { z } from "zod";
-import { collectTypes, h, printJsx } from "./jsx.js";
+import { collectTypes, extractRanges, h, printJsx } from "./jsx.js";
 import { printImports, printModule } from "./module.js";
 import { fillSlots, slotWrapper } from "./slots.js";
 
@@ -23,15 +23,20 @@ import { fillSlots, slotWrapper } from "./slots.js";
  */
 
 /**
- * The page as one element tree, plus which module each component comes from.
+ * The page as one element tree, plus which module each component comes from
+ * and which element belongs to which block id.
  *
  * @param {PageTree} tree
  * @param {Registries} registries
- * @returns {{ element: import("./jsx.js").Element, moduleOf: Map<string, string> }}
+ * @returns {{ element: import("./jsx.js").Element, moduleOf: Map<string, string>, blockOf: WeakMap<object, string> }}
  */
 export function pageElement(tree, { manifests, sections }) {
   /** @type {Map<string, string>} */
   const moduleOf = new Map();
+  // A WeakMap lets us tag element objects with their block id without adding
+  // a prop that would be printed into the code.
+  /** @type {WeakMap<object, string>} */
+  const blockOf = new WeakMap();
 
   const sectionElements = tree.sections.map((sectionId) => {
     const node = tree.nodes[sectionId];
@@ -46,28 +51,34 @@ export function pageElement(tree, { manifests, sections }) {
         if (!block || !manifest) throw new Error(`Unknown block "${blockId}"`);
         const element = manifest.code.render(parseOrThrow(manifest.props, block.props, manifest.name), manifest.props.parse({}));
         for (const type of collectTypes(element)) if (/^[A-Z]/.test(type)) moduleOf.set(type, manifest.code.from);
+        blockOf.set(element, blockId);
         return element;
       });
       return slotWrapper(slot, blocks);
     });
   });
 
-  return { element: h("main", {}, sectionElements), moduleOf };
+  const main = h("main", {}, sectionElements);
+  sectionElements.forEach((element, index) => blockOf.set(element, tree.sections[index]));
+  return { element: main, moduleOf, blockOf };
 }
 
 /**
  * @param {PageTree} tree
  * @param {Registries} registries
- * @returns {{ imports: string, jsx: string, module: string }}
+ * @returns {{ imports: string, jsx: string, module: string, ranges: Map<string, { start: number, end: number }> }}
+ *   ranges: for each section and block id, its lines in `module` (1-based, inclusive)
  */
 export function generatePageCode(tree, registries) {
-  const { element, moduleOf } = pageElement(tree, registries);
+  const { element, moduleOf, blockOf } = pageElement(tree, registries);
   /** @type {Map<string, Set<string>>} */
   const namesByModule = new Map();
   for (const [name, from] of moduleOf) namesByModule.set(from, (namesByModule.get(from) ?? new Set()).add(name));
   const imports = printImports(namesByModule);
   const jsx = printJsx(element);
-  return { imports, jsx, module: printModule(imports, jsx, "Page") };
+  const marked = printModule(imports, printJsx(element, 0, { mark: (child) => blockOf.get(child) }), "Page");
+  const { code, ranges } = extractRanges(marked);
+  return { imports, jsx, module: code, ranges };
 }
 
 /**

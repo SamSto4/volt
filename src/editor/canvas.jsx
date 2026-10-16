@@ -1,0 +1,279 @@
+"use client";
+
+import { Plus } from "lucide-react";
+import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
+import { h } from "@/lib/codegen/jsx.js";
+import { fillSlots } from "@/lib/codegen/slots.js";
+import { cn } from "@/lib/utils";
+import { manifests } from "@/registry";
+import { useEditor, useEditorStore, useFocusRequests } from "./editor-context";
+import { renderElement } from "./render-element";
+import { canPlace, getManifest, getSectionTemplate } from "./store/tree.js";
+
+// The page on the canvas, built from the same section and block element trees
+// codegen prints (ADR 0003/0004). In "edit" mode blocks are selectable and
+// their content is inert; in "try" mode the page is fully interactive.
+
+/** @typedef {"edit" | "try"} CanvasMode */
+
+const ModeContext = createContext(/** @type {CanvasMode} */ ("edit"));
+
+// Selectors must return the same object when nothing changed, or React
+// re-renders forever. A fresh `[]` each time would never be "the same".
+/** @type {string[]} */
+const NO_IDS = [];
+
+/** @param {{ mode: CanvasMode }} props */
+export function PageCanvas({ mode }) {
+  const sections = useEditor((state) => state.tree.sections);
+  const select = useEditor((state) => state.select);
+
+  if (sections.length === 0) {
+    return (
+      <div className="flex min-h-96 flex-col items-center justify-center gap-2 p-10 text-center">
+        <p className="type-heading-2">Start from an example, or add your first block.</p>
+        <p className="max-w-prose text-muted-foreground">Add a section from the Components panel to begin.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ModeContext value={mode}>
+      <main
+        // Clicking empty canvas space clears the selection.
+        onClick={(event) => {
+          if (mode === "edit" && event.target === event.currentTarget) select(null);
+        }}
+        className="flex min-h-full flex-col"
+      >
+        {sections.map((id) => (
+          <CanvasSection key={id} id={id} />
+        ))}
+      </main>
+    </ModeContext>
+  );
+}
+
+/** @param {{ id: string }} props */
+function CanvasSection({ id }) {
+  const mode = useContext(ModeContext);
+  const section = useEditor((state) => state.tree.nodes[id]);
+  const selected = useEditor((state) => state.selectedId === id);
+  const select = useEditor((state) => state.select);
+  if (!section || section.kind !== "section") return null;
+
+  const template = getSectionTemplate(section.template);
+  // The template's own tree, with each Slot marker swapped for a live slot.
+  const element = fillSlots(template.render(template.props.parse(section.props)), (slot) =>
+    h("CanvasSlot", { sectionId: id, name: slot.name, className: slot.className }),
+  );
+  const content = renderElement(element, { CanvasSlot });
+
+  if (mode === "try") return content;
+
+  return (
+    <div
+      data-section-id={id}
+      onClick={(event) => {
+        // A click that reached here didn't land on a block: select the section.
+        event.stopPropagation();
+        select(id);
+      }}
+      className={cn(
+        "relative -outline-offset-2",
+        selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
+      )}
+    >
+      {/* A real button names and selects the section from the keyboard. */}
+      <button
+        type="button"
+        aria-pressed={selected}
+        onClick={(event) => {
+          event.stopPropagation();
+          select(id);
+        }}
+        className="absolute top-2 left-2 z-10 rounded-full border border-input bg-card px-3 py-1 type-label text-muted-foreground hover:text-foreground"
+      >
+        {template.title} section
+      </button>
+      {content}
+    </div>
+  );
+}
+
+/** @param {{ sectionId: string, name: string, className?: string }} props */
+function CanvasSlot({ sectionId, name, className }) {
+  const mode = useContext(ModeContext);
+  const ids = useEditor((state) => {
+    const node = state.tree.nodes[sectionId];
+    return node?.kind === "section" ? node.slots[name] ?? NO_IDS : NO_IDS;
+  });
+  const section = useEditor((state) => state.tree.nodes[sectionId]);
+  const definition =
+    section?.kind === "section" ? getSectionTemplate(section.template).slots.find((slot) => slot.name === name) : undefined;
+
+  if (mode === "try") {
+    // Same as the exported code: empty slots disappear.
+    if (ids.length === 0) return null;
+    return (
+      <div className={className}>
+        {ids.map((id) => (
+          <CanvasBlock key={id} id={id} />
+        ))}
+      </div>
+    );
+  }
+
+  const full = definition ? ids.length >= definition.max : true;
+  if (ids.length === 0) {
+    return (
+      <div
+        data-slot-target={`${sectionId}:${name}`}
+        className="flex min-h-24 w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-input p-4 text-center"
+      >
+        <p className="type-small text-muted-foreground">Drag a component here, or press + to add one</p>
+        <AddMenu sectionId={sectionId} slot={name} label={definition?.title ?? name} />
+      </div>
+    );
+  }
+
+  return (
+    <div data-slot-target={`${sectionId}:${name}`} className={className}>
+      {ids.map((id) => (
+        <CanvasBlock key={id} id={id} />
+      ))}
+      {!full && <AddMenu sectionId={sectionId} slot={name} label={definition?.title ?? name} compact />}
+    </div>
+  );
+}
+
+/** @param {{ id: string }} props */
+function CanvasBlock({ id }) {
+  const mode = useContext(ModeContext);
+  const store = useEditorStore();
+  const focus = useFocusRequests();
+  const block = useEditor((state) => state.tree.nodes[id]);
+  const selected = useEditor((state) => state.selectedId === id);
+  const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
+
+  // Take focus if an action asked for it (after add, remove, move).
+  useEffect(() => {
+    if (ref.current && focus.claim(id)) ref.current.focus();
+  });
+
+  if (!block || block.kind !== "block") return null;
+  const manifest = getManifest(block.component);
+  const defaults = manifest.props.parse({});
+  const content = renderElement(manifest.code.render(manifest.props.parse(block.props), defaults));
+
+  if (mode === "try") return content;
+
+  const { select, remove, moveBy, duplicate } = store.getState();
+  const summary = describeBlock(block.props);
+
+  /** @param {import("react").KeyboardEvent<HTMLDivElement>} event */
+  function handleKeyDown(event) {
+    if (event.target !== event.currentTarget) return;
+    const mod = event.metaKey || event.ctrlKey;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      select(id);
+    } else if (event.key === "Delete" || event.key === "Backspace") {
+      event.preventDefault();
+      if (remove(id)) focus.request(store.getState().selectedId);
+    } else if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+      event.preventDefault();
+      if (moveBy(id, event.key === "ArrowUp" ? -1 : 1)) focus.request(id);
+    } else if (mod && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      if (duplicate(id)) focus.request(store.getState().selectedId);
+    }
+  }
+
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      aria-label={`${manifest.title}${summary ? `: ${summary}` : ""}`}
+      aria-keyshortcuts="Enter Delete Alt+ArrowUp Alt+ArrowDown Control+D Meta+D"
+      data-block-id={id}
+      onClick={(event) => {
+        event.stopPropagation();
+        select(id);
+      }}
+      onKeyDown={handleKeyDown}
+      className={cn(
+        "relative cursor-pointer rounded-sm outline-offset-2",
+        selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
+      )}
+    >
+      {/* inert: in edit mode the block is one selectable thing. Its own
+          buttons and fields can't take focus or clicks until "Try it" mode. */}
+      <div inert>{content}</div>
+    </div>
+  );
+}
+
+/**
+ * The "+" button in a slot, with a short list of the components that fit.
+ *
+ * @param {{ sectionId: string, slot: string, label: string, compact?: boolean }} props
+ */
+function AddMenu({ sectionId, slot, label, compact = false }) {
+  const [open, setOpen] = useState(false);
+  const listId = useId();
+  const store = useEditorStore();
+  const focus = useFocusRequests();
+  const tree = useEditor((state) => state.tree);
+  const options = manifests.filter((manifest) => canPlace(tree, manifest.name, { sectionId, slot }).ok);
+  if (options.length === 0) return null;
+
+  return (
+    <div className={cn("flex flex-col items-center gap-2", compact && "self-center")} onClick={(event) => event.stopPropagation()}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={listId}
+        aria-label={`Add to ${label}`}
+        onClick={() => setOpen(!open)}
+        className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-dashed border-input bg-card text-muted-foreground hover:text-foreground"
+      >
+        <Plus aria-hidden="true" size={20} strokeWidth={1.5} />
+      </button>
+      <ul id={listId} hidden={!open} className="flex flex-wrap justify-center gap-2">
+        {options.map((manifest) => (
+          <li key={manifest.name}>
+            <button
+              type="button"
+              onClick={() => {
+                const id = store.getState().insertBlock(manifest.name, { sectionId, slot });
+                if (id) focus.request(id);
+                setOpen(false);
+              }}
+              className="h-8 cursor-pointer rounded-full border border-input bg-card px-3 type-small hover:bg-accent"
+            >
+              {manifest.title}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * A few words that tell blocks of the same kind apart in labels and layers:
+ * the first text prop ("Get started", "Starter plan").
+ *
+ * @param {Record<string, unknown>} props
+ */
+export function describeBlock(props) {
+  for (const key of ["label", "title", "name", "headline"]) {
+    if (typeof props[key] === "string" && props[key]) return /** @type {string} */ (props[key]);
+  }
+  const items = props.items;
+  if (Array.isArray(items) && items.length > 0) return `${items.length} items`;
+  return "";
+}

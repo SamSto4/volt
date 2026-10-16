@@ -73,16 +73,26 @@ export function printAttribute(name, value) {
   return /^[^"&\n]*$/.test(value) ? ` ${name}="${value}"` : ` ${name}={${JSON.stringify(value)}}`;
 }
 
+// Sentinel lines that bracket a marked element while printing. They contain a
+// NUL character, which can't appear in printed code (text is JSON-escaped), so
+// they can't collide with real lines. extractRanges() removes them.
+const MARK_START = "\u0000[";
+const MARK_END = "\u0000]";
+
 /**
  * Prints an element (or text) as JSX, indented by `depth` levels.
  * An element with only text children fits on one line; otherwise each child
  * goes on its own line, one level deeper.
  *
+ * `mark` can name elements whose line range should be recorded (the editor's
+ * Split view highlights a block's lines); see extractRanges().
+ *
  * @param {Element | string} node
  * @param {number} [depth]
+ * @param {{ mark?: (element: Element) => string | undefined }} [options]
  * @returns {string}
  */
-export function printJsx(node, depth = 0) {
+export function printJsx(node, depth = 0, options = {}) {
   const pad = INDENT.repeat(depth);
   if (typeof node === "string") return pad + printText(node);
 
@@ -100,8 +110,37 @@ export function printJsx(node, depth = 0) {
     return `${pad}<${node.type}${attributes}>${children.map((child) => printText(/** @type {string} */ (child))).join("")}</${node.type}>`;
   }
 
-  const inner = children.map((child) => printJsx(child, depth + 1)).join("\n");
+  const inner = children
+    .map((child) => {
+      const printed = printJsx(child, depth + 1, options);
+      const id = typeof child === "string" ? undefined : options.mark?.(child);
+      return id ? `${MARK_START}${id}\n${printed}\n${MARK_END}${id}` : printed;
+    })
+    .join("\n");
   return `${pad}<${node.type}${attributes}>\n${inner}\n${pad}</${node.type}>`;
+}
+
+/**
+ * Removes the sentinel lines printJsx(…, { mark }) added and returns where
+ * each marked element ended up: 1-based, inclusive line numbers in `code`.
+ *
+ * @param {string} code
+ * @returns {{ code: string, ranges: Map<string, { start: number, end: number }> }}
+ */
+export function extractRanges(code) {
+  /** @type {string[]} */
+  const lines = [];
+  /** @type {Map<string, { start: number, end: number }>} */
+  const ranges = new Map();
+  for (const line of code.split("\n")) {
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith(MARK_START)) ranges.set(trimmed.slice(MARK_START.length), { start: lines.length + 1, end: lines.length });
+    else if (trimmed.startsWith(MARK_END)) {
+      const range = ranges.get(trimmed.slice(MARK_END.length));
+      if (range) range.end = lines.length;
+    } else lines.push(line);
+  }
+  return { code: lines.join("\n"), ranges };
 }
 
 /**

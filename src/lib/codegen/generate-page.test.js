@@ -53,6 +53,23 @@ describe("generatePageCode", () => {
     );
   });
 
+  it("records each section's and block's lines, without changing the code", () => {
+    const lines = code.module.split("\n");
+    const hero = tree.sections[0];
+    const heroRange = code.ranges.get(hero);
+    expect(lines[(heroRange?.start ?? 0) - 1].trim()).toMatch(/^<section/);
+    expect(lines[(heroRange?.end ?? 0) - 1].trim()).toBe("</section>");
+
+    const heroNode = /** @type {import("@/editor/store/tree.js").SectionNode} */ (tree.nodes[hero]);
+    const [firstButton] = heroNode.slots.actions;
+    const buttonRange = code.ranges.get(firstButton);
+    expect(buttonRange?.start).toBe(buttonRange?.end);
+    expect(lines[(buttonRange?.start ?? 0) - 1].trim()).toBe("<Button>Get started</Button>");
+
+    // The marked printing produced exactly the same text as the plain one.
+    expect(code.module).not.toContain("\u0000");
+  });
+
   it("rejects a tree with invalid props", () => {
     const broken = structuredClone(tree);
     broken.nodes[tree.sections[0]].props.headline = "";

@@ -46,19 +46,20 @@ export const scope = {
 
 /**
  * @param {import("@/lib/codegen/jsx.js").Child} node
+ * @param {Record<string, import("react").ElementType>} [extraScope]  more components, e.g. the canvas's EditorSlot
  * @returns {import("react").ReactNode}
  */
-export function renderElement(node) {
+export function renderElement(node, extraScope) {
   if (!isRenderable(node)) return null;
   if (typeof node === "string") return node;
 
   // Capitalized names are components and must be in scope; lowercase ones
   // are HTML tags, which React renders by name.
   const isComponent = /^[A-Z]/.test(node.type);
-  const type = isComponent ? scope[node.type] : node.type;
+  const type = isComponent ? (extraScope?.[node.type] ?? scope[node.type]) : node.type;
   if (!type) throw new Error(`No component named "${node.type}" in the preview scope`);
 
   // Children are passed as separate arguments, the way compiled JSX does it,
   // so React doesn't ask for `key`s on them.
-  return createElement(type, node.props, ...node.children.map(renderElement));
+  return createElement(type, node.props, ...node.children.map((child) => renderElement(child, extraScope)));
 }
