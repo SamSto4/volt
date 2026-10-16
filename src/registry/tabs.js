@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 const tabItem = z.strictObject({
@@ -67,6 +68,22 @@ export default defineManifest({
       "The selected tab has a visible border as well as a lighter fill, so its state shows at 3:1 contrast, not by a subtle shade alone.",
       "The group label names the tab list, so screen readers say what the tabs choose between.",
     ],
+  },
+  code: {
+    from: "@/components/ui/tabs",
+    // Generated code uses the composable parts (what people write by hand),
+    // not TabsBlock, so it's easy to edit after pasting.
+    render: (/** @type {TabsProps} */ props) =>
+      h(
+        "Tabs",
+        { defaultValue: props.items[0].label },
+        h(
+          "TabsList",
+          { "aria-label": props.label },
+          props.items.map((item) => h("TabsTrigger", { value: item.label }, item.label)),
+        ),
+        props.items.map((item) => h("TabsContent", { value: item.label }, item.content)),
+      ),
   },
   install: {
     dependencies: [],

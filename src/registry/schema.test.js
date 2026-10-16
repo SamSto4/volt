@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 /**
@@ -17,6 +18,7 @@ function validManifest() {
     variants: [{ name: "Default", props: {} }],
     fits: ["inline"],
     a11y: { keyboard: [], notes: [] },
+    code: { from: "@/components/ui/test-widget", render: () => h("TestWidget") },
     install: { dependencies: [], registryDependencies: [] },
   };
 }
@@ -52,6 +54,19 @@ describe("defineManifest", () => {
 
   it("requires at least one variant", () => {
     expect(() => defineManifest({ ...validManifest(), variants: [] })).toThrow(/variants/);
+  });
+
+  it("requires code.render to be a function", () => {
+    const manifest = validManifest();
+    // @ts-expect-error: deliberately passing a string instead of a function
+    expect(() => defineManifest({ ...manifest, code: { ...manifest.code, render: "<TestWidget />" } })).toThrow(
+      /code\.render must be a function/,
+    );
+  });
+
+  it("requires code.from to point at a component in @/components/ui", () => {
+    const manifest = validManifest();
+    expect(() => defineManifest({ ...manifest, code: { ...manifest.code, from: "react" } })).toThrow(/code\.from/);
   });
 
   it("names the broken manifest in the error message", () => {

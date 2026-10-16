@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 // Every prop has a default, so `buttonProps.parse({})` always gives a
@@ -45,6 +46,21 @@ export default defineManifest({
       "Disabled buttons can't be focused. If users need to know why an action is unavailable, explain it in nearby text.",
       "While loading, the button stays focusable and is marked aria-disabled, so keyboard users don't lose their place. Change the label too (“Saving…”) so screen readers hear what's happening.",
     ],
+  },
+  code: {
+    from: "@/components/ui/button",
+    // Only props that differ from the default are written out.
+    render: (/** @type {ButtonProps} */ props, /** @type {ButtonProps} */ defaults) =>
+      h(
+        "Button",
+        {
+          variant: props.variant === defaults.variant ? undefined : props.variant,
+          size: props.size === defaults.size ? undefined : props.size,
+          disabled: props.disabled,
+          loading: props.loading,
+        },
+        props.label,
+      ),
   },
   install: {
     // Button needs no npm packages of its own. Its only helper, `cn`, comes

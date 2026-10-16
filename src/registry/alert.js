@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 export const alertProps = z.object({
@@ -47,6 +48,19 @@ export default defineManifest({
       "Screen readers announce a status reliably only when its text changes inside a container that's already on the page. For repeated messages, keep the alert mounted and change its text.",
       "The icon is decorative and hidden from screen readers.",
     ],
+  },
+  code: {
+    from: "@/components/ui/alert",
+    render: (/** @type {AlertProps} */ props, /** @type {AlertProps} */ defaults) =>
+      h(
+        "Alert",
+        {
+          tone: props.tone === defaults.tone ? undefined : props.tone,
+          announce: props.announce,
+        },
+        h("AlertTitle", {}, props.title),
+        props.description && h("AlertDescription", {}, props.description),
+      ),
   },
   install: {
     dependencies: ["lucide-react"],
