@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useId } from "react";
+import { SegmentedControl } from "@/components/segmented-control";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fieldsFor } from "./fields.js";
@@ -24,7 +25,7 @@ function optionLabel(value) {
  * parent validates it (see fields.js `validate`) and passes back `errors`.
  *
  * @param {{
- *   manifest: import("@/registry/schema").Manifest,
+ *   manifest: { props: import("zod").ZodObject },
  *   draft: Record<string, any>,
  *   errors: Record<string, string>,
  *   onChange: (name: string, value: unknown) => void,
@@ -149,32 +150,12 @@ function ChoiceControl({ field, value, error, onChange }) {
   }
 
   return (
-    <fieldset className="flex flex-col gap-1">
-      <legend className="mb-1 type-small font-medium">{field.label}</legend>
-      <div className="inline-flex w-fit max-w-full flex-wrap gap-1 rounded-full border border-border bg-background p-1">
-        {field.options.map((option) => (
-          <label
-            key={String(option)}
-            className={cn(
-              "inline-flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full border border-transparent px-3 type-small text-muted-foreground hover:text-foreground",
-              // Same selected look as Tabs: fill *and* a 3:1 border.
-              "has-[:checked]:border-input has-[:checked]:bg-card has-[:checked]:text-foreground",
-              // The radio itself is invisible, so its focus ring is drawn on the label.
-              "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-            )}
-          >
-            <input
-              type="radio"
-              name={id}
-              className="sr-only"
-              checked={option === value}
-              onChange={() => onChange(option)}
-            />
-            {optionLabel(option)}
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <SegmentedControl
+      label={field.label}
+      options={field.options.map((option) => ({ value: option, label: optionLabel(option) }))}
+      value={value}
+      onChange={onChange}
+    />
   );
 }
 

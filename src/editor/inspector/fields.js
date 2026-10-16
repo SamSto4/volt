@@ -69,9 +69,10 @@ function toField(name, property) {
 }
 
 /**
- * The inspector fields for a manifest, in the order its props are declared.
+ * The inspector fields for a manifest (or a section template: anything with
+ * a Zod `props` object), in the order its props are declared.
  *
- * @param {import("@/registry/schema").Manifest} manifest
+ * @param {{ props: z.ZodObject }} manifest
  * @returns {Field[]}
  */
 export function fieldsFor(manifest) {
@@ -104,7 +105,7 @@ export function friendlyMessage(issue) {
  * Validates draft props. Returns the parsed props when valid, and a message
  * for each invalid field keyed by its path ("label", "items.0.label").
  *
- * @param {import("@/registry/schema").Manifest} manifest
+ * @param {{ props: z.ZodObject }} manifest
  * @param {Record<string, unknown>} draft
  * @returns {{ props: Record<string, unknown> | null, errors: Record<string, string> }}
  */
