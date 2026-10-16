@@ -2,6 +2,7 @@
 
 import { RotateCcw } from "lucide-react";
 import { useState } from "react";
+import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -75,9 +76,7 @@ export function Playground({ name }) {
               <span className="type-label text-muted-foreground">Example.jsx</span>
               <CopyButton text={code.module} targetId={codeId} />
             </div>
-            <pre className="overflow-x-auto type-code">
-              <code id={codeId}>{code.module}</code>
-            </pre>
+            <CodeBlock code={code.module} id={codeId} label="Example code" />
           </TabsContent>
         </Tabs>
         {hasErrors && (

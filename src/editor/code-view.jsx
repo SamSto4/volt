@@ -2,10 +2,10 @@
 
 import { Download } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
+import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { generatePageCode } from "@/lib/codegen";
-import { cn } from "@/lib/utils";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
 import { useEditor } from "./editor-context";
@@ -27,8 +27,6 @@ export function CodeView() {
     firstHighlighted.current?.scrollIntoView({ block: "nearest" });
   }, [selectedId, range?.start]);
 
-  const lines = code.module.split("\n");
-
   return (
     <div className="flex h-full min-h-0 flex-col gap-2 rounded-md border border-border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -46,29 +44,14 @@ export function CodeView() {
           Lines {range.start}–{range.end} are the selected {selectedId && tree.nodes[selectedId]?.kind === "section" ? "section" : "block"}.
         </p>
       )}
-      {/* tabIndex makes the scrollable code reachable by keyboard (axe: scrollable-region-focusable). */}
-      <pre tabIndex={0} aria-label="Page code" className="min-h-0 flex-1 overflow-auto rounded-sm type-code">
-        <code id="page-code">
-          {lines.map((line, index) => {
-            const number = index + 1;
-            const highlighted = range !== undefined && number >= range.start && number <= range.end;
-            return (
-              <span
-                key={index}
-                ref={highlighted && number === range?.start ? firstHighlighted : undefined}
-                className={cn(
-                  "block border-l-2 pr-4 pl-3",
-                  highlighted ? "border-primary bg-primary-tint" : "border-transparent",
-                )}
-              >
-                {/* Each line is its own block, so no "\n" is needed; an empty
-                    line gets a space so it keeps its height. */}
-                {line || " "}
-              </span>
-            );
-          })}
-        </code>
-      </pre>
+      <CodeBlock
+        code={code.module}
+        id="page-code"
+        label="Page code"
+        highlight={range}
+        lineRef={firstHighlighted}
+        className="min-h-0 flex-1"
+      />
     </div>
   );
 }
