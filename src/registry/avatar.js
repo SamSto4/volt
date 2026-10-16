@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 export const avatarProps = z.object({
@@ -44,6 +45,16 @@ export default defineManifest({
       "When the name is written right next to it, mark it decorative so screen readers skip it instead of saying the name twice.",
       "If the photo fails to load, initials appear in its place, so there's never a broken-image icon.",
     ],
+  },
+  code: {
+    from: "@/components/ui/avatar",
+    render: (/** @type {AvatarProps} */ props, /** @type {AvatarProps} */ defaults) =>
+      h("Avatar", {
+        name: props.name,
+        src: props.src || undefined,
+        size: props.size === defaults.size ? undefined : props.size,
+        decorative: props.decorative,
+      }),
   },
   install: {
     dependencies: [],

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 const accordionItem = z.strictObject({
@@ -68,6 +69,26 @@ export default defineManifest({
       "Pick the heading level that follows the page outline, as with Card.",
       "The chevron only shows the state; the button's aria-expanded is what screen readers hear.",
     ],
+  },
+  code: {
+    from: "@/components/ui/accordion",
+    render: (/** @type {AccordionProps} */ props, /** @type {AccordionProps} */ defaults) =>
+      h(
+        "Accordion",
+        { allowMultiple: props.allowMultiple },
+        props.items.map((item) =>
+          h(
+            "AccordionItem",
+            { value: item.title },
+            h(
+              "AccordionTrigger",
+              { level: props.headingLevel === defaults.headingLevel ? undefined : props.headingLevel },
+              item.title,
+            ),
+            h("AccordionContent", {}, item.content),
+          ),
+        ),
+      ),
   },
   install: {
     dependencies: ["lucide-react"],

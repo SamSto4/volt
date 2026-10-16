@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 export const badgeProps = z.object({
@@ -32,6 +33,11 @@ export default defineManifest({
       "Write the label in normal case. The uppercase look is CSS only, so screen readers get the original word instead of spelling out capitals.",
       "Don't rely on color alone. The label text has to carry the meaning on its own.",
     ],
+  },
+  code: {
+    from: "@/components/ui/badge",
+    render: (/** @type {BadgeProps} */ props, /** @type {BadgeProps} */ defaults) =>
+      h("Badge", { variant: props.variant === defaults.variant ? undefined : props.variant }, props.label),
   },
   install: {
     dependencies: [],

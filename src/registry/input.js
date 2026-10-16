@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 export const inputProps = z.object({
@@ -47,6 +48,20 @@ export default defineManifest({
       "Hints and errors are linked with aria-describedby, and an error also sets aria-invalid, so screen readers say the field is invalid and why.",
       "Required fields use the native required attribute. The visible “(required)” text is hidden from screen readers so it isn't announced twice.",
     ],
+  },
+  code: {
+    from: "@/components/ui/input",
+    render: (/** @type {InputProps} */ props, /** @type {InputProps} */ defaults) =>
+      h("InputField", {
+        label: props.label,
+        type: props.type === defaults.type ? undefined : props.type,
+        // Empty strings mean "not set", so they're left out.
+        placeholder: props.placeholder || undefined,
+        description: props.description || undefined,
+        error: props.error || undefined,
+        required: props.required,
+        disabled: props.disabled,
+      }),
   },
   install: {
     dependencies: [],

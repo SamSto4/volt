@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
 export const cardProps = z.object({
@@ -41,6 +42,21 @@ export default defineManifest({
       "Pick the heading level that follows the page outline: one level below the section heading the card sits under.",
       "The card itself isn't interactive. If the whole card should be a link, put the link on the title and keep other text outside it.",
     ],
+  },
+  code: {
+    from: "@/components/ui/card",
+    render: (/** @type {CardProps} */ props, /** @type {CardProps} */ defaults) =>
+      h(
+        "Card",
+        {},
+        h(
+          "CardHeader",
+          {},
+          h("CardTitle", { level: props.headingLevel === defaults.headingLevel ? undefined : props.headingLevel }, props.title),
+          // No description, no CardDescription (and no import for it).
+          props.description && h("CardDescription", {}, props.description),
+        ),
+      ),
   },
   install: {
     dependencies: [],

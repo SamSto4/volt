@@ -26,6 +26,11 @@ const propsSchema = /** @type {z.ZodType<z.ZodObject>} */ (
   })
 );
 
+// A manifest's render function: (props, defaults) => element tree (ADR 0003).
+const renderSchema = /** @type {z.ZodType<(props: any, defaults: any) => import("../lib/codegen/jsx.js").Element>} */ (
+  z.custom((value) => typeof value === "function", { message: "code.render must be a function" })
+);
+
 // strictObject rejects unknown keys, so a typo like `fit:` instead of `fits:`
 // fails loudly instead of being silently ignored.
 export const manifestSchema = z.strictObject({
@@ -56,6 +61,13 @@ export const manifestSchema = z.strictObject({
     role: z.string().min(1).optional(),
     keyboard: z.array(z.strictObject({ keys: z.string().min(1), action: z.string().min(1) })),
     notes: z.array(z.string().min(1)),
+  }),
+  // How to write this component as code (ADR 0003). `from` is the module its
+  // parts are imported from; `render` turns props into an element tree that
+  // src/lib/codegen prints. It must be pure: same props in, same tree out.
+  code: z.strictObject({
+    from: z.string().regex(/^@\/components\/ui\/[a-z0-9-]+$/, "code.from must be @/components/ui/<name>"),
+    render: renderSchema,
   }),
   install: z.strictObject({
     dependencies: z.array(z.string().min(1)), // npm packages
