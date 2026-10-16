@@ -33,6 +33,7 @@ Anything marked **[Project addition]** is not in Volt yet. Use it here, and prop
 | Token | Light | Dark | Why |
 | --- | --- | --- | --- |
 | `line-strong` | `#868f9e` | `#646d7d` | Borders of inputs, checkboxes and other controls. `line` is only 1.2–1.4:1 against the surfaces, which fails WCAG 1.4.11 (3:1) for control boundaries. These values were checked at 3.07–3.73:1 |
+| `on-danger` | `#ffffff` | `#0b0d12` | Text on `danger` fills (danger buttons). Codifies §10's "white text in light / `surface` text in dark". Exposed as `destructive-foreground`. Measured 4.9:1 (light) and 6.7:1 (dark) |
 | `on-accent` | `#0e1116` | `#0e1116` | Text on `accent`. Codifies Volt's rule that lime always carries the light theme's ink, in both themes |
 | `primary-tint` | `rgba(43, 92, 255, 0.12)` | `rgba(91, 130, 255, 0.18)` | Background of drop targets, highlighted code lines, the post-drop flash |
 
