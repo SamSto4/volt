@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { Playground } from "./playground";
@@ -94,6 +94,28 @@ describe("Playground", () => {
     render(<Playground name="accordion" />);
     const preview = screen.getByRole("tabpanel", { name: "Preview" });
     const header = within(preview).getByRole("button", { name: "Can I return an item?" });
+    await user.click(header);
+    expect(header).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("forces the preview's theme without changing the page's", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Playground name="alert" />);
+    await user.click(screen.getByRole("radio", { name: "Dark" }));
+    expect(container.querySelector(".dark")).not.toBeNull();
+    expect(document.documentElement).not.toHaveClass("dark");
+    await user.click(screen.getByRole("radio", { name: "Light" }));
+    expect(container.querySelector(".light")).not.toBeNull();
+  });
+
+  it("previews at a real width in an iframe, still interactive", async () => {
+    const user = userEvent.setup();
+    render(<Playground name="accordion" />);
+    await user.click(screen.getByRole("radio", { name: "375" }));
+    const iframe = /** @type {HTMLIFrameElement} */ (screen.getByTitle("Accordion preview at 375 pixels"));
+    expect(iframe).toHaveStyle({ width: "375px" });
+    await waitFor(() => expect(iframe.contentDocument?.querySelector("[data-slot=accordion]")).not.toBeNull());
+    const header = within(/** @type {HTMLElement} */ (iframe.contentDocument?.body)).getByRole("button", { name: "Can I return an item?" });
     await user.click(header);
     expect(header).toHaveAttribute("aria-expanded", "true");
   });

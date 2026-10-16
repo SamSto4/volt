@@ -162,3 +162,18 @@ export default defineConfig({
   );
   return steps;
 }
+
+/**
+ * "You're done when…" (DESIGN.md §12): checks to finish a guide with, from
+ * the manifest, so they name this component's real behavior.
+ *
+ * @param {import("@/registry/schema").Manifest} manifest
+ * @returns {string[]}
+ */
+export function doneWhen(manifest) {
+  return [
+    `Your page builds and shows the ${manifest.title}, styled like the preview above.`,
+    ...manifest.a11y.keyboard.map((row) => `${row.keys}: ${row.action.charAt(0).toLowerCase()}${row.action.slice(1)}.`),
+    "It looks right in both light and dark themes.",
+  ];
+}

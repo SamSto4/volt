@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
 /* `dark:` utilities follow the `.dark` class that next-themes puts on <html>,
-   not the OS media query, so the user's toggle wins. */
-@custom-variant dark (&:where(.dark, .dark *));
+   not the OS media query, so the user's toggle wins. A `.light` element inside
+   a dark page (a preview forced to light) switches them back off. */
+@custom-variant dark (&:where(.dark, .dark *):not(:where(.light, .light *)));
 
 /* Volt color tokens, mapped onto shadcn's variable names (DESIGN.md §2 and §6).
-   Comments give the Volt name where it differs from the shadcn one. */
-:root {
+   Comments give the Volt name where it differs from the shadcn one.
+   `.light` re-applies them inside a dark page, e.g. a preview set to light. */
+:root,
+.light {
   --background: #f7f8fa;          /* surface */
   --foreground: #0e1116;          /* ink */
   --card: #ffffff;                /* surface-raised */
