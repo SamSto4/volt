@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { InputField } from "@/components/ui/input";
 
 /**
  * Links each manifest name to the React component that renders it.
@@ -16,4 +17,6 @@ export const componentsByName = {
   button: Button,
   badge: Badge,
   card: Card,
+  // The manifest maps to the labeled field, so generated code is accessible by default.
+  input: InputField,
 };
