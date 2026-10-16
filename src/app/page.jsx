@@ -1,8 +1,10 @@
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
+import alertManifest, { alertProps } from "@/registry/alert";
 import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
 import cardManifest, { cardProps } from "@/registry/card";
@@ -144,6 +146,22 @@ export default function Home() {
               {inputManifest.variants.map((variant) => (
                 <InputField key={variant.name} {...inputProps.parse(variant.props)} />
               ))}
+            </div>
+          </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={alertManifest}>
+          <ExampleRow label="Tones">
+            <div className="flex w-full flex-col gap-4">
+              {alertManifest.variants.map((variant) => {
+                const { title, description, ...props } = alertProps.parse(variant.props);
+                return (
+                  <Alert key={variant.name} {...props}>
+                    <AlertTitle>{title}</AlertTitle>
+                    <AlertDescription>{description}</AlertDescription>
+                  </Alert>
+                );
+              })}
             </div>
           </ExampleRow>
         </ComponentSection>
