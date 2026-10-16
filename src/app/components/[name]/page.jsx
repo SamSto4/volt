@@ -4,6 +4,13 @@ import { manifests } from "@/registry";
 
 // One page per component, all prerendered at build time.
 
+// The 8 component pages are fully static, so navigating to them is instant
+// anyway. This only allows an *unknown* name to block long enough to answer
+// with a real 404. Reading params inside <Suspense> instead would silence
+// Next's "instant navigation" warning, but the response would already have
+// started with status 200, turning every bad URL into a soft 404.
+export const instant = false;
+
 export function generateStaticParams() {
   return manifests.map((manifest) => ({ name: manifest.name }));
 }
