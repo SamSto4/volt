@@ -260,9 +260,15 @@ Build these as shadcn components restyled to Volt. Every component documents its
 
 **Input / Select / Textarea.** `radius-sm`, `surface-raised` fill, 1px `line-strong` border, `small` text in the editor and `body` on content pages. Labels always visible (no placeholder-only labels).
 
-**Card.** `surface-raised`, 1px `line` border, `radius-md`, padding `4` (mobile) / `6` (desktop). No shadow, no colored left border.
+**Card.** `surface-raised`, 1px `line` border, `radius-md`, padding `4` (mobile) / `6` (desktop). No shadow, no colored left border. The title is a real heading whose level (h2–h4) follows the page outline; it always *looks* like `heading-2`.
 
-**Tabs / Segmented control.** Pill track on `surface`, active segment `surface-raised` with `ink` text. Used for Preview | Code | Split, framework choice (Next.js / Vite / HTML) and package manager.
+**Tabs / Segmented control.** Pill track on `surface`, active segment `surface-raised` with `ink` text. Used for Preview | Code | Split, framework choice (Next.js / Vite / HTML) and package manager. **[Project addition]** The active segment also gets a 1px `line-strong` border: `surface-raised` against a `surface` track is only ~1.04:1, which fails WCAG 1.4.11 for showing the selected state. Inactive segments have a transparent border of the same width, so nothing shifts on selection.
+
+**Alert** **[Project addition]**. `surface-raised`, 1px `line` border, `radius-md`, padding `4`. A 20px icon on the left whose *shape* carries the tone (info circle, check circle, alert circle). Only the icon is colored: `ink-muted` for info, `success`, `danger`. Never a colored edge or a tinted background. The tone is also spoken as hidden text ("Error:"). Static by default (no live role); when announcing, `role="alert"` only for danger, `role="status"` otherwise.
+
+**Avatar** **[Project addition]**. Circle (`radius-full`) at 32 / 40 / 48px. Photo with the person's name as alt text, or their initials on the `accent` hover surface in `ink`. Decorative (hidden from screen readers) when the name is written next to it.
+
+**Accordion** **[Project addition]**. Items separated by `line` hairlines, no panels or shadows. Each header is a full-width button inside a real heading, `body` text, medium weight, with a 20px `ink-muted` chevron that turns 180° when open (the turn is animated only when reduced motion is off). Panel text is `ink-muted`. Header focus ring uses `radius-sm`.
 
 **Copy button.** Always visible, labeled with what it copies. Show the check + "Copied" for about 2 seconds, **only after** the clipboard promise resolves; keep focus on the button; announce via a polite live region. On failure, show "Couldn't copy" and select the text.
 
