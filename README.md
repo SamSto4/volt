@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Volt
 
-## Getting Started
+UI/UX creation and learning: drop real components into real pages, then learn exactly how to put them in your project.
 
-First, run the development server:
+> **Status: early foundations.** What's here so far is the project setup only. There's no catalog, editor or export yet. See the roadmap in [`CLAUDE.md`](CLAUDE.md).
+
+## What it will be
+
+A component workbench for website creators and junior developers:
+
+1. Browse a catalog of accessible, shadcn-style components.
+2. Drop them into slots on example pages (landing page, dashboard, blog post) by drag, click or keyboard.
+3. Tweak props, see the exact generated code, and follow a step-by-step guide for Next.js, Vite or plain HTML.
+
+## Tech
+
+Next.js (App Router), React, JavaScript with JSDoc types checked by `tsc` ([why](docs/adr/0001-javascript-with-jsdoc.md)), Tailwind CSS v4, and the Volt design system ([`DESIGN.md`](DESIGN.md)).
+
+## Running it
+
+Requires Node 24 and pnpm (pinned via `packageManager`; run `corepack enable pnpm` once).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev        # http://localhost:3000
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it's built
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is built with AI assistance (Claude Code), in the open: [`CLAUDE.md`](CLAUDE.md) holds the agent's instructions, decisions are recorded as ADRs in [`docs/adr/`](docs/adr/), and commits the agent wrote carry a co-author trailer.
