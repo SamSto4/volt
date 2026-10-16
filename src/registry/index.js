@@ -1,3 +1,4 @@
+import badge from "./badge.js";
 import button from "./button.js";
 
 /**
@@ -6,4 +7,4 @@ import button from "./button.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button];
+export const manifests = [button, badge];

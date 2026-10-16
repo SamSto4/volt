@@ -1,5 +1,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
 
 // A reference page for the Volt tokens, so both themes can be checked by eye.
@@ -64,44 +66,54 @@ export default function Home() {
           </p>
         </section>
 
-        <section aria-labelledby="button-heading" className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <h2 id="button-heading" className="type-heading-2">
-              {buttonManifest.title}
-            </h2>
-            <p className="max-w-prose text-muted-foreground">{buttonManifest.description}</p>
-          </div>
-          <div className="flex flex-col gap-6 rounded-md border border-border bg-card p-4 md:p-6">
-            {/* Each preset comes from the manifest: parse() fills in every
-                prop the preset doesn't set, exactly like a dropped block. */}
-            <ButtonRow label="Styles">
-              {buttonManifest.variants.map((variant) => {
-                const { label, ...props } = buttonProps.parse(variant.props);
-                return (
-                  <Button key={variant.name} {...props}>
-                    {label}
-                  </Button>
-                );
-              })}
-            </ButtonRow>
-            <ButtonRow label="Sizes">
-              <Button variant="secondary" size="sm">
-                Small
-              </Button>
-              <Button variant="secondary" size="md">
-                Medium
-              </Button>
-              <Button variant="secondary" size="lg">
-                Large
-              </Button>
-            </ButtonRow>
-            <ButtonRow label="Disabled">
-              <Button variant="secondary" disabled>
-                Not available
-              </Button>
-            </ButtonRow>
-          </div>
-        </section>
+        {/* Each component's "Styles" row comes from its manifest: parse()
+            fills in every prop a preset doesn't set, exactly like a dropped block. */}
+        <ComponentSection manifest={buttonManifest}>
+          <ExampleRow label="Styles">
+            {buttonManifest.variants.map((variant) => {
+              const { label, ...props } = buttonProps.parse(variant.props);
+              return (
+                <Button key={variant.name} {...props}>
+                  {label}
+                </Button>
+              );
+            })}
+          </ExampleRow>
+          <ExampleRow label="Sizes">
+            <Button variant="secondary" size="sm">
+              Small
+            </Button>
+            <Button variant="secondary" size="md">
+              Medium
+            </Button>
+            <Button variant="secondary" size="lg">
+              Large
+            </Button>
+          </ExampleRow>
+          <ExampleRow label="Disabled">
+            <Button variant="secondary" disabled>
+              Not available
+            </Button>
+          </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={badgeManifest}>
+          <ExampleRow label="Styles">
+            {badgeManifest.variants.map((variant) => {
+              const { label, ...props } = badgeProps.parse(variant.props);
+              return (
+                <Badge key={variant.name} {...props}>
+                  {label}
+                </Badge>
+              );
+            })}
+          </ExampleRow>
+          <ExampleRow label="In context">
+            <span className="inline-flex items-center gap-2">
+              Inspector <Badge>Beta</Badge>
+            </span>
+          </ExampleRow>
+        </ComponentSection>
 
         <section aria-labelledby="color-heading" className="flex flex-col gap-4">
           <h2 id="color-heading" className="type-heading-2">
@@ -193,11 +205,34 @@ export default function Home() {
 }
 
 /**
- * One labeled row of example buttons.
+ * A component's heading, description and examples, all taken from its manifest
+ * except the examples themselves.
+ *
+ * @param {{ manifest: import("@/registry/schema").Manifest, children: import("react").ReactNode }} props
+ */
+function ComponentSection({ manifest, children }) {
+  const headingId = `${manifest.name}-heading`;
+  return (
+    <section aria-labelledby={headingId} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <h2 id={headingId} className="type-heading-2">
+          {manifest.title}
+        </h2>
+        <p className="max-w-prose text-muted-foreground">{manifest.description}</p>
+      </div>
+      <div className="flex flex-col gap-6 rounded-md border border-border bg-card p-4 md:p-6">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * One labeled row of examples.
  *
  * @param {{ label: string, children: import("react").ReactNode }} props
  */
-function ButtonRow({ label, children }) {
+function ExampleRow({ label, children }) {
   return (
     <div className="flex flex-col gap-2">
       <p className="type-label text-muted-foreground">{label}</p>
