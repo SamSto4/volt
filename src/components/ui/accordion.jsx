@@ -138,7 +138,8 @@ export function AccordionTrigger({ level = 3, className, children, onClick, ...p
           toggle(item.value);
         }}
         className={cn(
-          "flex flex-1 cursor-pointer items-center justify-between gap-4 py-4 text-left type-body font-medium text-foreground",
+          // rounded-sm gives the focus ring Volt's soft corners instead of a hard rectangle.
+          "flex flex-1 cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left type-body font-medium text-foreground",
           className,
         )}
         {...props}
