@@ -1,9 +1,10 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Plus, SquareDashed, Trash2 } from "lucide-react";
 import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { h } from "@/lib/codegen/jsx.js";
 import { fillSlots } from "@/lib/codegen/slots.js";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { manifests } from "@/registry";
 import { finalIndex, insertionIndex, insertionLine } from "./drop-position.js";
@@ -58,6 +59,7 @@ export function PageCanvas({ mode }) {
 /** @param {{ id: string }} props */
 function CanvasSection({ id }) {
   const mode = useContext(ModeContext);
+  const focus = useFocusRequests();
   const section = useEditor((state) => state.tree.nodes[id]);
   const selected = useEditor((state) => state.selectedId === id);
   const select = useEditor((state) => state.select);
@@ -87,6 +89,11 @@ function CanvasSection({ id }) {
     >
       {/* A real button names and selects the section from the keyboard. */}
       <button
+        ref={(button) => {
+          // Take focus when an action asked for it (Select section, deleting
+          // a section's last block).
+          if (button && focus.claim(id)) button.focus();
+        }}
         type="button"
         aria-pressed={selected}
         onClick={(event) => {
@@ -312,52 +319,195 @@ function CanvasBlock({ id }) {
   }
 
   return (
+    // The outer wrapper is the drag source and what drop-position measures.
+    // The selectable block and its action bar are siblings inside it, so the
+    // bar's buttons are never nested inside the block's role="button".
     <div
-      ref={ref}
-      role="button"
-      tabIndex={0}
-      aria-pressed={selected}
-      aria-label={`${manifest.title}${summary ? `: ${summary}` : ""}`}
-      aria-keyshortcuts="Enter Delete Alt+ArrowUp Alt+ArrowDown Control+D Meta+D"
       data-block-id={id}
-      // Drag is the pointer extra; Alt+arrows and the action bar do the same
-      // from the keyboard (WCAG 2.5.7).
+      // Drag is the pointer extra; the action bar, Alt+arrows and Move to do
+      // the same without dragging (WCAG 2.5.7).
       draggable
       onDragStart={(event) => {
         event.stopPropagation();
         event.dataTransfer.effectAllowed = "move";
         // Some browsers only start a drag when there's data to carry.
         event.dataTransfer.setData("text/plain", manifest.title);
+        setDragPreview(event, manifest.title);
         drag.setPayload({ kind: "block", id });
       }}
       onDragEnd={() => drag.setPayload(null)}
       onAnimationEnd={() => drag.setLastDropped(null)}
-      onClick={(event) => {
-        event.stopPropagation();
-        select(id);
-      }}
-      onKeyDown={handleKeyDown}
       className={cn(
-        "group relative cursor-pointer rounded-sm outline-offset-2",
-        selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
+        "group relative",
         // The original stays in place, faded, while it's dragged (DESIGN.md §11).
         drag.payload?.kind === "block" && drag.payload.id === id && "opacity-40",
         drag.lastDropped === id && "animate-drop-flash",
       )}
     >
+      <div
+        ref={ref}
+        role="button"
+        tabIndex={0}
+        aria-pressed={selected}
+        aria-label={`${manifest.title}${summary ? `: ${summary}` : ""}`}
+        aria-keyshortcuts="Enter Delete Escape Alt+ArrowUp Alt+ArrowDown Control+D Meta+D"
+        onClick={(event) => {
+          event.stopPropagation();
+          select(id);
+        }}
+        onKeyDown={handleKeyDown}
+        className={cn(
+          "cursor-pointer rounded-sm outline-offset-2",
+          selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
+        )}
+      >
+        {/* inert: in edit mode the block is one selectable thing. Its own
+            buttons and fields can't take focus or clicks until "Try it" mode. */}
+        <div inert>{content}</div>
+      </div>
       {/* The block's name on hover and keyboard focus (DESIGN.md §11). Hidden
           from screen readers: the block's aria-label already says it. */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-6 left-0 z-10 hidden rounded-full border border-border bg-card px-2 type-label whitespace-nowrap text-muted-foreground group-hover:block group-focus-visible:block"
-      >
-        {manifest.title}
-      </span>
-      {/* inert: in edit mode the block is one selectable thing. Its own
-          buttons and fields can't take focus or clicks until "Try it" mode. */}
-      <div inert>{content}</div>
+      {!selected && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-6 left-0 z-10 hidden rounded-full border border-border bg-card px-2 type-label whitespace-nowrap text-muted-foreground group-hover:block group-has-[:focus-visible]:block"
+        >
+          {manifest.title}
+        </span>
+      )}
+      {selected && <FloatingActionBar id={id} title={manifest.title} />}
     </div>
   );
+}
+
+/**
+ * The floating action bar over the selected block (DESIGN.md §11): a pill of
+ * ghost icon buttons, each named by its tooltip. After an action, focus goes
+ * back to the button that was pressed, even though moving a block moves its
+ * DOM node (which would otherwise drop focus).
+ *
+ * @param {{ id: string, title: string }} props
+ */
+function FloatingActionBar({ id, title }) {
+  const store = useEditorStore();
+  const focus = useFocusRequests();
+  const tree = useEditor((state) => state.tree);
+  const parent = findParent(tree, id);
+  /** @type {import("react").RefObject<Record<string, HTMLButtonElement | null>>} */
+  const buttons = useRef({});
+
+  // Give focus back to the pressed button once the move has re-rendered.
+  useEffect(() => {
+    for (const [action, button] of Object.entries(buttons.current)) {
+      if (button && focus.claim(`bar:${id}:${action}`)) button.focus();
+    }
+  });
+
+  if (!parent) return null;
+  const section = tree.nodes[parent.sectionId];
+  const count = section?.kind === "section" ? section.slots[parent.slot].length : 0;
+  const { moveBy, duplicate, remove, select } = store.getState();
+
+  /** @type {{ action: string, label: string, icon: typeof Copy, disabled?: boolean, run: () => void }[]} */
+  const actions = [
+    {
+      action: "up",
+      label: "Move up",
+      icon: ArrowUp,
+      disabled: parent.index === 0,
+      run: () => {
+        if (moveBy(id, -1)) focus.request(`bar:${id}:up`);
+      },
+    },
+    {
+      action: "down",
+      label: "Move down",
+      icon: ArrowDown,
+      disabled: parent.index === count - 1,
+      run: () => {
+        if (moveBy(id, 1)) focus.request(`bar:${id}:down`);
+      },
+    },
+    {
+      action: "duplicate",
+      label: "Duplicate",
+      icon: Copy,
+      run: () => {
+        if (!duplicate(id)) return;
+        const copy = store.getState().selectedId;
+        if (copy) focus.request(`bar:${copy}:duplicate`);
+      },
+    },
+    {
+      action: "parent",
+      label: "Select section",
+      icon: SquareDashed,
+      run: () => {
+        select(parent.sectionId);
+        focus.request(parent.sectionId);
+      },
+    },
+    {
+      action: "delete",
+      label: "Delete",
+      icon: Trash2,
+      run: () => {
+        if (remove(id)) focus.request(store.getState().selectedId);
+      },
+    },
+  ];
+
+  return (
+    <div
+      role="group"
+      aria-label={`${title} actions`}
+      onClick={(event) => event.stopPropagation()}
+      className="absolute -top-11 right-0 z-20 flex items-center gap-1 rounded-full border border-border bg-card p-1"
+    >
+      {actions.map(({ action, label, icon: Icon, disabled, run }) => (
+        <Tooltip key={action} content={label} kind="label">
+          <button
+            ref={(button) => {
+              buttons.current[action] = button;
+            }}
+            type="button"
+            disabled={disabled}
+            onClick={run}
+            className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-foreground hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+          >
+            <Icon aria-hidden="true" size={20} strokeWidth={1.5} />
+          </button>
+        </Tooltip>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The drag preview (DESIGN.md §11): a compact card with the component's name
+ * instead of the browser's ghost of the whole block. It's built in the
+ * document the drag starts in (the editor page or the canvas iframe), shown
+ * as the drag image, and removed right after.
+ *
+ * @param {import("react").DragEvent} event
+ * @param {string} title
+ */
+export function setDragPreview(event, title) {
+  const transfer = event.dataTransfer;
+  if (typeof transfer.setDragImage !== "function") return;
+  const doc = /** @type {Element} */ (event.currentTarget).ownerDocument;
+  const card = doc.createElement("div");
+  // Off-screen but rendered: browsers can only snapshot a laid-out element.
+  card.className =
+    "fixed -top-96 left-0 flex max-w-70 items-center gap-2 rounded-md border border-primary bg-card px-4 py-3 type-small font-medium text-foreground";
+  // Lucide's "box" icon, inline because this element isn't rendered by React.
+  card.innerHTML =
+    '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>';
+  card.append(doc.createTextNode(title));
+  doc.body.append(card);
+  transfer.setDragImage(card, 16, 16);
+  // The browser has taken its snapshot by the next task.
+  setTimeout(() => card.remove(), 0);
 }
 
 /**
