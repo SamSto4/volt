@@ -1,4 +1,5 @@
 import alert from "./alert.js";
+import avatar from "./avatar.js";
 import badge from "./badge.js";
 import button from "./button.js";
 import card from "./card.js";
@@ -10,4 +11,4 @@ import input from "./input.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button, badge, card, input, alert];
+export const manifests = [button, badge, card, input, alert, avatar];
