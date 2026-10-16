@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AccordionBlock } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
 import { TabsBlock } from "@/components/ui/tabs";
+import accordionManifest, { accordionProps } from "@/registry/accordion";
 import alertManifest, { alertProps } from "@/registry/alert";
 import avatarManifest, { avatarProps } from "@/registry/avatar";
 import badgeManifest, { badgeProps } from "@/registry/badge";
@@ -189,6 +191,14 @@ export default function Home() {
           {tabsManifest.variants.map((variant) => (
             <ExampleRow key={variant.name} label={variant.name}>
               <TabsBlock className="w-full" {...tabsProps.parse(variant.props)} />
+            </ExampleRow>
+          ))}
+        </ComponentSection>
+
+        <ComponentSection manifest={accordionManifest}>
+          {accordionManifest.variants.map((variant) => (
+            <ExampleRow key={variant.name} label={variant.name}>
+              <AccordionBlock className="w-full" {...accordionProps.parse(variant.props)} />
             </ExampleRow>
           ))}
         </ComponentSection>
