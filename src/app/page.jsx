@@ -1,8 +1,10 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
+import cardManifest, { cardProps } from "@/registry/card";
 
 // A reference page for the Volt tokens, so both themes can be checked by eye.
 // It's temporary as the home page: the component catalog replaces it later.
@@ -112,6 +114,25 @@ export default function Home() {
             <span className="inline-flex items-center gap-2">
               Inspector <Badge>Beta</Badge>
             </span>
+          </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={cardManifest}>
+          <ExampleRow label="Examples">
+            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+              {cardManifest.variants.map((variant) => {
+                // These cards sit under the "Card" h2, so the default h3 is the right level.
+                const { title, description, headingLevel } = cardProps.parse(variant.props);
+                return (
+                  <Card key={variant.name}>
+                    <CardHeader>
+                      <CardTitle level={headingLevel}>{title}</CardTitle>
+                      <CardDescription>{description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
+            </div>
           </ExampleRow>
         </ComponentSection>
 
