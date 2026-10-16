@@ -1,11 +1,11 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { manifests } from "@/registry";
 import { sections as sectionTemplates } from "@/registry/sections";
 import { describeBlock } from "./canvas";
-import { useEditor, useEditorStore } from "./editor-context";
+import { useDrag, useEditor, useEditorStore } from "./editor-context";
 import { getManifest, getSection, getSectionTemplate } from "./store/tree.js";
 
 /**
@@ -16,6 +16,7 @@ import { getManifest, getSection, getSectionTemplate } from "./store/tree.js";
  */
 export function ComponentsPanel() {
   const store = useEditorStore();
+  const drag = useDrag();
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,8 +26,20 @@ export function ComponentsPanel() {
         </h2>
         <ul className="flex flex-col gap-2">
           {manifests.map((manifest) => (
-            <li key={manifest.name} className="flex items-center justify-between gap-2 rounded-md border border-border bg-card p-3">
-              <div className="flex min-w-0 flex-col">
+            <li
+              key={manifest.name}
+              // Drag a card onto the page, or use its "Add to page" button.
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "copy";
+                event.dataTransfer.setData("text/plain", manifest.title);
+                drag.setPayload({ kind: "component", name: manifest.name });
+              }}
+              onDragEnd={() => drag.setPayload(null)}
+              className="flex cursor-grab items-center justify-between gap-2 rounded-md border border-border bg-card p-3 active:cursor-grabbing"
+            >
+              <GripVertical aria-hidden="true" size={16} strokeWidth={1.5} className="shrink-0 text-muted-foreground" />
+              <div className="flex min-w-0 flex-1 flex-col">
                 <span className="type-small font-medium">{manifest.title}</span>
                 <span className="truncate type-small text-muted-foreground">{manifest.category}</span>
               </div>
