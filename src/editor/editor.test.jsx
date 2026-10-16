@@ -214,6 +214,54 @@ describe("Editor", () => {
     });
   });
 
+  describe("command palette", () => {
+    it("opens from the top bar, finds by synonym, and Enter runs the command", async () => {
+      const { user, status } = await setup();
+      await user.click(screen.getByRole("button", { name: "Commands" }));
+      const palette = within(screen.getByRole("dialog", { name: "Command palette" }));
+      const search = palette.getByRole("combobox", { name: "Search commands" });
+      expect(search).toHaveFocus();
+
+      await user.type(search, "modal");
+      const first = palette.getAllByRole("option")[0];
+      expect(first).toHaveTextContent("Add Dialog to page");
+      expect(search).toHaveAttribute("aria-activedescendant", first.id);
+      await user.keyboard("{Enter}");
+
+      expect(status()).toHaveTextContent(/^Dialog added to/);
+      expect(screen.queryByRole("dialog", { name: "Command palette" })).not.toBeInTheDocument();
+    });
+
+    it("opens with Cmd/Ctrl+K, moves with the arrow keys, and jumps to a layer", async () => {
+      const { user, properties } = await setup();
+      await user.keyboard("{Control>}k{/Control}");
+      const palette = within(screen.getByRole("dialog", { name: "Command palette" }));
+      const search = palette.getByRole("combobox");
+
+      // "features" matches "Add Features section" first, then the jump to it.
+      await user.type(search, "features");
+      const options = palette.getAllByRole("option");
+      expect(options[0]).toHaveTextContent("Add Features section");
+      expect(options[1]).toHaveTextContent("Go to the Features section");
+      await user.keyboard("{ArrowDown}");
+      expect(search).toHaveAttribute("aria-activedescendant", options[1].id);
+      expect(options[1]).toHaveAttribute("aria-selected", "true");
+      await user.keyboard("{Enter}");
+
+      expect(properties().getByText("Selected section")).toBeInTheDocument();
+      expect(properties().getByText("Features")).toBeInTheDocument();
+    });
+
+    it("says when nothing matches", async () => {
+      const { user } = await setup();
+      await user.click(screen.getByRole("button", { name: "Commands" }));
+      await user.type(screen.getByRole("combobox", { name: "Search commands" }), "qqqq");
+      expect(screen.getByText("No commands match “qqqq”.")).toBeInTheDocument();
+      // The result count is announced for screen readers.
+      expect(screen.getByText("0 commands")).toHaveAttribute("role", "status");
+    });
+  });
+
   describe("undo toast", () => {
     it("offers Undo after a removal, and Undo brings the block back", async () => {
       const { user, canvas, status } = await setup();
