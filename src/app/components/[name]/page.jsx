@@ -1,8 +1,5 @@
 import { notFound } from "next/navigation";
-import { CopyButton } from "@/components/copy-button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { renderElement } from "@/editor/render-element";
-import { generateBlockCode } from "@/lib/codegen";
+import { Playground } from "@/components/playground";
 import { manifests } from "@/registry";
 
 // One page per component, all prerendered at build time.
@@ -27,7 +24,6 @@ export default async function ComponentPage({ params }) {
   // In Next 16, params is a Promise, so it's awaited before use.
   const manifest = findManifest((await params).name);
   if (!manifest) notFound();
-  const defaults = manifest.props.parse({});
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10">
@@ -37,45 +33,15 @@ export default async function ComponentPage({ params }) {
         <p className="max-w-prose text-muted-foreground">{manifest.description}</p>
       </section>
 
-      <section aria-labelledby="examples-heading" className="flex flex-col gap-6">
-        <h2 id="examples-heading" className="type-heading-2">
-          Examples
+      <section aria-labelledby="playground-heading" className="flex flex-col gap-4">
+        <h2 id="playground-heading" className="type-heading-2">
+          Try it
         </h2>
-        {manifest.variants.map((variant) => {
-          const props = manifest.props.parse(variant.props);
-          // One element tree feeds both tabs: the preview renders it, the
-          // code tab prints it. They can't disagree.
-          const element = manifest.code.render(props, defaults);
-          const code = generateBlockCode({ component: manifest.name, props: variant.props }, manifests);
-          const codeId = `code-${manifest.name}-${variant.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-          return (
-            <section key={variant.name} aria-label={variant.name} className="flex flex-col gap-4">
-              <h3 className="type-label text-muted-foreground">{variant.name}</h3>
-              <Tabs defaultValue="preview">
-                <TabsList aria-label={`${variant.name}: preview or code`}>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="code">Code</TabsTrigger>
-                </TabsList>
-                <TabsContent
-                  value="preview"
-                  className="flex min-h-40 items-center justify-center rounded-md border border-border bg-card p-4 md:p-6"
-                >
-                  <div className="w-full max-w-xl">{renderElement(element)}</div>
-                </TabsContent>
-                <TabsContent value="code" className="flex flex-col gap-2 rounded-md border border-border bg-card p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="type-label text-muted-foreground">Example.jsx</span>
-                    <CopyButton text={code.module} targetId={codeId} />
-                  </div>
-                  {/* Plain monospace for now; syntax highlighting (Shiki) comes later. */}
-                  <pre className="overflow-x-auto type-code">
-                    <code id={codeId}>{code.module}</code>
-                  </pre>
-                </TabsContent>
-              </Tabs>
-            </section>
-          );
-        })}
+        <p className="max-w-prose text-muted-foreground">
+          Change any prop and watch the preview and the code update together. Everything in the preview
+          works: click it, tab through it, type in it.
+        </p>
+        <Playground name={manifest.name} />
       </section>
 
       <section aria-labelledby="usage-heading" className="flex flex-col gap-4">
