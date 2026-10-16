@@ -6,6 +6,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { PageCanvas } from "./canvas";
 import { EditorProvider } from "./editor-context";
 import { Editor } from "./editor";
+import { createBlogPage } from "./store/example-page.js";
+import { createEditorStore } from "./store/store.js";
 
 /**
  * @param {Element} container
@@ -251,6 +253,22 @@ describe("Editor", () => {
     // jsdom iframe from the parent window.
     const results = await scan(container, { iframes: false });
     expect(results).toEqual([]);
+  });
+
+  it.each(/** @type {const} */ (["edit", "try"]))("has no axe violations on the blog example in %s mode", async (mode) => {
+    const idFactory = (() => {
+      let n = 0;
+      return () => `b${++n}`;
+    })();
+    const blog = createBlogPage(idFactory);
+    const { container } = render(
+      <EditorProvider store={createEditorStore({ tree: blog.tree, selectedId: blog.heroId, idFactory })}>
+        <PageCanvas mode={mode} />
+      </EditorProvider>,
+    );
+    expect(await scan(container)).toEqual([]);
+    // The byline avatar is named, since no name is written beside it.
+    expect(screen.getByRole("img", { name: "Priya Shah" })).toBeInTheDocument();
   });
 
   it.each(/** @type {const} */ (["edit", "try"]))("has no axe violations on the canvas page in %s mode", async (mode) => {

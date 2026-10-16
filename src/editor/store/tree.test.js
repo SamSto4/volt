@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createExamplePage } from "./example-page.js";
+import { createBlogPage, createExamplePage } from "./example-page.js";
 import * as ops from "./tree.js";
 
 /** Predictable ids ("n1", "n2", …) so tests can name nodes. */
@@ -42,6 +42,14 @@ describe("the example page", () => {
     const { tree } = createExamplePage(counter());
     expect(ops.treeProblems(tree)).toEqual([]);
     expect(tree.sections.map((id) => ops.getSection(tree, id)?.template)).toEqual(["hero", "features", "faq", "signup"]);
+  });
+});
+
+describe("the blog example", () => {
+  it("is a sound tree: article, callout and sign-up", () => {
+    const { tree } = createBlogPage(counter());
+    expect(ops.treeProblems(tree)).toEqual([]);
+    expect(tree.sections.map((id) => ops.getSection(tree, id)?.template)).toEqual(["article", "callout", "signup"]);
   });
 });
 
