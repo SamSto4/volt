@@ -1,0 +1,39 @@
+# Runs the same checks as the "Definition of done" in CLAUDE.md on every PR and on main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch cancels the run that's still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # Corepack ships with Node 24 and installs the exact pnpm version
+      # from package.json's "packageManager" field.
+      - run: corepack enable pnpm
+
+      # --frozen-lockfile fails if package.json and pnpm-lock.yaml disagree,
+      # instead of quietly updating the lockfile in CI.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
