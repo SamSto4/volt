@@ -10,9 +10,12 @@ export function SiteHeader() {
         <Link href="/" className="rounded-sm font-display text-xl font-bold">
           Volt
         </Link>
-        <nav aria-label="Main">
+        <nav aria-label="Main" className="flex items-center gap-4">
           <Link href="/components" className="rounded-sm type-small text-muted-foreground hover:text-foreground">
             Components
+          </Link>
+          <Link href="/editor" className="rounded-sm type-small text-muted-foreground hover:text-foreground">
+            Editor
           </Link>
         </nav>
       </div>
