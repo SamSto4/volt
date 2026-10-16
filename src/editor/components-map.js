@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 /**
  * Links each manifest name to the React component that renders it.
@@ -12,4 +13,5 @@ import { Button } from "@/components/ui/button";
  */
 export const componentsByName = {
   button: Button,
+  card: Card,
 };

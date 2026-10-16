@@ -1,4 +1,5 @@
 import button from "./button.js";
+import card from "./card.js";
 
 /**
  * Every component manifest, in catalog order. Adding a component means adding
@@ -6,4 +7,4 @@ import button from "./button.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button];
+export const manifests = [button, card];
