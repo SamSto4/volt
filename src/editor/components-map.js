@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
 import { TabsBlock } from "@/components/ui/tabs";
+import { Tooltip } from "@/components/ui/tooltip";
 
 /**
  * Links each manifest name to the React component that renders it.
@@ -27,4 +28,5 @@ export const componentsByName = {
   avatar: Avatar,
   tabs: TabsBlock,
   accordion: AccordionBlock,
+  tooltip: Tooltip,
 };

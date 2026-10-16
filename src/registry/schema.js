@@ -67,6 +67,11 @@ export const manifestSchema = z.strictObject({
   // src/lib/codegen prints. It must be pure: same props in, same tree out.
   code: z.strictObject({
     from: z.string().regex(/^@\/components\/ui\/[a-z0-9-]+$/, "code.from must be @/components/ui/<name>"),
+    // Components the render uses from *other* modules, e.g. Tooltip's Button:
+    // { Button: "@/components/ui/button" }. Everything else comes from `from`.
+    uses: z
+      .record(z.string().regex(/^[A-Z][A-Za-z0-9]*$/), z.string().regex(/^@\/components\/ui\/[a-z0-9-]+$/))
+      .optional(),
     render: renderSchema,
   }),
   install: z.strictObject({

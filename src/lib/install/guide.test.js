@@ -41,6 +41,13 @@ describe("install guide", () => {
     expect(vite.map((s) => s.code?.filename)).toEqual(expect.arrayContaining(["vite.config.js", "src/lib/utils.js", "src/App.jsx"]));
   });
 
+  it("includes the components a component is built on (Tooltip uses Button)", () => {
+    const steps = installSteps(byName("tooltip"), "next", "npm", "x") ?? [];
+    const titles = steps.map((step) => step.title);
+    expect(titles.indexOf("Copy the Button component")).toBeLessThan(titles.indexOf("Copy the Tooltip component"));
+    expect(packagesFor(byName("tooltip"))).toEqual(["clsx", "tailwind-merge"]);
+  });
+
   it("has no HTML guide yet, rather than a made-up one", () => {
     expect(installSteps(byName("button"), "html", "npm", "x")).toBeNull();
   });

@@ -50,7 +50,9 @@ export function pageElement(tree, { manifests, sections }) {
         const manifest = manifests.find((candidate) => candidate.name === block?.component);
         if (!block || !manifest) throw new Error(`Unknown block "${blockId}"`);
         const element = manifest.code.render(parseOrThrow(manifest.props, block.props, manifest.name), manifest.props.parse({}));
-        for (const type of collectTypes(element)) if (/^[A-Z]/.test(type)) moduleOf.set(type, manifest.code.from);
+        for (const type of collectTypes(element)) {
+          if (/^[A-Z]/.test(type)) moduleOf.set(type, manifest.code.uses?.[type] ?? manifest.code.from);
+        }
         blockOf.set(element, blockId);
         return element;
       });

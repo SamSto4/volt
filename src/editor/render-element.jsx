@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, InputField } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip } from "@/components/ui/tooltip";
 import { isRenderable } from "@/lib/codegen/jsx.js";
 
 // Renders the same element tree that codegen prints (ADR 0003) as real React.
@@ -42,6 +43,7 @@ export const scope = {
   TabsContent,
   TabsList,
   TabsTrigger,
+  Tooltip,
 };
 
 /**
