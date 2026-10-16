@@ -6,13 +6,14 @@ UI/UX creation and learning: drop real components into real pages, then learn ex
 
 ## What you can do
 
-- **Browse the catalog** (`/components`). Eight accessible components (Button, Badge, Card, Input, Alert, Avatar, Tabs, Accordion). Each one has:
-  - a **live playground**: pick a preset, change any prop in a schema-generated inspector, and watch the preview and the exact code update together;
-  - **step-by-step instructions** for Next.js or Vite, for npm, pnpm, yarn or bun;
+- **Browse the catalog** (`/components`). Fourteen accessible components: Button, Badge, Card, Input, Textarea, Select, Checkbox, Switch, Alert, Avatar, Tabs, Accordion, Tooltip and Dialog. Each one has:
+  - a **live playground**: pick a preset, change any prop in a schema-generated inspector, and watch the preview and the exact code update together, at a real 375 / 768 / 1280 px width and in light or dark;
+  - **step-by-step instructions** for Next.js or Vite, for npm, pnpm, yarn or bun, ending with a "You're done when…" check;
   - a **"Copy prompt for your AI agent"** button, which builds a prompt for Claude Code or Cursor from the same facts.
-- **Compose a page** (`/editor`). An example landing page with sections and slots.
+- **Compose a page** (`/editor`), a full-screen app. Start from the landing page or blog post example, or a blank page.
   - **Add** blocks by dragging, by clicking "Add to page", or with the keyboard.
-  - **Change** them in the inspector, or with the action bar (move, duplicate, delete). Undo and redo anything.
+  - **Change** them in the inspector, or with the floating action bar (move, duplicate, delete). Undo and redo anything, with an undo toast after deletes.
+  - **⌘K command palette:** add anything, change the view, or jump to any layer by typing.
   - **Preview** at 375, 768 or 1280 px in an iframe, so breakpoints really respond. Switch to **Try it** to use the page.
   - **See the code** in Split view, with the selected block's lines highlighted.
   - **Copy or download** `Page.jsx`.
@@ -29,12 +30,12 @@ UI/UX creation and learning: drop real components into real pages, then learn ex
 | Drag and drop with native HTML5 events, sharing one placement rule with click and keyboard | [`src/editor/canvas.jsx`](src/editor/canvas.jsx) | [ADR 0006](docs/adr/0006-native-drag-and-drop.md) |
 
 **Accessibility:**
-- Tabs and Accordion implement the WAI-ARIA keyboard patterns by hand.
+- Tabs, Accordion, the command palette's combobox and Switch implement the WAI-ARIA patterns. Dialog is built on the native `<dialog>`.
 - Every drag has a click and keyboard alternative (WCAG 2.5.7).
 - The editor announces each action in one polite live region.
 - axe scans the home, catalog and editor pages on every change.
 
-**Tests:** about 590 Vitest tests, covering:
+**Tests:** about 800 Vitest tests, covering:
 - behavior and ARIA for every component;
 - invariants for every tree operation, with inputs deep-frozen so a mutation throws;
 - golden files for the generated code, each parsed as TSX;
