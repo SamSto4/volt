@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -12,4 +13,5 @@ import { Button } from "@/components/ui/button";
  */
 export const componentsByName = {
   button: Button,
+  badge: Badge,
 };
