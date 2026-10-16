@@ -5,12 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
+import { TabsBlock } from "@/components/ui/tabs";
 import alertManifest, { alertProps } from "@/registry/alert";
 import avatarManifest, { avatarProps } from "@/registry/avatar";
 import badgeManifest, { badgeProps } from "@/registry/badge";
 import buttonManifest, { buttonProps } from "@/registry/button";
 import cardManifest, { cardProps } from "@/registry/card";
 import inputManifest, { inputProps } from "@/registry/input";
+import tabsManifest, { tabsProps } from "@/registry/tabs";
 
 // A reference page for the Volt tokens, so both themes can be checked by eye.
 // It's temporary as the home page: the component catalog replaces it later.
@@ -181,6 +183,14 @@ export default function Home() {
               Priya Shah
             </span>
           </ExampleRow>
+        </ComponentSection>
+
+        <ComponentSection manifest={tabsManifest}>
+          {tabsManifest.variants.map((variant) => (
+            <ExampleRow key={variant.name} label={variant.name}>
+              <TabsBlock className="w-full" {...tabsProps.parse(variant.props)} />
+            </ExampleRow>
+          ))}
         </ComponentSection>
 
         <section aria-labelledby="color-heading" className="flex flex-col gap-4">

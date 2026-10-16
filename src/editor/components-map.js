@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InputField } from "@/components/ui/input";
+import { TabsBlock } from "@/components/ui/tabs";
 
 /**
  * Links each manifest name to the React component that renders it.
@@ -23,4 +24,5 @@ export const componentsByName = {
   input: InputField,
   alert: Alert,
   avatar: Avatar,
+  tabs: TabsBlock,
 };
