@@ -10,7 +10,7 @@ describe("InstallGuide", () => {
   it("shows numbered Next.js steps with npm by default", () => {
     render(<InstallGuide name="button" />);
     expect(screen.getByRole("radio", { name: "Next.js" })).toBeChecked();
-    expect(screen.getByText("npm install clsx tailwind-merge")).toBeInTheDocument();
+    expect(screen.getByLabelText("Terminal")).toHaveTextContent("npm install clsx tailwind-merge");
     expect(screen.getByRole("heading", { name: /Copy the Button component/ })).toBeInTheDocument();
   });
 
@@ -20,7 +20,7 @@ describe("InstallGuide", () => {
     await user.click(screen.getByRole("radio", { name: "Vite" }));
     await user.click(screen.getByRole("radio", { name: "pnpm" }));
     expect(screen.getByLabelText("vite.config.js")).toBeInTheDocument();
-    expect(screen.getByText("pnpm add clsx lucide-react tailwind-merge")).toBeInTheDocument();
+    expect(screen.getByLabelText("Terminal")).toHaveTextContent("pnpm add clsx lucide-react tailwind-merge");
     unmount();
 
     render(<InstallGuide name="card" />);

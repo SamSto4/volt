@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import { useId } from "react";
+import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { SegmentedControl } from "@/components/segmented-control";
 import { buildAgentPrompt } from "@/lib/ai/agent-prompt.js";
@@ -82,9 +83,12 @@ export function InstallGuide({ name }) {
                           targetId={codeId}
                         />
                       </div>
-                      <pre tabIndex={0} aria-label={step.code.filename} className="overflow-x-auto type-code">
-                        <code id={codeId}>{step.code.text}</code>
-                      </pre>
+                      <CodeBlock
+                        code={step.code.text}
+                        lang={step.code.filename === "Terminal" ? "shellscript" : "jsx"}
+                        id={codeId}
+                        label={step.code.filename}
+                      />
                     </div>
                   )}
                 </li>
