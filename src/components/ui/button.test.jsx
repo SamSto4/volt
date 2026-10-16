@@ -67,6 +67,50 @@ describe("Button", () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it("while loading, ignores clicks but keeps focus and its name", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const { rerender } = render(<Button onClick={onClick}>Save</Button>);
+    const button = screen.getByRole("button", { name: "Save" });
+
+    await user.tab();
+    rerender(
+      <Button onClick={onClick} loading>
+        Save
+      </Button>,
+    );
+    // Same element, still focused: a `disabled` button would have lost focus.
+    expect(button).toHaveFocus();
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).toHaveAccessibleName("Save");
+
+    await user.click(button);
+    await user.keyboard("{Enter}");
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("while loading, can't submit its form a second time", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn((/** @type {import("react").FormEvent} */ event) => event.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <Button type="submit" loading>
+          Sending
+        </Button>
+      </form>,
+    );
+    await user.click(screen.getByRole("button", { name: "Sending" }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("while loading, shows a spinner that screen readers skip", () => {
+    render(<Button loading>Saving</Button>);
+    const spinner = screen.getByRole("button").querySelector("svg");
+    expect(spinner).toHaveAttribute("aria-hidden", "true");
+    // Only spins when reduced motion is off.
+    expect(spinner).toHaveClass("motion-safe:animate-spin");
+  });
+
   it("lets a caller's className override the defaults", () => {
     render(<Button className="px-6">Wide</Button>);
     const button = screen.getByRole("button");
