@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Download, PanelLeft, PanelRight, Redo2, Undo2 } from "lucide-react";
+import { ChevronRight, Command as CommandIcon, Download, PanelLeft, PanelRight, Redo2, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
@@ -11,8 +11,9 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { generatePageCode } from "@/lib/codegen";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
-import { PageCanvas } from "./canvas";
+import { describeBlock, PageCanvas } from "./canvas";
 import { CanvasErrorBoundary } from "./canvas-error-boundary";
+import { CommandPalette } from "./command-palette";
 import { CodeView } from "./code-view";
 import { ComponentsPanel } from "./components-panel";
 import { EditorProvider, useEditor, useEditorStore, useHistory } from "./editor-context";
@@ -47,9 +48,25 @@ function EditorShell() {
   const [showComponents, setShowComponents] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
   const [frameDoc, setFrameDoc] = useState(/** @type {Document | null} */ (null));
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const tree = useEditor((state) => state.tree);
+  const selectedId = useEditor((state) => state.selectedId);
 
   usePersistence();
-  useUndoShortcuts(frameDoc);
+  useUndoShortcuts(frameDoc, () => setPaletteOpen(true));
+
+  const commands = editorCommands({
+    store,
+    tree,
+    selectedId,
+    setView,
+    setMode,
+    setWidth,
+    showComponents,
+    setShowComponents,
+    showProperties,
+    setShowProperties,
+  });
 
   const showCanvas = view !== "code";
   const showCode = view !== "preview";
@@ -59,6 +76,7 @@ function EditorShell() {
     <div className="flex h-dvh flex-col bg-background">
       <LiveRegion />
       <UndoToast onUndo={() => undo(store)} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
 
       <header className="flex h-14 shrink-0 items-center gap-4 overflow-x-auto border-b border-border px-4">
         <Link href="/" className="shrink-0 rounded-sm font-display text-xl font-bold">
@@ -104,6 +122,9 @@ function EditorShell() {
         <SegmentedControl label="Canvas width in pixels" hideLabel className="shrink-0" options={WIDTHS} value={width} onChange={setWidth} />
 
         <div className="ml-auto flex shrink-0 items-center gap-1">
+          <IconButton label="Commands" keyshortcuts="Control+K Meta+K" onClick={() => setPaletteOpen(true)}>
+            <CommandIcon aria-hidden="true" strokeWidth={1.5} />
+          </IconButton>
           <IconButton label="Components panel" pressed={showComponents} onClick={() => setShowComponents(!showComponents)}>
             <PanelLeft aria-hidden="true" strokeWidth={1.5} />
           </IconButton>
@@ -438,12 +459,15 @@ function usePersistence() {
 }
 
 /**
- * Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z (or Ctrl+Y), in the editor and inside the
- * canvas frame. Left alone in text fields, where they undo typing.
+ * Editor shortcuts, in the editor and inside the canvas frame:
+ * Cmd/Ctrl+K opens the command palette (anywhere, even in a text field);
+ * Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z (or Ctrl+Y) undo and redo, except in text
+ * fields, where they undo typing.
  *
  * @param {Document | null} frameDoc
+ * @param {() => void} openPalette
  */
-function useUndoShortcuts(frameDoc) {
+function useUndoShortcuts(frameDoc, openPalette) {
   const store = useEditorStore();
 
   useEffect(() => {
@@ -451,6 +475,11 @@ function useUndoShortcuts(frameDoc) {
     function onKeyDown(event) {
       const mod = event.metaKey || event.ctrlKey;
       if (!mod) return;
+      if (event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openPalette();
+        return;
+      }
       const target = /** @type {HTMLElement | null} */ (event.target);
       if (target?.closest?.("input, textarea, select, [contenteditable]")) return;
       const key = event.key.toLowerCase();
@@ -465,6 +494,8 @@ function useUndoShortcuts(frameDoc) {
     const targets = [document, frameDoc].filter((doc) => doc !== null);
     targets.forEach((doc) => doc.addEventListener("keydown", onKeyDown));
     return () => targets.forEach((doc) => doc.removeEventListener("keydown", onKeyDown));
+    // openPalette only sets state; a new function each render shouldn't re-attach listeners.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, frameDoc]);
 }
 
@@ -485,4 +516,98 @@ function redo(store) {
   if (history.futureStates.length === 0) return;
   history.redo();
   store.getState().announce("Redone.");
+}
+
+/**
+ * Every command the palette offers, built from the registries and the page,
+ * so new components, sections and blocks appear without extra code.
+ *
+ * @param {{
+ *   store: import("./editor-context").EditorStore,
+ *   tree: import("./store/tree.js").Tree,
+ *   selectedId: string | null,
+ *   setView: (view: "preview" | "code" | "split") => void,
+ *   setMode: (mode: "edit" | "try") => void,
+ *   setWidth: (width: number) => void,
+ *   showComponents: boolean,
+ *   setShowComponents: (show: boolean) => void,
+ *   showProperties: boolean,
+ *   setShowProperties: (show: boolean) => void,
+ * }} context
+ * @returns {import("./commands.js").Command[]}
+ */
+function editorCommands({ store, tree, selectedId, setView, setMode, setWidth, showComponents, setShowComponents, showProperties, setShowProperties }) {
+  const actions = store.getState();
+  const selected = selectedId ? tree.nodes[selectedId] : undefined;
+
+  /** @type {import("./commands.js").Command[]} */
+  const commands = [
+    ...manifests.map((manifest) => ({
+      id: `add:${manifest.name}`,
+      title: `Add ${manifest.title} to page`,
+      group: "Components",
+      run: () => actions.insertBlock(manifest.name),
+    })),
+    ...sections.map((template) => ({
+      id: `section:${template.name}`,
+      title: `Add ${template.title} section`,
+      group: "Sections",
+      run: () => actions.addSection(template.name),
+    })),
+    { id: "undo", title: "Undo", group: "History", shortcut: "⌘Z", run: () => undo(store) },
+    { id: "redo", title: "Redo", group: "History", shortcut: "⇧⌘Z", run: () => redo(store) },
+    { id: "view:preview", title: "Show the preview", group: "View", run: () => setView("preview") },
+    { id: "view:code", title: "Show the code", group: "View", run: () => setView("code") },
+    { id: "view:split", title: "Show preview and code side by side", group: "View", keywords: ["split"], run: () => setView("split") },
+    { id: "mode:edit", title: "Edit the page", group: "Mode", run: () => setMode("edit") },
+    { id: "mode:try", title: "Try the page", group: "Mode", keywords: ["interact", "use"], run: () => setMode("try") },
+    { id: "width:375", title: "Canvas width 375", group: "View", keywords: ["phone", "mobile"], run: () => setWidth(375) },
+    { id: "width:768", title: "Canvas width 768", group: "View", keywords: ["tablet"], run: () => setWidth(768) },
+    { id: "width:1280", title: "Canvas width 1280", group: "View", keywords: ["desktop"], run: () => setWidth(1280) },
+    {
+      id: "panel:components",
+      title: `${showComponents ? "Hide" : "Show"} the components panel`,
+      group: "Panels",
+      run: () => setShowComponents(!showComponents),
+    },
+    {
+      id: "panel:properties",
+      title: `${showProperties ? "Hide" : "Show"} the properties panel`,
+      group: "Panels",
+      run: () => setShowProperties(!showProperties),
+    },
+    { id: "page:landing", title: "Load the landing page example", group: "Page", run: () => actions.loadExample("landing") },
+    { id: "page:blog", title: "Load the blog post example", group: "Page", run: () => actions.loadExample("blog") },
+    { id: "page:blank", title: "Start a blank page", group: "Page", keywords: ["new", "empty", "clear"], run: () => actions.startBlank() },
+  ];
+
+  if (selected && selectedId) {
+    const name = selected.kind === "block" ? getManifest(selected.component).title : getSectionTemplate(selected.template).title;
+    commands.unshift(
+      { id: "selected:delete", title: `Delete the selected ${name}`, group: "Selection", run: () => actions.remove(selectedId) },
+      ...(selected.kind === "block"
+        ? [{ id: "selected:duplicate", title: `Duplicate the selected ${name}`, group: "Selection", run: () => actions.duplicate(selectedId) }]
+        : []),
+    );
+  }
+
+  // Jump to any layer: every section and block on the page.
+  for (const sectionId of tree.sections) {
+    const section = tree.nodes[sectionId];
+    if (!section || section.kind !== "section") continue;
+    const sectionTitle = getSectionTemplate(section.template).title;
+    commands.push({ id: `go:${sectionId}`, title: `Go to the ${sectionTitle} section`, group: "Layers", run: () => actions.select(sectionId) });
+    for (const blockId of Object.values(section.slots).flat()) {
+      const block = tree.nodes[blockId];
+      if (!block || block.kind !== "block") continue;
+      const summary = describeBlock(block.props);
+      commands.push({
+        id: `go:${blockId}`,
+        title: `Go to ${getManifest(block.component).title}${summary ? ` · ${summary}` : ""}`,
+        group: `Layers · ${sectionTitle}`,
+        run: () => actions.select(blockId),
+      });
+    }
+  }
+  return commands;
 }
