@@ -98,6 +98,12 @@ describe("printJsx", () => {
     expect(printJsx(tree)).toBe("<Card>\n  <CardTitle>Plan</CardTitle>\n</Card>");
   });
 
+  it("skips empty-string children, which `text && h(...)` produces when text is empty", () => {
+    const intro = "";
+    const tree = h("section", {}, h("h2", {}, "Title"), intro && h("p", {}, intro));
+    expect(printJsx(tree)).toBe("<section>\n  <h2>Title</h2>\n</section>");
+  });
+
   it("flattens arrays of children, so items.map(...) can be passed in", () => {
     const tree = h("ul", {}, ["a", "b"].map((letter) => h("li", {}, letter)));
     expect(printJsx(tree)).toBe("<ul>\n  <li>a</li>\n  <li>b</li>\n</ul>");
