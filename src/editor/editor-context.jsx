@@ -38,11 +38,40 @@ export function EditorProvider({ children, store }) {
         },
       }),
   );
+  const [payload, setPayload] = useState(/** @type {DragPayload | null} */ (null));
+  const [lastDropped, setLastDropped] = useState(/** @type {string | null} */ (null));
   return (
     <StoreContext value={value}>
-      <FocusContext value={focus}>{children}</FocusContext>
+      <FocusContext value={focus}>
+        <DragContext value={{ payload, setPayload, lastDropped, setLastDropped }}>{children}</DragContext>
+      </FocusContext>
     </StoreContext>
   );
+}
+
+/**
+ * What's being dragged right now. Kept in React state, not only in the
+ * browser's dataTransfer: while dragging, browsers hide dataTransfer's
+ * contents from dragover handlers, which need it to decide where a drop fits.
+ *
+ * @typedef {{ kind: "component", name: string } | { kind: "block", id: string }} DragPayload
+ */
+
+/**
+ * @typedef {object} DragState
+ * @property {DragPayload | null} payload
+ * @property {(payload: DragPayload | null) => void} setPayload
+ * @property {string | null} lastDropped  id of the block that just landed (for the flash)
+ * @property {(id: string | null) => void} setLastDropped
+ */
+
+const DragContext = createContext(/** @type {DragState | null} */ (null));
+
+/** The current drag, shared by the palette (parent page) and the canvas (iframe). */
+export function useDrag() {
+  const drag = useContext(DragContext);
+  if (!drag) throw new Error("Editor parts must be used inside <EditorProvider>.");
+  return drag;
 }
 
 /** Ask for, or claim, the next focus target (see above). */

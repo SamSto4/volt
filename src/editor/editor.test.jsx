@@ -128,6 +128,74 @@ describe("Editor", () => {
     expect(highlighted).toEqual(['<Badge variant="highlight">New</Badge>']);
   });
 
+  describe("drag and drop", () => {
+    /** A stand-in for the browser's DataTransfer: jsdom doesn't have one. */
+    const dataTransfer = () => ({ setData() {}, getData: () => "", effectAllowed: "", dropEffect: "" });
+
+    /** @param {HTMLIFrameElement} iframe @param {number} sectionIndex @param {string} target e.g. "items" */
+    const slotIn = (iframe, sectionIndex, target) => {
+      const sections = iframe.contentDocument?.querySelectorAll("[data-section-id]") ?? [];
+      const id = sections[sectionIndex]?.getAttribute("data-section-id");
+      return /** @type {HTMLElement} */ (iframe.contentDocument?.querySelector(`[data-slot-target="${id}:${target}"]`));
+    };
+
+    it("drops a component from the palette into a slot that takes it", async () => {
+      const { iframe, palette, status, canvas } = await setup();
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("li"));
+      const features = slotIn(iframe, 1, "items");
+
+      fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
+      // preventDefault on dragover is how a target accepts: fireEvent returns false.
+      expect(fireEvent.dragOver(features, { dataTransfer: dataTransfer() })).toBe(false);
+      expect(features).toHaveClass("bg-primary-tint");
+      fireEvent.drop(features, { dataTransfer: dataTransfer() });
+
+      expect(status()).toHaveTextContent("Card added to Features · Items, position 1 of 4.");
+      expect(canvas().getAllByRole("button", { name: /^Card:/ })).toHaveLength(4);
+      // The new block flashes and gets selected.
+      expect(canvas().getByRole("button", { name: "Card: Starter plan" })).toHaveClass("animate-drop-flash");
+      expect(canvas().getByRole("button", { name: "Card: Starter plan" })).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("refuses a slot that doesn't take the component, with no highlight", async () => {
+      const { iframe, palette } = await setup();
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("li"));
+      const heroActions = slotIn(iframe, 0, "actions");
+
+      fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
+      expect(fireEvent.dragOver(heroActions, { dataTransfer: dataTransfer() })).toBe(true);
+      expect(heroActions).not.toHaveClass("bg-primary-tint");
+    });
+
+    it("moves a block by dragging, fading the original, and it's one undo step", async () => {
+      const { user, iframe, canvas, status } = await setup();
+      const first = canvas().getByRole("button", { name: "Card: Fast to set up" });
+      const features = slotIn(iframe, 1, "items");
+
+      fireEvent.dragStart(first, { dataTransfer: dataTransfer() });
+      expect(first).toHaveClass("opacity-40");
+      // jsdom has no layout (every box is 0×0), so a pointer far right and
+      // below counts as "after every block": the end of the slot. jsdom also
+      // has no DragEvent, which would drop clientX/clientY, so these are
+      // MouseEvents of the drag types, with a dataTransfer attached.
+      const at = (/** @type {string} */ type) => {
+        const view = /** @type {Window & typeof globalThis} */ (iframe.contentWindow);
+        const event = new view.MouseEvent(type, { bubbles: true, cancelable: true, clientX: 9999, clientY: 9999 });
+        Object.defineProperty(event, "dataTransfer", { value: dataTransfer() });
+        return event;
+      };
+      fireEvent(features, at("dragover"));
+      fireEvent(features, at("drop"));
+
+      expect(status()).toHaveTextContent("Card moved to Features · Items, position 3 of 3.");
+      const order = canvas().getAllByRole("button", { name: /^Card:/ }).map((card) => card.getAttribute("aria-label"));
+      expect(order).toEqual(["Card: Works on any screen", "Card: Keyboard first", "Card: Fast to set up"]);
+
+      await user.click(screen.getByRole("button", { name: "Undo" }));
+      expect(canvas().getAllByRole("button", { name: /^Card:/ })[0]).toHaveAccessibleName("Card: Fast to set up");
+    });
+  });
+
   it("saves to this browser and restores on the next visit", async () => {
     const first = await setup();
     await first.user.click(first.palette().getByRole("button", { name: "Add Badge to page" }));

@@ -167,6 +167,22 @@
   font-weight: 400;
 }
 
+/* Editor "just dropped" flash (DESIGN.md §11): a primary-tint wash that fades
+   out over 700ms. A fade is a color change, which DESIGN.md §7 keeps even
+   with reduced motion, so it isn't wrapped in a motion query. */
+@keyframes drop-flash {
+  from {
+    background-color: var(--primary-tint);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+@utility animate-drop-flash {
+  animation: drop-flash 700ms cubic-bezier(0.2, 0, 0, 1);
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground type-body;
