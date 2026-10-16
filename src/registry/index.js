@@ -1,3 +1,4 @@
+import accordion from "./accordion.js";
 import alert from "./alert.js";
 import avatar from "./avatar.js";
 import badge from "./badge.js";
@@ -12,4 +13,4 @@ import tabs from "./tabs.js";
  *
  * @type {import("./schema.js").Manifest[]}
  */
-export const manifests = [button, badge, card, input, alert, avatar, tabs];
+export const manifests = [button, badge, card, input, alert, avatar, tabs, accordion];
