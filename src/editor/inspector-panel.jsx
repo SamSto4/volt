@@ -2,12 +2,12 @@
 
 import { ArrowDown, ArrowUp, Copy, ExternalLink, SquareDashed, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useEditor, useEditorStore } from "./editor-context";
 import { validate } from "./inspector/fields.js";
 import { Inspector } from "./inspector/inspector";
-import { findParent, getManifest, getSectionTemplate, slotLabel } from "./store/tree.js";
+import { canPlace, findParent, getManifest, getSectionTemplate, slotLabel } from "./store/tree.js";
 
 /**
  * The right-hand panel: what's selected, the actions for it (the click and
@@ -76,6 +76,8 @@ function BlockPanel({ id }) {
         </Button>
       </div>
 
+      <MoveTo id={id} />
+
       <PropsForm key={id} nodeId={id} schemaOwner={manifest} props={block.props} />
 
       <section aria-labelledby={`${id}-a11y`} className="flex flex-col gap-2 border-t border-border pt-4">
@@ -97,6 +99,68 @@ function BlockPanel({ id }) {
           <span className="sr-only">(opens in a new tab)</span>
         </Link>
       </section>
+    </div>
+  );
+}
+
+/**
+ * Moves the block to another slot, the click and keyboard alternative to
+ * dragging it into another section (WCAG 2.5.7). Lists only the slots that
+ * accept it, from the same canPlace() rule as drag and drop. A select plus a
+ * Move button, not move-on-change: some browsers fire "change" while you arrow
+ * through a closed select, which would move the block on every keypress.
+ *
+ * @param {{ id: string }} props
+ */
+function MoveTo({ id }) {
+  const store = useEditorStore();
+  const tree = useEditor((state) => state.tree);
+  const selectId = useId();
+  const [choice, setChoice] = useState("");
+  const block = tree.nodes[id];
+  const parent = findParent(tree, id);
+  if (!block || block.kind !== "block" || !parent) return null;
+
+  const targets = tree.sections.flatMap((sectionId) => {
+    const section = tree.nodes[sectionId];
+    if (!section || section.kind !== "section") return [];
+    return Object.keys(section.slots)
+      .filter((slot) => !(sectionId === parent.sectionId && slot === parent.slot))
+      .filter((slot) => canPlace(tree, block.component, { sectionId, slot }, { movingId: id }).ok)
+      .map((slot) => ({ value: `${sectionId}:${slot}`, label: slotLabel(tree, sectionId, slot) }));
+  });
+  if (targets.length === 0) return null;
+  const selected = targets.some((target) => target.value === choice) ? choice : targets[0].value;
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={selectId} className="type-small font-medium">
+        Move to
+      </label>
+      <div className="flex gap-2">
+        <select
+          id={selectId}
+          value={selected}
+          onChange={(event) => setChoice(event.target.value)}
+          className="h-8 min-w-0 flex-1 rounded-sm border border-input bg-card px-3 type-small"
+        >
+          {targets.map((target) => (
+            <option key={target.value} value={target.value}>
+              {target.label}
+            </option>
+          ))}
+        </select>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            const [sectionId, slot] = selected.split(":");
+            store.getState().moveBlock(id, { sectionId, slot });
+          }}
+        >
+          Move
+        </Button>
+      </div>
     </div>
   );
 }

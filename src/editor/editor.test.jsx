@@ -102,6 +102,19 @@ describe("Editor", () => {
     expect(properties().getByText(/position 2 of 3/)).toBeInTheDocument();
   });
 
+  it("moves a block to another section without dragging (Move to)", async () => {
+    const { user, canvas, properties, status, iframe } = await setup();
+    // The FAQ section takes content blocks too, so a Card can move there.
+    fireEvent.click(canvas().getByRole("button", { name: "Card: Keyboard first" }));
+    const moveTo = properties().getByRole("combobox", { name: "Move to" });
+    // Only slots that accept a Card are offered.
+    expect(within(moveTo).getAllByRole("option").map((option) => option.textContent)).toEqual(["FAQ · Content"]);
+    await user.click(properties().getByRole("button", { name: "Move" }));
+    expect(status()).toHaveTextContent("Card moved to FAQ · Content, position 2 of 2.");
+    const faq = /** @type {HTMLElement} */ (iframe.contentDocument?.querySelectorAll("[data-section-id]")[2]);
+    expect(within(faq).getByRole("button", { name: "Card: Keyboard first" })).toBeInTheDocument();
+  });
+
   it("adds a component from a slot's + menu", async () => {
     const { canvas, status } = await setup();
     fireEvent.click(canvas().getByRole("button", { name: "Add to Above the headline" }));
