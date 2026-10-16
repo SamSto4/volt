@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { manifests } from "@/registry";
 import { sections as sectionTemplates } from "@/registry/sections";
 
@@ -404,4 +405,48 @@ export function treeProblems(tree) {
   }
   for (const id of Object.keys(tree.nodes)) if (!seen.has(id)) problems.push(`"${id}" is orphaned`);
   return problems;
+}
+
+const nodeShape = z.discriminatedUnion("kind", [
+  z.strictObject({
+    id: z.string(),
+    kind: z.literal("section"),
+    template: z.string(),
+    props: z.record(z.string(), z.unknown()),
+    slots: z.record(z.string(), z.array(z.string())),
+  }),
+  z.strictObject({
+    id: z.string(),
+    kind: z.literal("block"),
+    component: z.string(),
+    props: z.record(z.string(), z.unknown()),
+  }),
+]);
+const treeShape = z.strictObject({ sections: z.array(z.string()), nodes: z.record(z.string(), nodeShape) });
+
+/**
+ * Checks a tree that came from outside (this browser's storage today, saved
+ * pages and share links later). Returns the tree, with every node's props
+ * parsed by its own schema, or null if anything at all is wrong.
+ *
+ * @param {unknown} input
+ * @returns {Tree | null}
+ */
+export function parseTree(input) {
+  const shape = treeShape.safeParse(input);
+  if (!shape.success) return null;
+  /** @type {Tree} */
+  const tree = { sections: shape.data.sections, nodes: {} };
+  for (const [id, node] of Object.entries(shape.data.nodes)) {
+    if (node.id !== id) return null;
+    const known =
+      node.kind === "block"
+        ? manifests.find((manifest) => manifest.name === node.component)
+        : sectionTemplates.find((template) => template.name === node.template);
+    if (!known) return null;
+    const props = known.props.safeParse(node.props);
+    if (!props.success) return null;
+    tree.nodes[id] = { ...node, props: props.data };
+  }
+  return treeProblems(tree).length === 0 ? tree : null;
 }
