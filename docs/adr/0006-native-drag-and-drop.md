@@ -1,6 +1,6 @@
 # 0006. Drag and drop: native HTML5 events for now, not dnd-kit
 
-- Status: accepted for now. Recorded for review afterwards (Sam asked the agent to keep building without check-ins, 2026-10-16). **This departs from CLAUDE.md's stack table** (`@dnd-kit/react` + `@dnd-kit/helpers`, pinned), so it needs Sam's explicit OK or a follow-up swap.
+- Status: accepted. Approved by Sam on 2026-10-17, replacing dnd-kit for now; revisit if touch press-and-hold or a keyboard drag mode is needed.
 - Date: 2026-10-16
 
 ## Context
