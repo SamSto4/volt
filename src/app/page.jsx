@@ -1,4 +1,6 @@
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import buttonManifest, { buttonProps } from "@/registry/button";
 
 // A reference page for the Volt tokens, so both themes can be checked by eye.
 // It's temporary as the home page: the component catalog replaces it later.
@@ -60,6 +62,45 @@ export default function Home() {
             The colors, type, spacing and corners every Volt component is built from. Switch the
             theme to check both.
           </p>
+        </section>
+
+        <section aria-labelledby="button-heading" className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h2 id="button-heading" className="type-heading-2">
+              {buttonManifest.title}
+            </h2>
+            <p className="max-w-prose text-muted-foreground">{buttonManifest.description}</p>
+          </div>
+          <div className="flex flex-col gap-6 rounded-md border border-border bg-card p-4 md:p-6">
+            {/* Each preset comes from the manifest: parse() fills in every
+                prop the preset doesn't set, exactly like a dropped block. */}
+            <ButtonRow label="Styles">
+              {buttonManifest.variants.map((variant) => {
+                const { label, ...props } = buttonProps.parse(variant.props);
+                return (
+                  <Button key={variant.name} {...props}>
+                    {label}
+                  </Button>
+                );
+              })}
+            </ButtonRow>
+            <ButtonRow label="Sizes">
+              <Button variant="secondary" size="sm">
+                Small
+              </Button>
+              <Button variant="secondary" size="md">
+                Medium
+              </Button>
+              <Button variant="secondary" size="lg">
+                Large
+              </Button>
+            </ButtonRow>
+            <ButtonRow label="Disabled">
+              <Button variant="secondary" disabled>
+                Not available
+              </Button>
+            </ButtonRow>
+          </div>
         </section>
 
         <section aria-labelledby="color-heading" className="flex flex-col gap-4">
@@ -148,5 +189,19 @@ export default function Home() {
         </div>
       </main>
     </>
+  );
+}
+
+/**
+ * One labeled row of example buttons.
+ *
+ * @param {{ label: string, children: import("react").ReactNode }} props
+ */
+function ButtonRow({ label, children }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="type-label text-muted-foreground">{label}</p>
+      <div className="flex flex-wrap items-center gap-4">{children}</div>
+    </div>
   );
 }
