@@ -39,7 +39,9 @@ export default function ComponentsPage() {
                       {manifest.title}
                     </Link>
                   </h2>
-                  <Badge>{manifest.category}</Badge>
+                  {/* The accessibility badge (DESIGN.md §12): the ARIA role it
+                      implements, or that plain HTML is enough. */}
+                  <Badge>{manifest.a11y.role ? `role: ${manifest.a11y.role}` : "No ARIA needed"}</Badge>
                 </div>
                 <p className="type-small text-muted-foreground">{manifest.usage.whenToUse}</p>
               </div>

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { generateBlockCode } from "@/lib/codegen";
 import { manifests } from "@/registry";
-import { installCommand, installSteps, packagesFor, UTILS_SOURCE } from "./guide.js";
+import { doneWhen, installCommand, installSteps, packagesFor, UTILS_SOURCE } from "./guide.js";
 
 const byName = (/** @type {string} */ name) => /** @type {import("@/registry/schema").Manifest} */ (manifests.find((m) => m.name === name));
 const example = (/** @type {string} */ name) => generateBlockCode({ component: name, props: {} }, manifests).module;
@@ -50,5 +50,12 @@ describe("install guide", () => {
 
   it("has no HTML guide yet, rather than a made-up one", () => {
     expect(installSteps(byName("button"), "html", "npm", "x")).toBeNull();
+  });
+
+  it("ends with done-when checks that name the component's keyboard behavior", () => {
+    const checks = doneWhen(byName("tabs"));
+    expect(checks[0]).toContain("shows the Tabs");
+    expect(checks).toContain("Home / End: moves to and shows the first or last tab.");
+    expect(checks.at(-1)).toContain("light and dark");
   });
 });

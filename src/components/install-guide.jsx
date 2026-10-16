@@ -1,13 +1,13 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { CircleCheck, ExternalLink } from "lucide-react";
 import { useId } from "react";
 import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { SegmentedControl } from "@/components/segmented-control";
 import { buildAgentPrompt } from "@/lib/ai/agent-prompt.js";
 import { generateBlockCode } from "@/lib/codegen";
-import { FRAMEWORK_LABELS, FRAMEWORKS, installSteps, PACKAGE_MANAGERS } from "@/lib/install/guide.js";
+import { doneWhen, FRAMEWORK_LABELS, FRAMEWORKS, installSteps, PACKAGE_MANAGERS } from "@/lib/install/guide.js";
 import { manifests } from "@/registry";
 import { useStoredChoice } from "./use-stored-choice";
 
@@ -95,6 +95,20 @@ export function InstallGuide({ name }) {
               );
             })}
           </ol>
+
+          <section aria-labelledby={`${baseId}-done`} className="flex flex-col gap-2">
+            <h3 id={`${baseId}-done`} className="type-heading-2">
+              You&apos;re done when…
+            </h3>
+            <ul className="flex flex-col gap-2">
+              {doneWhen(manifest).map((check) => (
+                <li key={check} className="flex items-start gap-2 text-muted-foreground">
+                  <CircleCheck aria-hidden="true" size={20} strokeWidth={1.5} className="mt-0.5 shrink-0 text-success" />
+                  {check}
+                </li>
+              ))}
+            </ul>
+          </section>
 
           {prompt && (
             <div className="flex flex-col gap-2 rounded-md border border-border bg-card p-4">
