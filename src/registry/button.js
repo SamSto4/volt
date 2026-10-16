@@ -12,6 +12,9 @@ export const buttonProps = z.object({
   // Volt button heights: sm 32px, md 40px, lg 48px (DESIGN.md §10).
   size: z.enum(["sm", "md", "lg"]).default("md").meta({ title: "Size" }),
   disabled: z.boolean().default(false).meta({ title: "Disabled" }),
+  // Shows a spinner and ignores clicks while work is in progress, without
+  // losing keyboard focus the way `disabled` would.
+  loading: z.boolean().default(false).meta({ title: "Loading" }),
 });
 
 /** @typedef {z.infer<typeof buttonProps>} ButtonProps */
@@ -31,6 +34,7 @@ export default defineManifest({
     { name: "Secondary", props: { variant: "secondary", label: "Learn more" } },
     { name: "Ghost", props: { variant: "ghost", label: "Cancel" } },
     { name: "Danger", props: { variant: "danger", label: "Delete page" } },
+    { name: "Loading", props: { loading: true, label: "Saving…" } },
   ],
   fits: ["action"],
   a11y: {
@@ -39,6 +43,7 @@ export default defineManifest({
     notes: [
       "The visible label is the accessible name, so don't add an aria-label that says something different.",
       "Disabled buttons can't be focused. If users need to know why an action is unavailable, explain it in nearby text.",
+      "While loading, the button stays focusable and is marked aria-disabled, so keyboard users don't lose their place. Change the label too (“Saving…”) so screen readers hear what's happening.",
     ],
   },
   install: {

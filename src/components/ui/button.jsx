@@ -1,3 +1,4 @@
+import { LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** @typedef {import("@/registry/button").ButtonProps} ButtonProps */
@@ -35,6 +36,8 @@ export function buttonVariants({ variant = "primary", size = "md", className } =
     "[&_svg]:size-5 [&_svg]:shrink-0",
     // A disabled button keeps its shape but fades and stops reacting.
     "disabled:pointer-events-none disabled:opacity-50",
+    // A loading button stays fully visible (it's busy, not unavailable).
+    "aria-disabled:cursor-wait",
     variantClasses[variant],
     sizeClasses[size],
     className,
@@ -45,19 +48,43 @@ export function buttonVariants({ variant = "primary", size = "md", className } =
  * Volt's button. Renders a native <button>, so focus, Enter/Space activation
  * and disabled behavior come from the browser for free.
  *
- * @param {Partial<Pick<ButtonProps, "variant" | "size">> & import("react").ComponentProps<"button">} props
+ * While `loading`, it shows a spinner and ignores clicks, but stays
+ * focusable: `disabled` would throw keyboard focus back to the top of the page.
+ *
+ * @param {Partial<Pick<ButtonProps, "variant" | "size" | "loading">> & import("react").ComponentProps<"button">} props
  */
-export function Button({ variant = "primary", size = "md", type = "button", className, ...props }) {
+export function Button({
+  variant = "primary",
+  size = "md",
+  type = "button",
+  loading = false,
+  onClick,
+  className,
+  children,
+  ...props
+}) {
   return (
     <button
+      {...props}
       // Default to "button": a plain <button> inside a <form> is a submit
       // button, which surprises people. Pass type="submit" when you mean it.
-      type={type}
+      // While loading it's always "button", so the form can't submit twice.
+      type={loading ? "button" : type}
+      // Not passing the caller's handler is how clicks are ignored. No new
+      // function is created here, so <Button> still works in Server Components.
+      onClick={loading ? undefined : onClick}
+      aria-disabled={loading || undefined}
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      data-loading={loading || undefined}
       className={buttonVariants({ variant, size, className })}
-      {...props}
-    />
+    >
+      {loading && (
+        // Spins only when reduced motion is off; otherwise it's a still icon.
+        <LoaderCircle aria-hidden="true" strokeWidth={1.5} className="motion-safe:animate-spin" />
+      )}
+      {children}
+    </button>
   );
 }
