@@ -339,7 +339,7 @@ Canvas left, generated code right. Selecting a block scrolls the code to its lin
 
 ### Onboarding
 
-No product tour. First visit opens a prefilled example landing page with the hero selected, so the first useful action (change a prop, copy code) is one click away. "Start blank" is always available. Contextual hints appear when a feature is first reached, once, and can be dismissed.
+No product tour. **[Changed, 2026-10-17]** A first visit opens a **"Start a new page" chooser**: Blank page, or a template (Landing page, Blog post, Contact page), each showing the outline of its sections. The chosen page opens with its first section selected, so the first useful action is one click away. **New page** (top bar, Page panel, ⌘K) reopens the chooser any time; replacing a page can be undone. A page saved in this browser is restored instead of asking. Contextual hints appear when a feature is first reached, once, and can be dismissed.
 
 ## 12. Catalog and tutorial pages
 

@@ -29,11 +29,3 @@ export function loadTree() {
     return null;
   }
 }
-
-export function clearSavedTree() {
-  try {
-    localStorage.removeItem(KEY);
-  } catch {
-    // Nothing to do: storage isn't available.
-  }
-}

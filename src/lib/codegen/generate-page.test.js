@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createBlogPage, createExamplePage } from "@/editor/store/example-page.js";
+import { buildTemplate, createBlogPage, createExamplePage } from "@/editor/store/example-page.js";
 import { emptyTree, insertBlock, addSection } from "@/editor/store/tree.js";
 import { manifests } from "@/registry";
 import { sections } from "@/registry/sections";
@@ -76,6 +76,12 @@ describe("generatePageCode", () => {
     expect(syntaxErrors(blog.module)).toEqual([]);
     expect(blog.jsx.match(/<h1/g)).toHaveLength(1);
     expect(blog.jsx.match(/^\s*<p>/gm)).toHaveLength(2);
+  });
+
+  it("matches the contact template's golden file", async () => {
+    const contact = generatePageCode(buildTemplate("contact", counter()).tree, registries);
+    await expect(contact.module).toMatchFileSnapshot("./__golden__/page.contact.tsx");
+    expect(syntaxErrors(contact.module)).toEqual([]);
   });
 
   it("rejects a tree with invalid props", () => {

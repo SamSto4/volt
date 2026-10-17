@@ -1,6 +1,6 @@
 import { temporal } from "zundo";
 import { create } from "zustand";
-import { createBlogPage, createExamplePage } from "./example-page.js";
+import { buildTemplate, createExamplePage, TEMPLATES } from "./example-page.js";
 import * as ops from "./tree.js";
 
 // The editor store (ADR 0004): a thin wrapper around the pure functions in
@@ -25,7 +25,7 @@ import * as ops from "./tree.js";
  * @property {(nodeId: string, props: Record<string, unknown>, coalesceKey?: string) => boolean} updateProps
  * @property {(tree: import("./tree.js").Tree) => void} load
  * @property {() => void} startBlank
- * @property {(kind?: "landing" | "blog") => void} loadExample
+ * @property {(name: import("./example-page.js").TemplateName) => void} loadTemplate
  * @property {(text: string) => void} announce
  * @property {() => void} beginTransaction
  * @property {() => void} commitTransaction
@@ -164,9 +164,10 @@ export function createEditorStore(initial = {}) {
 
       startBlank: () => set({ tree: ops.emptyTree(), selectedId: null, ...announce("Started a blank page.") }),
 
-      loadExample: (kind = "landing") => {
-        const fresh = kind === "blog" ? createBlogPage(makeId) : createExamplePage(makeId);
-        set({ tree: fresh.tree, selectedId: fresh.heroId, ...announce(`${kind === "blog" ? "Blog post" : "Landing page"} example loaded.`) });
+      // Replaces the page with a template. Undoable, like any other change.
+      loadTemplate: (name) => {
+        const fresh = buildTemplate(name, makeId);
+        set({ tree: fresh.tree, selectedId: fresh.firstSectionId, ...announce(`${TEMPLATES[name].title} template loaded.`) });
       },
 
       // For messages that aren't tree changes ("Undone.", "Restored…").

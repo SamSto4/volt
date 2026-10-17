@@ -36,6 +36,10 @@ async function setup() {
   const utils = render(<Editor />);
   const iframe = /** @type {HTMLIFrameElement} */ (await screen.findByTitle(/Page canvas/));
   await waitFor(() => expect(iframe.contentDocument?.querySelector("main")).not.toBeNull());
+  // A first visit (nothing saved) asks where to start; these tests start
+  // from the landing page template, like most people would.
+  const chooser = screen.queryByRole("dialog", { name: "Start a new page" });
+  if (chooser) await user.click(within(chooser).getByRole("button", { name: /^Landing page/ }));
   /** Queries scoped to the page inside the canvas. */
   const canvas = () => within(/** @type {HTMLElement} */ (iframe.contentDocument?.body));
   const properties = () => within(screen.getByRole("complementary", { name: "Properties" }));
@@ -45,6 +49,53 @@ async function setup() {
 }
 
 describe("Editor", () => {
+  describe("starting a page", () => {
+    it("asks where to start on a first visit: blank or a template", async () => {
+      render(<Editor />);
+      const chooser = within(await screen.findByRole("dialog", { name: "Start a new page" }));
+      const options = chooser.getAllByRole("button").filter((button) => button.textContent);
+      expect(options.map((button) => button.querySelector("span > span")?.textContent)).toEqual([
+        "Blank page",
+        "Landing page",
+        "Blog post",
+        "Contact page",
+      ]);
+    });
+
+    it("starts blank, with no history to undo", async () => {
+      const user = userEvent.setup();
+      render(<Editor />);
+      const chooser = within(await screen.findByRole("dialog", { name: "Start a new page" }));
+      await user.click(chooser.getByRole("button", { name: /^Blank page/ }));
+      const iframe = /** @type {HTMLIFrameElement} */ (screen.getByTitle(/Page canvas/));
+      await waitFor(() => expect(iframe.contentDocument?.body).toHaveTextContent("Start from an example, or add your first block."));
+      expect(screen.getByRole("button", { name: "Undo" })).toBeDisabled();
+    });
+
+    it("New page swaps in a template, and Undo brings the previous page back", async () => {
+      const { user, canvas, status } = await setup();
+      // The top bar's New page (the Page panel has one too).
+      await user.click(screen.getAllByRole("button", { name: "New page" })[0]);
+      await user.click(within(screen.getByRole("dialog", { name: "Start a new page" })).getByRole("button", { name: /^Contact page/ }));
+      expect(status()).toHaveTextContent("Contact page started. Undo brings your previous page back.");
+      expect(canvas().getByRole("heading", { level: 1 })).toHaveTextContent("Get in touch");
+
+      await user.click(screen.getByRole("button", { name: "Undo" }));
+      expect(canvas().getByRole("heading", { level: 1 })).toHaveTextContent("Launch pages people actually finish reading");
+    });
+
+    it("doesn't ask again when a page is saved in this browser", async () => {
+      const first = await setup();
+      first.unmount();
+      render(<Editor />);
+      await screen.findByTitle(/Page canvas/);
+      await waitFor(() =>
+        expect(screen.getByRole("status", { name: "Editor announcements", hidden: true })).toHaveTextContent("Restored your page"),
+      );
+      expect(screen.queryByRole("dialog", { name: "Start a new page" })).not.toBeInTheDocument();
+    });
+  });
+
   it("opens the example page with the hero selected", async () => {
     const { canvas, properties } = await setup();
     expect(canvas().getByRole("heading", { level: 1 })).toHaveTextContent("Launch pages people actually finish reading");

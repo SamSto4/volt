@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Command as CommandIcon, Download, PanelLeft, PanelRight, Redo2, Undo2 } from "lucide-react";
+import { ChevronRight, Command as CommandIcon, Download, FilePlus, PanelLeft, PanelRight, Redo2, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CopyButton } from "@/components/copy-button";
@@ -20,7 +20,9 @@ import { EditorProvider, useEditor, useEditorStore, useHistory } from "./editor-
 import { Frame } from "./frame";
 import { InspectorPanel } from "./inspector-panel";
 import { download } from "./download.js";
-import { clearSavedTree, loadTree, saveTree } from "./persistence.js";
+import { loadTree, saveTree } from "./persistence.js";
+import { StartChooser } from "./start-chooser";
+import { TEMPLATES } from "./store/example-page.js";
 import { UndoToast } from "./undo-toast";
 import { findParent, getManifest, getSectionTemplate, slotLabel } from "./store/tree.js";
 
@@ -49,14 +51,32 @@ function EditorShell() {
   const [showProperties, setShowProperties] = useState(true);
   const [frameDoc, setFrameDoc] = useState(/** @type {Document | null} */ (null));
   const [paletteOpen, setPaletteOpen] = useState(false);
+  // The "Start a new page" chooser: opened by itself on a first visit, or by
+  // "New page" later. A first choice starts a clean history; a later one can
+  // be undone, so the previous page is never lost by accident.
+  const [chooser, setChooser] = useState(/** @type {"first" | "new" | null} */ (null));
   const tree = useEditor((state) => state.tree);
   const selectedId = useEditor((state) => state.selectedId);
 
-  usePersistence();
+  usePersistence(() => setChooser("first"));
   useUndoShortcuts(frameDoc, () => setPaletteOpen(true));
+
+  /** @param {import("./start-chooser").StartChoice} choice */
+  function startPage(choice) {
+    const actions = store.getState();
+    if (choice === "blank") actions.startBlank();
+    else actions.loadTemplate(choice);
+    if (chooser === "first") {
+      store.temporal.getState().clear();
+    } else {
+      const title = choice === "blank" ? "Blank page" : TEMPLATES[choice].title;
+      actions.announce(`${title} started. Undo brings your previous page back.`);
+    }
+  }
 
   const commands = editorCommands({
     store,
+    openChooser: () => setChooser("new"),
     tree,
     selectedId,
     setView,
@@ -77,6 +97,7 @@ function EditorShell() {
       <LiveRegion />
       <UndoToast onUndo={() => undo(store)} />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
+      <StartChooser open={chooser !== null} onChoose={startPage} onClose={() => setChooser(null)} />
 
       <header className="flex h-14 shrink-0 items-center gap-4 overflow-x-auto border-b border-border px-4">
         <Link href="/" className="shrink-0 rounded-sm font-display text-xl font-bold">
@@ -122,6 +143,9 @@ function EditorShell() {
         <SegmentedControl label="Canvas width in pixels" hideLabel className="shrink-0" options={WIDTHS} value={width} onChange={setWidth} />
 
         <div className="ml-auto flex shrink-0 items-center gap-1">
+          <IconButton label="New page" onClick={() => setChooser("new")}>
+            <FilePlus aria-hidden="true" strokeWidth={1.5} />
+          </IconButton>
           <IconButton label="Commands" keyshortcuts="Control+K Meta+K" onClick={() => setPaletteOpen(true)}>
             <CommandIcon aria-hidden="true" strokeWidth={1.5} />
           </IconButton>
@@ -148,7 +172,7 @@ function EditorShell() {
             className="order-2 shrink-0 border-t border-border p-4 lg:order-1 lg:w-70 lg:overflow-y-auto lg:border-t-0 lg:border-r"
           >
             <ComponentsPanel />
-            <PageReset />
+            <PageReset onNewPage={() => setChooser("new")} />
           </aside>
         )}
 
@@ -380,14 +404,14 @@ function SafeCanvas({ mode }) {
           <p className="type-heading-2">This page couldn&apos;t be shown.</p>
           <p className="max-w-prose text-muted-foreground">
             Something in the last change stopped it from rendering. Your page is still here: undo the change, or load
-            the example to start again.
+            the landing page template to start again.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={() => undo(store)}>
               Undo the last change
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample()}>
-              Load the example
+            <Button variant="ghost" size="sm" onClick={() => store.getState().loadTemplate("landing")}>
+              Load the landing page template
             </Button>
           </div>
         </div>
@@ -412,37 +436,31 @@ function LiveRegion() {
   );
 }
 
-/** Load an example, or start blank: all undoable. */
-function PageReset() {
-  const store = useEditorStore();
+/**
+ * Where the page lives, and a way to start a new one.
+ *
+ * @param {{ onNewPage: () => void }} props
+ */
+function PageReset({ onNewPage }) {
   return (
     <div className="mt-6 flex flex-col gap-2 border-t border-border pt-4">
       <h2 className="type-label text-muted-foreground">Page</h2>
       <p className="type-small text-muted-foreground">Your page is saved in this browser as you work.</p>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample("landing")}>
-          Landing page example
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => store.getState().loadExample("blog")}>
-          Blog post example
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            store.getState().startBlank();
-            clearSavedTree();
-          }}
-        >
-          Start blank
-        </Button>
-      </div>
+      <Button variant="secondary" size="sm" className="self-start" onClick={onNewPage}>
+        <FilePlus aria-hidden="true" strokeWidth={1.5} />
+        New page
+      </Button>
     </div>
   );
 }
 
-/** Restores the saved page once, then saves after every change. */
-function usePersistence() {
+/**
+ * Restores the saved page once, then saves after every change. With nothing
+ * saved (a first visit), it asks for a starting point instead.
+ *
+ * @param {() => void} onFirstVisit
+ */
+function usePersistence(onFirstVisit) {
   const store = useEditorStore();
   useEffect(() => {
     const saved = loadTree();
@@ -451,10 +469,14 @@ function usePersistence() {
       // A restored page starts with a clean history.
       store.temporal.getState().clear();
       store.getState().announce("Restored your page from this browser.");
+    } else {
+      onFirstVisit();
     }
     return store.subscribe((state, previous) => {
       if (state.tree !== previous.tree) saveTree(state.tree);
     });
+    // Runs once per store: onFirstVisit only opens the chooser.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store]);
 }
 
@@ -524,6 +546,7 @@ function redo(store) {
  *
  * @param {{
  *   store: import("./editor-context").EditorStore,
+ *   openChooser: () => void,
  *   tree: import("./store/tree.js").Tree,
  *   selectedId: string | null,
  *   setView: (view: "preview" | "code" | "split") => void,
@@ -536,7 +559,7 @@ function redo(store) {
  * }} context
  * @returns {import("./commands.js").Command[]}
  */
-function editorCommands({ store, tree, selectedId, setView, setMode, setWidth, showComponents, setShowComponents, showProperties, setShowProperties }) {
+function editorCommands({ store, openChooser, tree, selectedId, setView, setMode, setWidth, showComponents, setShowComponents, showProperties, setShowProperties }) {
   const actions = store.getState();
   const selected = selectedId ? tree.nodes[selectedId] : undefined;
 
@@ -576,8 +599,14 @@ function editorCommands({ store, tree, selectedId, setView, setMode, setWidth, s
       group: "Panels",
       run: () => setShowProperties(!showProperties),
     },
-    { id: "page:landing", title: "Load the landing page example", group: "Page", run: () => actions.loadExample("landing") },
-    { id: "page:blog", title: "Load the blog post example", group: "Page", run: () => actions.loadExample("blog") },
+    { id: "page:new", title: "New page…", group: "Page", keywords: ["template", "start", "blank"], run: openChooser },
+    ...Object.entries(TEMPLATES).map(([name, template]) => ({
+      id: `page:${name}`,
+      title: `Use the ${template.title} template`,
+      group: "Page",
+      keywords: ["template", "example", "new"],
+      run: () => actions.loadTemplate(/** @type {import("./store/example-page.js").TemplateName} */ (name)),
+    })),
     { id: "page:blank", title: "Start a blank page", group: "Page", keywords: ["new", "empty", "clear"], run: () => actions.startBlank() },
   ];
 

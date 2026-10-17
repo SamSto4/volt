@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createBlogPage, createExamplePage } from "./example-page.js";
+import { buildTemplate, createBlogPage, createExamplePage, TEMPLATES } from "./example-page.js";
 import * as ops from "./tree.js";
 
 /** Predictable ids ("n1", "n2", …) so tests can name nodes. */
@@ -42,6 +42,19 @@ describe("the example page", () => {
     const { tree } = createExamplePage(counter());
     expect(ops.treeProblems(tree)).toEqual([]);
     expect(tree.sections.map((id) => ops.getSection(tree, id)?.template)).toEqual(["hero", "features", "faq", "signup"]);
+  });
+});
+
+describe("templates", () => {
+  it.each(Object.keys(TEMPLATES))("the %s template builds a sound tree", (name) => {
+    const { tree, firstSectionId } = buildTemplate(/** @type {any} */ (name), counter());
+    expect(ops.treeProblems(tree)).toEqual([]);
+    expect(tree.sections[0]).toBe(firstSectionId);
+  });
+
+  it("applies section props from the template (the contact page's hero)", () => {
+    const { tree, firstSectionId } = buildTemplate("contact", counter());
+    expect(ops.getSection(tree, firstSectionId)?.props.headline).toBe("Get in touch");
   });
 });
 
