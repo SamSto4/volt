@@ -265,6 +265,46 @@ describe("Editor", () => {
     });
   });
 
+  describe("component peek", () => {
+    it("pointing at a palette component shows it live, with its presets and abilities", async () => {
+      const { user, palette } = await setup();
+      const item = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Button to page" }).closest("li"));
+      await user.hover(item);
+      const peek = within(await screen.findByRole("group", { name: "Button preview" }, { timeout: 1000 }));
+      expect(peek.getByText(/settings to change: label, style, size, disabled, loading/)).toBeInTheDocument();
+
+      // The preview is the real component, and the chips switch what it shows.
+      // (A direct click: user-event's pointer move in jsdom has no relatedTarget,
+      // which would look like leaving the item; browsers send it.)
+      const presets = within(peek.getByRole("group", { name: "Button presets" }));
+      fireEvent.click(presets.getByRole("button", { name: "Danger" }));
+      expect(presets.getByRole("button", { name: "Danger" })).toHaveAttribute("aria-pressed", "true");
+      expect(peek.getByRole("button", { name: "Delete page" })).toHaveAttribute("data-variant", "danger");
+
+      await user.unhover(item);
+      expect(screen.queryByRole("group", { name: "Button preview" })).not.toBeInTheDocument();
+    });
+
+    it("opens on keyboard focus too: Tab goes into its presets, Escape closes it", async () => {
+      const { user, palette } = await setup();
+      const add = palette().getByRole("button", { name: "Add Tabs to page" });
+      // Focus that didn't come from a pointer press counts as keyboard focus.
+      add.focus();
+      const peek = within(await screen.findByRole("group", { name: "Tabs preview" }));
+
+      // The peek is part of the Tab order, right after Add to page: the first
+      // stop is the live component itself, then its preset chips.
+      await user.tab();
+      expect(peek.getByRole("tab", { name: "Next.js" })).toHaveFocus();
+      await user.keyboard("{ArrowRight}");
+      expect(peek.getByRole("tab", { name: "Vite" })).toHaveAttribute("aria-selected", "true");
+
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("group", { name: "Tabs preview" })).not.toBeInTheDocument();
+      expect(add).toHaveFocus();
+    });
+  });
+
   describe("command palette", () => {
     it("opens from the top bar, finds by synonym, and Enter runs the command", async () => {
       const { user, status } = await setup();
@@ -394,7 +434,7 @@ describe("Editor", () => {
 
     it("drops a component from the palette into a slot that takes it", async () => {
       const { iframe, palette, status, canvas } = await setup();
-      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("li"));
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("[draggable=true]"));
       const features = slotIn(iframe, 1, "items");
 
       fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
@@ -414,7 +454,7 @@ describe("Editor", () => {
 
     it("refuses a slot that doesn't take the component, with no highlight", async () => {
       const { iframe, palette } = await setup();
-      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("li"));
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("[draggable=true]"));
       const heroActions = slotIn(iframe, 0, "actions");
 
       fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
