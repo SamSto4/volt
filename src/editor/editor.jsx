@@ -20,6 +20,7 @@ import { EditorProvider, useEditor, useEditorStore, useHistory } from "./editor-
 import { Frame } from "./frame";
 import { InspectorPanel } from "./inspector-panel";
 import { download } from "./download.js";
+import { fitFrame } from "./fit-frame.js";
 import { loadTree, saveTree } from "./persistence.js";
 import { StartChooser } from "./start-chooser";
 import { TEMPLATES } from "./store/example-page.js";
@@ -372,13 +373,13 @@ function ScaledFrame({ width, children }) {
     return () => observer.disconnect();
   }, []);
 
-  const scale = Math.min(1, available.width / width);
+  const { scale, height } = fitFrame(available, width);
   return (
     <div ref={ref} className="relative min-h-[32rem] min-w-0 overflow-hidden">
       {/* Scaling shrinks how it looks, not how much room it takes, so the
           frame is made taller by the same factor to still fill the space. */}
       <div
-        style={{ width, height: available.height / scale, transform: `scale(${scale})`, transformOrigin: "top left" }}
+        style={{ width, height, transform: `scale(${scale})`, transformOrigin: "top left" }}
         className="absolute top-0 left-0"
       >
         {children}

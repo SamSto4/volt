@@ -38,7 +38,10 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      {/* Browser extensions (Grammarly, for one) add attributes to <body>
+          before React loads, which React reports as a hydration mismatch.
+          This only relaxes the check for <body>'s own attributes. */}
+      <body suppressHydrationWarning className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
