@@ -344,6 +344,13 @@ function CanvasBlock({ id }) {
         drag.lastDropped === id && "animate-drop-flash",
       )}
     >
+      {/* inert: in edit mode the block is one selectable thing. Its own
+          buttons and fields can't take focus or clicks until "Try it" mode. */}
+      <div inert>{content}</div>
+      {/* The selectable block: an empty layer exactly over the content, not
+          a wrapper around it. Wrapped, the content's text ("Fast to set up")
+          would be the button's visible label while its name says "Card: ...",
+          which breaks Label in Name (WCAG 2.5.3) for speech-input users. */}
       <div
         ref={ref}
         role="button"
@@ -357,14 +364,10 @@ function CanvasBlock({ id }) {
         }}
         onKeyDown={handleKeyDown}
         className={cn(
-          "cursor-pointer rounded-sm outline-offset-2",
+          "absolute inset-0 cursor-pointer rounded-sm outline-offset-2",
           selected ? "outline-2 outline-solid outline-primary" : "hover:outline-1 hover:outline-dashed hover:outline-muted-foreground",
         )}
-      >
-        {/* inert: in edit mode the block is one selectable thing. Its own
-            buttons and fields can't take focus or clicks until "Try it" mode. */}
-        <div inert>{content}</div>
-      </div>
+      />
       {/* The block's name on hover and keyboard focus (DESIGN.md §11). Hidden
           from screen readers: the block's aria-label already says it. */}
       {!selected && (
