@@ -168,7 +168,12 @@ export function TabsContent({ value, className, ...props }) {
       tabIndex={0}
       hidden={!isSelected}
       data-slot="tabs-content"
-      className={cn("rounded-md", className)}
+      // Fades in when it's shown (@starting-style runs as `hidden` lifts),
+      // rising 4px only when motion is allowed (DESIGN.md §7, motion-base).
+      className={cn(
+        "rounded-md transition-[opacity,translate] duration-200 ease-out starting:opacity-0 motion-safe:starting:translate-y-1",
+        className,
+      )}
       {...props}
     />
   );

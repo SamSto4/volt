@@ -61,6 +61,9 @@ export function Dialog({
         className={cn(
           "m-auto w-full max-w-md rounded-md border border-border bg-card p-0 text-card-foreground",
           "backdrop:bg-foreground/50",
+          // Opening (DESIGN.md §7, motion-slow): fades in and rises 8px; with
+          // reduced motion it only fades. @starting-style is where it starts from.
+          "transition-[opacity,translate] duration-300 ease-out starting:open:opacity-0 motion-safe:starting:open:translate-y-2",
         )}
       >
         <div className="flex flex-col gap-4 p-6">
