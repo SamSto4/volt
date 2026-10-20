@@ -53,8 +53,9 @@ const styles = sourceFiles(SRC, [".css"]);
 
 describe("Volt rules", () => {
   it("uses no stock shadow utilities (only shadow-lift, shadow-glow, shadow-focus)", () => {
-    // `shadow-sm`, `hover:shadow-lg`, a bare `shadow`, ... `shadow-none` is allowed.
-    expect(offenders(components, /(?<![\w-])shadow(-(2xs|xs|sm|md|lg|xl|2xl|inner))?(?![\w-])/)).toEqual([]);
+    // `shadow-sm`, `hover:shadow-lg`, a bare `shadow`, an arbitrary `shadow-[...]`.
+    // `shadow-none` is allowed.
+    expect(offenders(components, /(?<![\w-])shadow(-(2xs|xs|sm|md|lg|xl|2xl|inner))?(?![\w-])|shadow-\[/)).toEqual([]);
   });
 
   it("shows Volt's shadows only in response to the user, never at rest", () => {

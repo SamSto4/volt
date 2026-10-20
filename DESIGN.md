@@ -311,9 +311,9 @@ Build these as shadcn components restyled to Volt. Every component documents its
 
 **Code block.** `surface-raised` with `line` border, `radius-md`, `code` type, copy button top-right, file name / language label in `label` style. Highlight with Shiki dual themes (`github-light` / `github-dark` to start; a Volt Shiki theme later).
 
-**Command palette (Cmd+K).** Centered dialog, `radius-md`. Fuzzy search with synonyms, shortcuts shown right-aligned in `mono`, recent items first.
+**Command palette (Cmd+K).** Centered dialog, `radius-md`. Fuzzy search with synonyms, shortcuts shown right-aligned in `mono`, recent items first. **[Project addition]** Built on the `Command` primitive (a search box and result list, the WAI-ARIA combobox pattern), which also works inline on a page. The active result gets the hover surface and an Enter-key icon, so it's not marked by a faint fill alone.
 
-**Toast.** Bottom-center, `surface-raised` + `line` border, `radius-md`, includes "Undo" for reversible actions. Auto-dismiss after 5s; pause on hover and focus.
+**Toast.** Bottom-center, `surface-raised` + `line` border, `radius-md`, includes "Undo" for reversible actions. Auto-dismiss after 5s; pause on hover and focus. **[Project addition]** Never takes focus. Announced through a polite live region that's always on the page. Fades in and rises 8px (only the fade with reduced motion). Its buttons are 40px for touch.
 
 **Tooltip.** `ink` fill, `surface` text, `small`, `radius-sm`, after a 400ms delay, also shown on keyboard focus.
 
