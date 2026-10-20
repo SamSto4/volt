@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { interactiveCardClasses } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Abilities, LivePreview, PresetChips, usePreset } from "./component-peek";
 
 /**
@@ -20,7 +22,12 @@ export function CatalogCard({ name }) {
   const { manifest, preset, setPresetName } = usePreset(name);
 
   return (
-    <li className="group flex flex-col gap-4 rounded-md border border-border bg-card p-4 hover:border-input focus-within:border-input md:p-6">
+    <li
+      className={cn(
+        "group flex flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6",
+        interactiveCardClasses,
+      )}
+    >
       <div className="flex min-h-32 items-center justify-center rounded-md border border-border bg-background p-4">
         <LivePreview name={name} preset={preset} />
       </div>

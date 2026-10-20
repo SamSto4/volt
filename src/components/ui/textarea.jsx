@@ -38,6 +38,10 @@ export function TextareaField({ label, description, error, required, id, classNa
         className={cn(
           "w-full min-w-0 rounded-sm border border-input bg-card px-4 py-2 type-body text-foreground",
           "placeholder:text-muted-foreground aria-invalid:border-destructive",
+          // Focus: primary border plus a soft halo next to the outline (DESIGN.md §10).
+          // The same classes as Input; each field file stands alone when copied.
+          "transition-[border-color,box-shadow] duration-100 ease-out",
+          "focus-visible:shadow-focus focus-visible:not-aria-invalid:border-primary",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
         {...props}

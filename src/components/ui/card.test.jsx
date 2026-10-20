@@ -47,6 +47,23 @@ describe("Card", () => {
     expect(screen.getByRole("button", { name: "Next" })).toHaveFocus();
   });
 
+  it("has no shadow at rest, and only answers hover and focus when interactive", () => {
+    render(
+      <>
+        <Card data-testid="static" />
+        <Card data-testid="interactive" interactive />
+      </>,
+    );
+    const still = screen.getByTestId("static");
+    const lifting = screen.getByTestId("interactive");
+    expect(still).not.toHaveAttribute("data-interactive");
+    expect(still.className).not.toMatch(/shadow-lift/);
+    expect(lifting).toHaveAttribute("data-interactive", "true");
+    // The lift is movement, so it waits for motion-safe; the shadow doesn't.
+    expect(lifting).toHaveClass("hover:shadow-lift", "focus-within:shadow-lift", "motion-safe:hover:-translate-y-0.5");
+    expect(lifting).not.toHaveClass("hover:-translate-y-0.5");
+  });
+
   it("lets a caller's className override the defaults", () => {
     render(<Card data-testid="card" className="p-10" />);
     const card = screen.getByTestId("card");

@@ -9,7 +9,12 @@ import { cn } from "@/lib/utils";
 
 /** @type {Record<ButtonProps["variant"], string>} */
 export const variantClasses = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
+  // The only button that glows (DESIGN.md §5b): light on hover, and on press
+  // the glow drops and the button settles 1px, as if pushed in. The settle is
+  // movement, so it only happens when reduced motion is off. A loading
+  // button doesn't glow: it isn't ready to be pressed.
+  primary:
+    "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glow active:bg-primary/80 active:shadow-none motion-safe:active:translate-y-px aria-disabled:hover:shadow-none",
   secondary: "border border-input bg-secondary text-secondary-foreground hover:bg-accent active:bg-accent",
   ghost: "bg-transparent text-foreground hover:bg-accent active:bg-accent",
   danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
@@ -31,8 +36,10 @@ export const sizeClasses = {
 export function buttonVariants({ variant = "primary", size = "md", className } = {}) {
   return cn(
     // Shared by every button: pill shape, 16px side padding, 8px icon gap,
-    // 20px icons. Color changes are kept even with reduced motion (DESIGN.md §7).
-    "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap transition-colors duration-100",
+    // 20px icons. Hover and press are "fast" (100ms, DESIGN.md §7). Color and
+    // glow changes are kept even with reduced motion; only movement is dropped.
+    "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap",
+    "transition-[color,background-color,border-color,box-shadow,translate] duration-100 ease-out",
     "[&_svg]:size-5 [&_svg]:shrink-0",
     // A disabled button keeps its shape but fades and stops reacting.
     "disabled:pointer-events-none disabled:opacity-50",

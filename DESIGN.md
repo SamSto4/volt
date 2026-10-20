@@ -8,7 +8,7 @@ Anything marked **[Project addition]** is not in Volt yet. Use it here, and prop
 
 - **Quiet ground, bold signal.** Surfaces stay calm (`surface`, `surface-raised`). Color carries meaning: `primary` for the one main action in a view, `accent` for highlights.
 - **Clarity first.** Plain words, one primary action per view, generous spacing.
-- **Lines, not shadows.** Separate things with a `line` hairline or a `surface-raised` panel. No drop shadows, anywhere.
+- **Lines first, light on interaction.** At rest, separate things with a `line` hairline or a `surface-raised` panel, never a shadow. Light appears only when something responds to the user: `shadow-lift` on a hovered card, `shadow-glow` on the primary action or a selected element, `shadow-focus` around a focused input. One glow per view.
 - **Pills and soft corners.** Buttons, badges and toggles are pills (`radius-full`); cards and panels use `radius-md`; inputs use `radius-sm`.
 - **Flat color.** No gradients. A flat cobalt or lime block is the look.
 - **Every interaction has three paths.** Anything you can drag, you can also click and do from the keyboard.
@@ -104,6 +104,16 @@ Volt's steps line up exactly with Tailwind's default scale, so use these classes
 | `radius-md` | 12px | Cards, panels, modals, the preview frame |
 | `radius-full` | 9999px | Buttons, badges, toggles, segmented controls. The pill is Volt's signature |
 
+## 5b. Shadows (interaction only)
+
+| Token | Light | Dark | Use |
+| --- | --- | --- | --- |
+| `shadow-lift` | `0 8px 24px -12px rgba(14,17,22,.18)` | `0 8px 24px -12px rgba(0,0,0,.6)` | Hovered interactive card, with a 2px lift |
+| `shadow-glow` | `0 6px 20px -6px rgba(43,92,255,.45)` | `0 6px 24px -6px rgba(91,130,255,.55)` | Primary button hover; one selected/featured element |
+| `shadow-focus` | `0 0 0 4px rgba(43,92,255,.18)` | `0 0 0 4px rgba(91,130,255,.28)` | Halo around a focused input, alongside the 2px outline |
+
+Rules: nothing has a shadow at rest. At most one glowing element in view. Shadows never replace the focus outline or a border. Every other shadow utility (`shadow-sm`, `shadow-lg`, ...) stays neutralized.
+
 ## 6. Wiring Volt into Tailwind v4 and shadcn
 
 shadcn's `--accent` means "subtle hover background," which is not Volt's `accent`. Map shadcn's slot to a quiet surface and expose Volt's lime as `highlight` so the two never collide.
@@ -137,6 +147,9 @@ shadcn's `--accent` means "subtle hover background," which is not Volt's `accent
   --highlight: #c6f432;           /* Volt accent */
   --highlight-foreground: #0e1116;/* on-accent */
   --primary-tint: rgba(43, 92, 255, 0.12);
+  --volt-shadow-lift: 0 8px 24px -12px rgba(14, 17, 22, 0.18);
+  --volt-shadow-glow: 0 6px 20px -6px rgba(43, 92, 255, 0.45);
+  --volt-shadow-focus: 0 0 0 4px rgba(43, 92, 255, 0.18);
 }
 
 .dark {
@@ -162,6 +175,9 @@ shadcn's `--accent` means "subtle hover background," which is not Volt's `accent
   --highlight: #c6f432;
   --highlight-foreground: #0e1116;
   --primary-tint: rgba(91, 130, 255, 0.18);
+  --volt-shadow-lift: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --volt-shadow-glow: 0 6px 24px -6px rgba(91, 130, 255, 0.55);
+  --volt-shadow-focus: 0 0 0 4px rgba(91, 130, 255, 0.28);
 }
 
 @theme inline {
@@ -196,12 +212,22 @@ shadcn's `--accent` means "subtle hover background," which is not Volt's `accent
   --radius-md: 12px;
   --radius-lg: 12px;
 
+  /* Only Volt's interaction shadows exist: shadow-lift, shadow-glow, shadow-focus.
+     Every stock shadow utility stays flat. */
+  --shadow-2xs: none;
   --shadow-xs: none;
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-lift: var(--volt-shadow-lift);
+  --shadow-glow: var(--volt-shadow-glow);
+  --shadow-focus: var(--volt-shadow-focus);
 }
 ```
+
+Use them as `hover:shadow-lift`, `hover:shadow-glow`, `focus-visible:shadow-focus`, never without a state prefix (the one exception: a single selected/featured element may carry `shadow-glow` at rest).
 
 The `--accent` hover values (`#eef0f4`, `#1c212c`) are **[Project additions]**: neutral steps between `surface` and `line` for hover rows and menu items.
 
@@ -222,6 +248,8 @@ Volt doesn't define motion yet. Use these:
 - Write no-motion styles first; add movement only under `@media (prefers-reduced-motion: no-preference)`. With reduced motion, keep fades and color changes, drop movement, scaling and spinning.
 - Nothing decorative. Motion explains where something came from or went.
 - Direct manipulation responds within 100ms. Use optimistic updates; never wait on the network to move a block.
+- Interactive card hover: `translateY(-2px)`, `shadow-lift`, border shifts toward `primary` at low strength, 200ms ease-out. With reduced motion, keep the shadow and border change and drop the lift.
+- Primary button: `shadow-glow` on hover; on press the glow drops and the button settles back (`translateY(1px)` with motion allowed).
 
 ## 8. Iconography
 
@@ -251,16 +279,16 @@ Errors say what happened and what to do. No exclamation marks, no jokes in error
 Build these as shadcn components restyled to Volt. Every component documents its states: default, hover, focus-visible, active, disabled, loading.
 
 **Button.** Pill (`rounded-full`). Heights 32 / 40 / 48 px; horizontal padding `4`; icon gap `2`.
-- *Primary:* `primary` fill, `on-primary` text. One per view.
+- *Primary:* `primary` fill, `on-primary` text, `hover:shadow-glow`. One per view.
 - *Secondary:* `surface-raised` fill, 1px `line-strong` border, `ink` text.
 - *Ghost:* transparent, `ink` text, `accent` (hover surface) on hover. For toolbars.
 - *Danger:* `danger` fill, white text in light / `surface` text in dark. Confirm destructive actions or make them undoable.
 
 **Badge.** Pill, `label` style. Highlight variant: `highlight` fill + `highlight-foreground` text. Neutral variant: `line` border, `ink-muted` text.
 
-**Input / Select / Textarea.** `radius-sm`, `surface-raised` fill, 1px `line-strong` border, `small` text in the editor and `body` on content pages. Labels always visible (no placeholder-only labels).
+**Input / Select / Textarea.** `radius-sm`, `surface-raised` fill, 1px `line-strong` border, `small` text in the editor and `body` on content pages. On focus: border `primary`, 2px outline, plus `shadow-focus` halo. Labels always visible (no placeholder-only labels).
 
-**Card.** `surface-raised`, 1px `line` border, `radius-md`, padding `4` (mobile) / `6` (desktop). No shadow, no colored left border. The title is a real heading whose level (h2–h4) follows the page outline; it always *looks* like `heading-2`.
+**Card.** `surface-raised`, 1px `line` border, `radius-md`, padding `4` (mobile) / `6` (desktop). No shadow at rest, no colored left border. Interactive cards (links, selectable, previews) get the hover lift from section 7. The title is a real heading whose level (h2–h4) follows the page outline; it always *looks* like `heading-2`.
 
 **Tabs / Segmented control.** Pill track on `surface`, active segment `surface-raised` with `ink` text. Used for Preview | Code | Split, framework choice (Next.js / Vite / HTML) and package manager. **[Project addition]** The active segment also gets a 1px `line-strong` border: `surface-raised` against a `surface` track is only ~1.04:1, which fails WCAG 1.4.11 for showing the selected state. Inactive segments have a transparent border of the same width, so nothing shifts on selection.
 
@@ -359,7 +387,7 @@ No product tour. **[Changed, 2026-10-17]** A first visit opens a **"Start a new 
 
 ## 14. Don'ts
 
-- No drop shadows, gradients, glassmorphism or glow.
+- No shadows at rest, no gradients, no glassmorphism. Light only through `shadow-lift`, `shadow-glow` and `shadow-focus` on interaction, with at most one glow in view.
 - No blue-purple gradients, emoji feature cards, or cards with a colored left border.
 - No lime text on light surfaces; no lime as a large background.
 - No more than one primary button per view.

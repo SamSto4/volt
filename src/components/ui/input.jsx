@@ -22,6 +22,12 @@ export function Input({ className, type = "text", ...props }) {
         "h-10 w-full min-w-0 rounded-sm border border-input bg-card px-4 type-body text-foreground",
         "placeholder:text-muted-foreground",
         "aria-invalid:border-destructive",
+        // Focus (DESIGN.md §10): the border turns primary and a soft
+        // shadow-focus halo appears next to the 2px outline from globals.css,
+        // adding to it, never replacing it. A field with an error keeps its
+        // danger border while focused, so the error doesn't seem to go away.
+        "transition-[border-color,box-shadow] duration-100 ease-out",
+        "focus-visible:shadow-focus focus-visible:not-aria-invalid:border-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}

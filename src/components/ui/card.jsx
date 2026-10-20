@@ -3,16 +3,34 @@ import { cn } from "@/lib/utils";
 /** @typedef {import("@/registry/card").CardProps} CardProps */
 
 // Volt card (DESIGN.md §10): raised surface, 1px hairline, 12px corners,
-// 16px padding on mobile and 24px from 768px. No shadow, no colored edge.
-// Split into small parts like shadcn's Card, so people can compose them.
+// 16px padding on mobile and 24px from 768px. No shadow at rest, no colored
+// edge. Split into small parts like shadcn's Card, so people can compose them.
 
-/** @param {import("react").ComponentProps<"div">} props */
-export function Card({ className, ...props }) {
+/**
+ * How an interactive card (a link, something selectable, a live preview)
+ * answers the pointer (DESIGN.md §7): it lifts 2px, gains `shadow-lift`, and
+ * its border moves toward `primary`, over 200ms. Focus inside the card does
+ * the same, so keyboard users get the signal too. With reduced motion the
+ * shadow and border still change; only the lift is dropped.
+ */
+export const interactiveCardClasses = cn(
+  "transition-[translate,box-shadow,border-color] duration-200 ease-out",
+  "hover:border-primary/40 hover:shadow-lift motion-safe:hover:-translate-y-0.5",
+  "focus-within:border-primary/40 focus-within:shadow-lift motion-safe:focus-within:-translate-y-0.5",
+);
+
+/**
+ * @param {{ interactive?: boolean } & import("react").ComponentProps<"div">} props
+ *   interactive: the card responds to hover and focus (see interactiveCardClasses)
+ */
+export function Card({ interactive = false, className, ...props }) {
   return (
     <div
       data-slot="card"
+      data-interactive={interactive || undefined}
       className={cn(
         "flex flex-col gap-4 rounded-md border border-border bg-card p-4 text-card-foreground md:p-6",
+        interactive && interactiveCardClasses,
         className,
       )}
       {...props}
