@@ -33,6 +33,10 @@
   --highlight: #c6f432;           /* Volt accent (lime) */
   --highlight-foreground: #0e1116;/* on-accent */
   --primary-tint: rgba(43, 92, 255, 0.12);
+  /* Light on interaction only (DESIGN.md §5b): never used without a state. */
+  --volt-shadow-lift: 0 8px 24px -12px rgba(14, 17, 22, 0.18);
+  --volt-shadow-glow: 0 6px 20px -6px rgba(43, 92, 255, 0.45);
+  --volt-shadow-focus: 0 0 0 4px rgba(43, 92, 255, 0.18);
 }
 
 .dark {
@@ -59,6 +63,9 @@
   --highlight: #c6f432;
   --highlight-foreground: #0e1116;
   --primary-tint: rgba(91, 130, 255, 0.18);
+  --volt-shadow-lift: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --volt-shadow-glow: 0 6px 24px -6px rgba(91, 130, 255, 0.55);
+  --volt-shadow-focus: 0 0 0 4px rgba(91, 130, 255, 0.28);
 }
 
 /* `inline` makes Tailwind use var(--primary) directly, so switching the class
@@ -97,12 +104,23 @@
   --radius-md: 12px;
   --radius-lg: 12px;
 
-  /* Volt: lines, not shadows. Neutralize every shadow utility, including ones
-     that shadcn components use by default. */
+  /* Volt: lines first, light on interaction (DESIGN.md §5b). Only Volt's
+     three shadows exist; every stock shadow utility, including the ones
+     shadcn components use by default, stays flat. */
+  --shadow-2xs: none;
   --shadow-xs: none;
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-lift: var(--volt-shadow-lift);
+  --shadow-glow: var(--volt-shadow-glow);
+  --shadow-focus: var(--volt-shadow-focus);
+
+  /* Volt's ease-out (DESIGN.md §7): things entering or settling. Replaces
+     Tailwind's default curve, so `ease-out` always means this one. */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Volt type styles (DESIGN.md §3). One class per style, so components say
