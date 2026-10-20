@@ -17,6 +17,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.js", "src/**/*.jsx", "*.mjs"],
+  "include": ["src/**/*.js", "src/**/*.jsx", "tests/**/*.js", "*.mjs"],
   "exclude": ["node_modules", ".next"]
 }
