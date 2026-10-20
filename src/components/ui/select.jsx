@@ -33,7 +33,14 @@ export function SelectField({ label, description, required, id, className, child
           required={required}
           aria-describedby={descriptionId}
           // appearance-none hides the browser's arrow so Volt's chevron can be drawn instead.
-          className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-sm border border-input bg-card pr-10 pl-4 type-body text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          className={cn(
+            "h-10 w-full min-w-0 cursor-pointer appearance-none rounded-sm border border-input bg-card pr-10 pl-4 type-body text-foreground",
+            // Focus: primary border plus a soft halo next to the outline (DESIGN.md §10).
+            // The same classes as Input; each field file stands alone when copied.
+            "transition-[border-color,box-shadow] duration-100 ease-out",
+            "focus-visible:shadow-focus focus-visible:not-aria-invalid:border-primary",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+          )}
           {...props}
         >
           {children}

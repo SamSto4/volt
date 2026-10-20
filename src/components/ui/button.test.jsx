@@ -129,6 +129,14 @@ describe("Button and its manifest", () => {
     expect(Object.keys(variantClasses).sort()).toEqual([...variants].sort());
   });
 
+  it("glows only as the primary button (one glow per view, DESIGN.md §5b)", () => {
+    for (const [variant, classes] of Object.entries(variantClasses)) {
+      expect(classes.includes("shadow-glow"), variant).toBe(variant === "primary");
+    }
+    // The press settle is movement, so it only happens with motion allowed.
+    expect(variantClasses.primary).toContain("motion-safe:active:translate-y-px");
+  });
+
   it("has classes for exactly the sizes the manifest allows", () => {
     expect(Object.keys(sizeClasses).sort()).toEqual([...sizes].sort());
   });
