@@ -64,7 +64,7 @@ Sam is learning JavaScript, so **this codebase is written in JavaScript, not Typ
 
 ```
 src/
-  app/                  # routes: catalog, /editor, /preview, /docs, /p/[slug], /r (registry), /api
+  app/                  # routes: catalog, /try (gallery), /editor, /preview, /docs, /p/[slug], /r (registry), /api
   registry/             # component manifests (Zod schemas, defaults, variants, slots, a11y notes, guidance)
   components/ui/        # the components themselves (shadcn-style, Volt-themed)
   editor/               # editor UI: palette, canvas, layers, inspector, toolbar, DnD wiring
