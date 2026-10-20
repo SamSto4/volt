@@ -2,8 +2,7 @@ import { z } from "zod";
 import { h } from "../lib/codegen/jsx.js";
 import { defineManifest } from "./schema.js";
 
-// The editor's table is three columns: enough for most comparisons on a page,
-// and narrow enough to fit a phone without scrolling sideways.
+// The editor's table is three columns: enough for most comparisons on a page.
 const tableRow = z.strictObject({
   first: z.string().min(1).max(40).meta({ title: "Row heading" }),
   second: z.string().max(60).default("").meta({ title: "Second column" }),
@@ -63,7 +62,8 @@ export default defineManifest({
     notes: [
       "A real <table>, so screen readers announce its size and let people move cell by cell with their table commands.",
       "The caption is the table's name. Column headers use scope=\"col\" and each row's first cell is a row header (scope=\"row\"), so every cell is read with its row and column.",
-      "Nothing in it is focusable, so Tab skips it. Hover only tints the row; it never carries information.",
+      "When it's wider than the screen it scrolls sideways, and only then its box becomes a focusable region named by the caption, so keyboard users can scroll it with the arrow keys. Otherwise Tab skips it.",
+      "Hover only tints the row; it never carries information.",
     ],
   },
   code: {
