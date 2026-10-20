@@ -11,10 +11,13 @@ export function SiteHeader() {
           Volt
         </Link>
         <nav aria-label="Main" className="flex items-center gap-4">
-          <Link href="/components" className="rounded-sm type-small text-muted-foreground hover:text-foreground">
+          <Link href="/components" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
             Components
           </Link>
-          <Link href="/editor" className="rounded-sm type-small text-muted-foreground hover:text-foreground">
+          <Link href="/try" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
+            Try it
+          </Link>
+          <Link href="/editor" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
             Editor
           </Link>
         </nav>
