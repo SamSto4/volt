@@ -220,11 +220,13 @@ function PaletteItem({ name }) {
           ref={addButton}
           variant="secondary"
           size="sm"
-          aria-label={`Add ${manifest.title} to page`}
           onClick={() => store.getState().insertBlock(manifest.name)}
         >
           <Plus aria-hidden="true" strokeWidth={1.5} />
-          Add to page
+          {/* Named "Add to page: Button". The visible words come first, so
+              saying "click Add to page" works (Label in Name, WCAG 2.5.3),
+              and the hidden part tells the many buttons apart. */}
+          Add to page<span className="sr-only">: {manifest.title}</span>
         </Button>
       </div>
 

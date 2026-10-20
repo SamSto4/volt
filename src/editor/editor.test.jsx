@@ -150,7 +150,7 @@ describe("Editor", () => {
 
   it("adds a component with 'Add to page', selects it and announces where it went", async () => {
     const { user, palette, properties, status, canvas } = await setup();
-    await user.click(palette().getByRole("button", { name: "Add Button to page" }));
+    await user.click(palette().getByRole("button", { name: "Add to page: Button" }));
     expect(status()).toHaveTextContent("Button added to Hero · Actions, position 3 of 3.");
     expect(properties().getByText("Selected block")).toBeInTheDocument();
     expect(canvas().getAllByRole("button", { name: /^Button: Get started/ })).toHaveLength(2);
@@ -268,7 +268,7 @@ describe("Editor", () => {
   describe("component peek", () => {
     it("pointing at a palette component shows it live, with its presets and abilities", async () => {
       const { user, palette } = await setup();
-      const item = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Button to page" }).closest("li"));
+      const item = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Button" }).closest("li"));
       await user.hover(item);
       const peek = within(await screen.findByRole("group", { name: "Button preview" }, { timeout: 1000 }));
       expect(peek.getByText(/settings to change: label, style, size, disabled, loading/)).toBeInTheDocument();
@@ -287,7 +287,7 @@ describe("Editor", () => {
 
     it("opens on keyboard focus too: Tab goes into its presets, Escape closes it", async () => {
       const { user, palette } = await setup();
-      const add = palette().getByRole("button", { name: "Add Tabs to page" });
+      const add = palette().getByRole("button", { name: "Add to page: Tabs" });
       // Focus that didn't come from a pointer press counts as keyboard focus.
       add.focus();
       const peek = within(await screen.findByRole("group", { name: "Tabs preview" }));
@@ -434,7 +434,7 @@ describe("Editor", () => {
 
     it("drops a component from the palette into a slot that takes it", async () => {
       const { iframe, palette, status, canvas } = await setup();
-      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("[draggable=true]"));
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Card" }).closest("[draggable=true]"));
       const features = slotIn(iframe, 1, "items");
 
       fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
@@ -454,7 +454,7 @@ describe("Editor", () => {
 
     it("refuses a slot that doesn't take the component, with no highlight", async () => {
       const { iframe, palette } = await setup();
-      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add Card to page" }).closest("[draggable=true]"));
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Card" }).closest("[draggable=true]"));
       const heroActions = slotIn(iframe, 0, "actions");
 
       fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
@@ -507,7 +507,7 @@ describe("Editor", () => {
 
   it("saves to this browser and restores on the next visit", async () => {
     const first = await setup();
-    await first.user.click(first.palette().getByRole("button", { name: "Add Badge to page" }));
+    await first.user.click(first.palette().getByRole("button", { name: "Add to page: Badge" }));
     first.unmount();
 
     const second = await setup();
