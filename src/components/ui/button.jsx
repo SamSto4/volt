@@ -20,6 +20,15 @@ export const variantClasses = {
   danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
 };
 
+/** Each style's text color, for the loading spinner (the label goes transparent). */
+/** @type {Record<ButtonProps["variant"], string>} */
+const spinnerClasses = {
+  primary: "text-primary-foreground",
+  secondary: "text-secondary-foreground",
+  ghost: "text-foreground",
+  danger: "text-destructive-foreground",
+};
+
 /** @type {Record<ButtonProps["size"], string>} */
 export const sizeClasses = {
   sm: "h-8 type-small", // 32px
@@ -38,7 +47,7 @@ export function buttonVariants({ variant = "primary", size = "md", className } =
     // Shared by every button: pill shape, 16px side padding, 8px icon gap,
     // 20px icons. Hover and press are "fast" (100ms, DESIGN.md §7). Color and
     // glow changes are kept even with reduced motion; only movement is dropped.
-    "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap",
+    "relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap",
     "transition-[color,background-color,border-color,box-shadow,translate] duration-100 ease-out",
     "[&_svg]:size-5 [&_svg]:shrink-0",
     // A disabled button keeps its shape but fades and stops reacting.
@@ -55,8 +64,11 @@ export function buttonVariants({ variant = "primary", size = "md", className } =
  * Volt's button. Renders a native <button>, so focus, Enter/Space activation
  * and disabled behavior come from the browser for free.
  *
- * While `loading`, it shows a spinner and ignores clicks, but stays
- * focusable: `disabled` would throw keyboard focus back to the top of the page.
+ * While `loading`, a spinner takes the label's place and clicks are ignored.
+ * The label is still there, only transparent, so the button keeps its width
+ * (nothing around it jumps) and its accessible name; aria-busy tells screen
+ * readers it's working. It stays focusable: `disabled` would throw keyboard
+ * focus back to the top of the page.
  *
  * @param {Partial<Pick<ButtonProps, "variant" | "size" | "loading">> & import("react").ComponentProps<"button">} props
  */
@@ -81,15 +93,23 @@ export function Button({
       // function is created here, so <Button> still works in Server Components.
       onClick={loading ? undefined : onClick}
       aria-disabled={loading || undefined}
+      aria-busy={loading || undefined}
       data-slot="button"
       data-variant={variant}
       data-size={size}
       data-loading={loading || undefined}
-      className={buttonVariants({ variant, size, className })}
+      // text-transparent hides the label (and icons, which use currentColor)
+      // but keeps them in the layout. cn() lets it win over the style's color.
+      className={buttonVariants({ variant, size, className: cn(className, loading && "text-transparent hover:text-transparent") })}
     >
       {loading && (
-        // Spins only when reduced motion is off; otherwise it's a still icon.
-        <LoaderCircle aria-hidden="true" strokeWidth={1.5} className="motion-safe:animate-spin" />
+        // Centered over the hidden label. Spins only when reduced motion is
+        // off; otherwise it's a still icon.
+        <LoaderCircle
+          aria-hidden="true"
+          strokeWidth={1.5}
+          className={cn("absolute inset-0 m-auto motion-safe:animate-spin", spinnerClasses[variant])}
+        />
       )}
       {children}
     </button>

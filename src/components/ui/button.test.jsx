@@ -82,6 +82,7 @@ describe("Button", () => {
     // Same element, still focused: a `disabled` button would have lost focus.
     expect(button).toHaveFocus();
     expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).toHaveAttribute("aria-busy", "true");
     expect(button).toHaveAccessibleName("Save");
 
     await user.click(button);
@@ -109,6 +110,22 @@ describe("Button", () => {
     expect(spinner).toHaveAttribute("aria-hidden", "true");
     // Only spins when reduced motion is off.
     expect(spinner).toHaveClass("motion-safe:animate-spin");
+  });
+
+  it("while loading, keeps its label in place (same width), only transparent", () => {
+    render(<Button loading>Save changes</Button>);
+    const button = screen.getByRole("button", { name: "Save changes" });
+    // The text is still laid out, so the button doesn't shrink or grow.
+    expect(button).toHaveTextContent("Save changes");
+    expect(button).toHaveClass("text-transparent");
+    expect(button).not.toHaveClass("text-primary-foreground");
+    // The spinner keeps the style's own color, centered over the label.
+    expect(button.querySelector("svg")).toHaveClass("absolute", "text-primary-foreground");
+  });
+
+  it("isn't busy when it isn't loading", () => {
+    render(<Button>Save</Button>);
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-busy");
   });
 
   it("lets a caller's className override the defaults", () => {

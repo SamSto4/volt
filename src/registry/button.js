@@ -35,7 +35,7 @@ export default defineManifest({
     { name: "Secondary", props: { variant: "secondary", label: "Learn more" } },
     { name: "Ghost", props: { variant: "ghost", label: "Cancel" } },
     { name: "Danger", props: { variant: "danger", label: "Delete page" } },
-    { name: "Loading", props: { loading: true, label: "Saving…" } },
+    { name: "Loading", props: { loading: true, label: "Save changes" } },
   ],
   fits: ["action"],
   a11y: {
@@ -44,7 +44,7 @@ export default defineManifest({
     notes: [
       "The visible label is the accessible name, so don't add an aria-label that says something different.",
       "Disabled buttons can't be focused. If users need to know why an action is unavailable, explain it in nearby text.",
-      "While loading, the button stays focusable and is marked aria-disabled, so keyboard users don't lose their place. Change the label too (“Saving…”) so screen readers hear what's happening.",
+      "While loading, a spinner shows in place of the label, which stays as the accessible name and keeps the button's width, so nothing nearby jumps. It's marked aria-busy and aria-disabled and stays focusable, so keyboard users don't lose their place.",
     ],
   },
   code: {
