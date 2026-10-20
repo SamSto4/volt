@@ -63,7 +63,7 @@ All text pairs pass 4.5:1. `success` and `danger` in the light theme pass with l
 
 | Family | Font | Use |
 | --- | --- | --- |
-| `display` | Space Grotesk | Headlines only |
+| `display` | Playfair Display | Headlines only. **[Changed, 2026-10-20]** Was Space Grotesk: a high-contrast serif over Inter gives headlines an editorial voice while the interface stays neutral |
 | `sans` | Inter | Everything else |
 | `mono` **[Project addition]** | JetBrains Mono | Code blocks, install commands, inline code |
 
@@ -205,7 +205,7 @@ shadcn's `--accent` means "subtle hover background," which is not Volt's `accent
   --color-primary-tint: var(--primary-tint);
 
   --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-playfair-display);
   --font-mono: var(--font-jetbrains-mono);
 
   --radius-sm: 6px;
@@ -255,7 +255,7 @@ Volt doesn't define motion yet. Use these:
 
 Lucide icons (shadcn's default) at 20px with `strokeWidth={1.5}`, colored `ink` or `ink-muted`. Use `primary` only when the icon is itself the action. Icon-only buttons need an `aria-label` and a tooltip.
 
-No logo yet: set the product name in Space Grotesk 700.
+No logo yet: set the product name in Playfair Display 700.
 
 ## 9. Voice and microcopy
 

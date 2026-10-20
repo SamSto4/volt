@@ -6,7 +6,7 @@ export function SiteHeader() {
   return (
     <header className="flex h-14 items-center justify-between gap-4 border-b border-border px-4">
       <div className="flex items-center gap-6">
-        {/* No logo yet: the name in Space Grotesk 700 (DESIGN.md §8). */}
+        {/* No logo yet: the name in Playfair Display 700 (DESIGN.md §8). */}
         <Link href="/" className="rounded-sm font-display text-xl font-bold">
           Volt
         </Link>

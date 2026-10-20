@@ -79,6 +79,13 @@ describe("Volt rules", () => {
     expect(offenders(components, /#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})(?![\w-])/i)).toEqual([]);
   });
 
+  it("type styles read fonts with --theme(), which works under @theme inline", () => {
+    // `@theme inline` doesn't output --font-display etc. on the page, so
+    // var(--font-display) is empty there and headlines silently fall back to
+    // the body font. That shipped once without anyone noticing.
+    expect(offenders(styles, /font-family:\s*var\(--font-(display|sans|mono)\)/)).toEqual([]);
+  });
+
   it("gives every text field the same focus style", () => {
     // Each field file is copied into projects on its own, so the classes are
     // repeated rather than shared. This keeps the copies identical.
