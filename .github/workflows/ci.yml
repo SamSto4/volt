@@ -37,3 +37,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+      # axe scans in a real browser, both themes, against the build above.
+      # Uses the runner's preinstalled Google Chrome (channel: "chrome").
+      - run: pnpm test:e2e
