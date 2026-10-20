@@ -39,6 +39,9 @@ describe("searchCommands", () => {
   it("finds commands by synonym, ranked first", () => {
     expect(titles(searchCommands(commands, "modal"))[0]).toBe("Add Dialog to page");
     expect(titles(searchCommands(commands, "faq"))[0]).toBe("Add Accordion to page");
+    expect(titles(searchCommands([...commands, { id: "add-skeleton", title: "Add Skeleton to page", group: "Components", run: noop }], "loading"))[0]).toBe(
+      "Add Skeleton to page",
+    );
     // "cta" also loosely matches "Add Accordion to page" (c…t…a in order),
     // but a synonym hit ranks above letters-in-order.
     const cta = titles(searchCommands(commands, "cta"));
