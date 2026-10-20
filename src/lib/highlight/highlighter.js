@@ -5,16 +5,25 @@
 //   JavaScript regex engine (no WebAssembly download).
 // - Dual themes: each token carries a light and a dark color, and CSS picks one
 //   from the .dark class, so switching themes needs no re-highlighting.
-// - Two github-light colors fail 4.5:1 on the editor's highlighted-line tint
-//   (keyword red 3.85:1, tag green 3.90:1), so they're swapped for darker
-//   shades of the same hue (5.66:1 and 5.29:1). Every other token color was
-//   measured on Volt's raised surface and the tint, in both themes.
+// - Some GitHub theme colors fail 4.5:1 on Volt's surfaces or on the editor's
+//   highlighted-line tint, so they're swapped for shades of the same hue from
+//   GitHub's own palette. highlighter.test.js measures every token color in
+//   every code sample the app shows, in both themes, so a new failure shows up
+//   as a failing test rather than by eye.
 
 /** @typedef {{ content: string, light: string, dark: string }} Token */
 
-const LIGHT_FIXES = /** @type {Record<string, string>} */ ({
-  "#D73A49": "#B31D28",
-  "#22863A": "#176F2C",
+/** github-light colors to replace, uppercase hex -> replacement. */
+export const LIGHT_FIXES = /** @type {Record<string, string>} */ ({
+  "#D73A49": "#B31D28", // keywords like `import`: 3.85:1 on the tint
+  "#22863A": "#176F2C", // JSX tags: 3.90:1 on the tint
+  "#E36209": "#953800", // orange (props, shell flags): 3.49:1 even on white
+  "#6A737D": "#57606A", // comments: 3.84:1 on the tint
+});
+
+/** github-dark colors to replace. */
+export const DARK_FIXES = /** @type {Record<string, string>} */ ({
+  "#6A737D": "#959DA5", // comments: 3.65:1 on Volt's dark raised surface
 });
 
 /** @type {Promise<import("shiki/core").HighlighterCore> | null} */
@@ -48,7 +57,8 @@ export async function highlightLines(code, lang) {
     line.map((token) => {
       const style = /** @type {Record<string, string>} */ (token.htmlStyle ?? {});
       const light = (style.color ?? "").toUpperCase();
-      return { content: token.content, light: LIGHT_FIXES[light] ?? light, dark: style["--shiki-dark"] ?? "" };
+      const dark = (style["--shiki-dark"] ?? "").toUpperCase();
+      return { content: token.content, light: LIGHT_FIXES[light] ?? light, dark: DARK_FIXES[dark] ?? dark };
     }),
   );
 }
