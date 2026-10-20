@@ -66,9 +66,17 @@ export function Command({
   // Keep the active result inside the list as results change.
   const activeIndex = Math.min(active, Math.max(results.length - 1, 0));
 
-  // Keep the active result in view when arrowing through a long list.
+  // Keep the active result in view when arrowing through a long list. This
+  // scrolls the list only: scrollIntoView() would scroll the whole page too,
+  // even on first render.
   useEffect(() => {
-    list.current?.querySelector(`#${CSS.escape(optionId(activeIndex))}`)?.scrollIntoView({ block: "nearest" });
+    const listElement = list.current;
+    const option = listElement?.querySelector(`#${CSS.escape(optionId(activeIndex))}`);
+    if (!listElement || !(option instanceof HTMLElement)) return;
+    const top = option.offsetTop; // relative to the list, which is `relative`
+    const bottom = top + option.offsetHeight;
+    if (top < listElement.scrollTop) listElement.scrollTop = top;
+    else if (bottom > listElement.scrollTop + listElement.clientHeight) listElement.scrollTop = bottom - listElement.clientHeight;
     // optionId only depends on id, which never changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
@@ -129,7 +137,7 @@ export function Command({
         )}
       </div>
 
-      <ul ref={list} id={listId} role="listbox" aria-label={listLabel} className="max-h-80 overflow-y-auto p-2">
+      <ul ref={list} id={listId} role="listbox" aria-label={listLabel} className="relative max-h-80 overflow-y-auto p-2">
         {results.map((item, index) => (
           <li
             key={item.id}

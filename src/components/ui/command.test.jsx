@@ -98,6 +98,18 @@ describe("Command", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it("never scrolls the page, on first render or while arrowing", async () => {
+    // It used to call scrollIntoView, which scrolls every scrollable ancestor,
+    // so a page with a Command on it opened scrolled down to the panel.
+    const scrollIntoView = vi.spyOn(Element.prototype, "scrollIntoView");
+    const user = userEvent.setup();
+    render(<Search />);
+    await user.click(screen.getByRole("combobox"));
+    await user.keyboard("{ArrowDown}{End}");
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    scrollIntoView.mockRestore();
+  });
+
   it("chooses an option by clicking it", async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
