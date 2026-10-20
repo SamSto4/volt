@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
 
 export default function Example() {
-  return <Button loading>Saving…</Button>;
+  return <Button loading>Save changes</Button>;
 }

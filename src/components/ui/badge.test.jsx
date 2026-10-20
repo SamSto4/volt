@@ -40,6 +40,23 @@ describe("Badge", () => {
     expect(badge).toHaveClass("type-label");
   });
 
+  it("backs up a status with an icon, so it isn't shown by color alone", () => {
+    render(
+      <>
+        <Badge variant="success">Published</Badge>
+        <Badge variant="danger">Failed</Badge>
+        <Badge>Draft</Badge>
+      </>,
+    );
+    for (const label of ["Published", "Failed"]) {
+      const icon = screen.getByText(label).querySelector("svg");
+      // Decorative: the word already says it, so screen readers skip the icon.
+      expect(icon).toHaveAttribute("aria-hidden", "true");
+    }
+    expect(screen.getByText("Published")).toHaveTextContent(/^Published$/);
+    expect(screen.getByText("Draft").querySelector("svg")).toBeNull();
+  });
+
   it("lets a caller's className override the defaults", () => {
     render(<Badge className="px-4">Wide</Badge>);
     const badge = screen.getByText("Wide");

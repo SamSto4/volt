@@ -283,8 +283,9 @@ Build these as shadcn components restyled to Volt. Every component documents its
 - *Secondary:* `surface-raised` fill, 1px `line-strong` border, `ink` text.
 - *Ghost:* transparent, `ink` text, `accent` (hover surface) on hover. For toolbars.
 - *Danger:* `danger` fill, white text in light / `surface` text in dark. Confirm destructive actions or make them undoable.
+- **[Project addition]** *Loading:* a spinner centered over the label, which turns transparent but stays in place, so the button keeps its width and its accessible name. `aria-busy`, still focusable, clicks ignored. The spinner turns only when reduced motion is off.
 
-**Badge.** Pill, `label` style. Highlight variant: `highlight` fill + `highlight-foreground` text. Neutral variant: `line` border, `ink-muted` text.
+**Badge.** Pill, `label` style. Highlight variant: `highlight` fill + `highlight-foreground` text. Neutral variant: `line` border, `ink-muted` text. **[Project addition]** Status variants (`success`, `danger`): `line` border, text and a 14px icon in the status color (check circle, alert circle), never a tinted fill. The word carries the state; the icon's shape backs it up, so color is never the only signal.
 
 **Input / Select / Textarea.** `radius-sm`, `surface-raised` fill, 1px `line-strong` border, `small` text in the editor and `body` on content pages. On focus: border `primary`, 2px outline, plus `shadow-focus` halo. Labels always visible (no placeholder-only labels).
 
@@ -297,6 +298,14 @@ Build these as shadcn components restyled to Volt. Every component documents its
 **Avatar** **[Project addition]**. Circle (`radius-full`) at 32 / 40 / 48px. Photo with the person's name as alt text, or their initials on the `accent` hover surface in `ink`. Decorative (hidden from screen readers) when the name is written next to it.
 
 **Accordion** **[Project addition]**. Items separated by `line` hairlines, no panels or shadows. Each header is a full-width button inside a real heading, `body` text, medium weight, with a 20px `ink-muted` chevron that turns 180° when open (the turn is animated only when reduced motion is off). Panel text is `ink-muted`. Header focus ring uses `radius-sm`.
+
+**Radio group** **[Project addition]**. Native radios sharing a name, in a `fieldset` (`role="radiogroup"`) whose `legend` is the visible question. 20px controls tinted `primary` with `accent-color`, like Checkbox, so forced-colors modes keep working. Two to six options; more belong in a select.
+
+**Table** **[Project addition]**. A real `<table>` with a visible caption as its name. Header cells in `label` style, `ink-muted`; rows divided by `line` hairlines; body rows take the `accent` hover surface. Cell padding `4` / `2`. Each row's first cell is a row header. No zebra stripes, no sideways scrolling box (it would have to be focusable); keep tables to a few short columns.
+
+**Empty state** **[Project addition]**. Dashed `line-strong` border, `radius-md`, centered: a 20px `ink-muted` icon on an `accent` circle, a real heading (`heading-2`), one `small` line of `ink-muted` text, and one action, secondary by default so it doesn't compete with the view's primary button.
+
+**Skeleton** **[Project addition]**. `line`-colored shapes with `radius-sm`, sized like the content they stand in for. A slow opacity pulse when motion is allowed, still otherwise; no moving shimmer (that's a gradient). The group is one polite `role="status"` that says what's loading.
 
 **Copy button.** Always visible, labeled with what it copies. Show the check + "Copied" for about 2 seconds, **only after** the clipboard promise resolves; keep focus on the button; announce via a polite live region. On failure, show "Couldn't copy" and select the text.
 

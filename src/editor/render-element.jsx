@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input, InputField } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SelectField } from "@/components/ui/select";
+import { Skeleton, SkeletonGroup } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TextareaField } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -44,10 +48,22 @@ export const scope = {
   CardTitle,
   Checkbox,
   Dialog,
+  EmptyState,
   Input,
   InputField,
+  RadioGroup,
+  RadioGroupItem,
   SelectField,
+  Skeleton,
+  SkeletonGroup,
   Switch,
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Tabs,
   TabsContent,
   TabsList,
