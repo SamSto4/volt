@@ -14,7 +14,7 @@ export default function ComponentsPage() {
       <section className="flex flex-col gap-2">
         <h1 className="type-heading-1">Components</h1>
         <p className="max-w-prose text-muted-foreground">
-          Accessible building blocks you can try right here. Point at a card to see its presets and what it can do.
+          Accessible building blocks you can try right here. Switch a card&apos;s presets under its preview, and point at it to see what it can do.
         </p>
       </section>
 

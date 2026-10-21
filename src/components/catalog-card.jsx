@@ -8,11 +8,14 @@ import { Abilities, LivePreview, PresetChips, usePreset } from "./component-peek
 
 /**
  * A catalog card (DESIGN.md §12). The preview is the real component and works
- * right there: click it, type in it, tab through it. Pointing at the card, or
- * moving focus into it, shows its presets (switch them to see what it can do)
- * and its abilities over the lower half, without changing the card's size.
+ * right there: click it, type in it, tab through it. Its preset chips sit
+ * under it, always visible, so touch users can switch versions too. Pointing
+ * at the card, or moving focus into it, reveals what it can do (its keys and
+ * the settings you can change) in place of the description.
  *
- * Those details are always in the page, only visually hidden until then, so
+ * Description and abilities share one grid cell, so the card is as tall as
+ * the taller of the two and doesn't change size when the reveal appears. The
+ * abilities are always in the page, only visually hidden until then, so
  * screen-reader users get them without hovering, and touch users get them by
  * tapping into the card.
  *
@@ -31,7 +34,8 @@ export function CatalogCard({ name }) {
       <div className="flex min-h-32 items-center justify-center rounded-md border border-border bg-background p-4">
         <LivePreview name={name} preset={preset} />
       </div>
-      <div className="relative flex min-h-28 flex-col gap-2">
+      <PresetChips name={name} current={preset.name} onChange={setPresetName} />
+      <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <h2 className="type-heading-2">
             {/* The link is on the title only, so the card's other text isn't
@@ -43,16 +47,16 @@ export function CatalogCard({ name }) {
           {/* The accessibility badge (DESIGN.md §12). */}
           <Badge>{manifest.a11y.role ? `role: ${manifest.a11y.role}` : "No ARIA needed"}</Badge>
         </div>
-        <p className="type-small text-muted-foreground">{manifest.usage.whenToUse}</p>
-
-        {/* What it can do: over the description on hover and focus. Opacity,
-            not display, so it stays readable to screen readers. */}
-        <div
-          data-slot="abilities"
-          className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-card pt-2 opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100"
-        >
-          <PresetChips name={name} current={preset.name} onChange={setPresetName} />
-          <Abilities name={name} />
+        <div className="grid">
+          <p className="col-start-1 row-start-1 type-small text-muted-foreground">{manifest.usage.whenToUse}</p>
+          {/* What it can do: over the description on hover and focus. Opacity,
+              not display, so it stays readable to screen readers. */}
+          <div
+            data-slot="abilities"
+            className="col-start-1 row-start-1 bg-card opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100"
+          >
+            <Abilities name={name} />
+          </div>
         </div>
       </div>
     </li>
