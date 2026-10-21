@@ -402,9 +402,9 @@ describe("Editor", () => {
     expect(status()).toHaveTextContent("Avatar added to Hero · Above the headline, position 2 of 2.");
   });
 
-  it("in 'Try it' mode the page is fully interactive", async () => {
+  it("in 'Interact' mode the page is fully interactive", async () => {
     const { user, canvas } = await setup();
-    await user.click(screen.getByRole("radio", { name: "Try it" }));
+    await user.click(screen.getByRole("radio", { name: "Interact" }));
     // No editing wrappers: the real accordion header is a button you can press.
     const question = canvas().getByRole("button", { name: "Can I return an item?" });
     fireEvent.click(question);

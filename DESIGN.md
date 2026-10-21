@@ -263,7 +263,7 @@ Short, direct, friendly. Sentence case everywhere ("Copy code", not "COPY CODE")
 
 | Situation | Write |
 | --- | --- |
-| Palette card action | "Add to page" |
+| Palette card action | "Add" (with a plus icon). Assistive tech hears "Add to page: Button" |
 | Empty slot | "Drag a component here, or press + to add one" |
 | Copy button, idle | "Copy code" / "Copy install command" (say *what* it copies) |
 | Copy button, done | "Copied" with a check icon |
@@ -338,7 +338,7 @@ Build these as shadcn components restyled to Volt. Every component documents its
 - Panels are docked, collapsible and resizable (min 240px, max 400px). No floating panels. **[As built]** Panels are docked at fixed widths (280 / 320px); collapsing and resizing aren't built yet.
 - Panel chrome: `surface` background, `line` dividers, `label` section headers, `small` content.
 - Under 1024px, the side panels become sheets opened from the top bar; under 640px the editor shows a "Best on a larger screen" note but still supports click-to-add. **[As built]** Under 1024px the panels stack below the canvas instead of opening as sheets; the 640px note is there.
-- **[Project addition]** The canvas is an iframe at the chosen width, scaled down to fit the space, so the page's own breakpoints respond to 375 / 768 / 1280 (ADR 0005). An **Edit / Try it** switch in the top bar decides whether blocks are selectable (their content inert) or the page is fully interactive.
+- **[Project addition]** The canvas is an iframe at the chosen width, scaled down to fit the space, so the page's own breakpoints respond to 375 / 768 / 1280 (ADR 0005). An **Edit / Interact** switch in the top bar decides whether blocks are selectable (their content inert) or the page is fully interactive.
 
 ### Canvas states
 
@@ -365,7 +365,7 @@ Pill, `surface-raised`, 1px `line` border, ghost icon buttons (24×24px minimum 
 ### Input paths (all required)
 
 1. **Drag** from the palette or a layer row. Touch: short press-and-hold to start; `touch-action: none` only on drag handles so panels still scroll. **[As built]** Native HTML5 drag and drop from palette cards and canvas blocks (ADR 0006); dragging layer rows and touch press-and-hold aren't built yet.
-2. **Click "Add to page"** on a palette card: inserts after the selected block, or into the selected slot, or at the end of the page.
+2. **Click "Add"** (named "Add to page: Button" for assistive tech) on a palette card: inserts after the selected block, or into the selected slot, or at the end of the page.
 3. **Keyboard:** Space to pick up, arrows to move, Space to drop, Escape to cancel, with screen-reader announcements; plus the action bar's menu commands. **[As built]** No pick-up mode yet. A focused block takes Enter (select), Delete, Alt+↑/↓ (move within its slot) and Cmd/Ctrl+D (duplicate), and Move to covers other sections. Every action is announced.
 
 Undo / redo: Cmd/Ctrl+Z and Shift+Cmd/Ctrl+Z. One drag = one undo step.

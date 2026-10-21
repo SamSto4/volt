@@ -124,7 +124,7 @@ function EditorShell() {
           className="shrink-0"
           options={[
             { value: "edit", label: "Edit" },
-            { value: "try", label: "Try it" },
+            { value: "try", label: "Interact" },
           ]}
           value={mode}
           onChange={setMode}

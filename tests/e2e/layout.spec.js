@@ -30,3 +30,17 @@ for (const path of PAGES) {
     }
   });
 }
+
+test("the editor's component list never cuts off a name or a category", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/editor");
+  await page.getByRole("button", { name: /Landing page/ }).click();
+  const palette = page.getByRole("complementary", { name: "Components and layers" });
+  const clipped = await palette.evaluate((root) =>
+    [...root.querySelectorAll("li [draggable=true] span.truncate")]
+      // scrollWidth > clientWidth means the text is wider than its box and got an ellipsis.
+      .filter((span) => span.scrollWidth > span.clientWidth)
+      .map((span) => span.textContent),
+  );
+  expect(clipped).toEqual([]);
+});
