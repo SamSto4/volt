@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  */
 export function ShowcaseGroup({ id, title, description, children }) {
   return (
-    <section aria-labelledby={`${id}-title`} className="flex scroll-mt-20 flex-col gap-6">
+    <section id={id} aria-labelledby={`${id}-title`} className="flex scroll-mt-4 flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h2 id={`${id}-title`} className="type-heading-2">
           {title}
@@ -47,7 +47,8 @@ export function ShowcaseCard({ id, title, context, note, className, children }) 
     <article
       aria-labelledby={`${id}-title`}
       className={cn(
-        "flex min-w-0 flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6",
+        // @container: what's inside a card responds to the card's own width, not the screen's.
+        "@container flex min-w-0 flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6",
         interactiveCardClasses,
         className,
       )}
@@ -60,7 +61,7 @@ export function ShowcaseCard({ id, title, context, note, className, children }) 
       </header>
       {/* The inset grows to the row's height and centers its example, so
           short specimens sit in the middle like on a stage. */}
-      <div className="flex flex-1 flex-col justify-center gap-4 rounded-md border border-border bg-background p-4">{children}</div>
+      <div data-specimen className="flex flex-1 flex-col justify-center gap-4 rounded-md border border-border bg-background p-4">{children}</div>
       {note && <p className="type-small text-muted-foreground">{note}</p>}
     </article>
   );

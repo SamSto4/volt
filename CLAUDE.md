@@ -152,6 +152,7 @@ Keep this list accurate as scripts are added or renamed.
 - **Components:** RTL tests for behavior and ARIA, not snapshots of markup.
 - **E2E:** drag a component into a slot (pointer: `mouse.down`, stepped `mouse.move`, `mouse.up`), click-to-add, keyboard move with live-region assertion, copy code, save and reopen a share link.
 - **Accessibility:** axe scans at WCAG 2.1 AA tags in two layers. `tests/e2e/a11y.spec.js` runs Playwright + `@axe-core/playwright` in real Chrome, in both themes, so it checks color contrast too (home, catalog, component pages, editor). The faster `*.a11y.test.jsx` files run axe in jsdom on every `pnpm test` (structure only: jsdom can't check contrast). Automated checks don't catch everything, so also test keyboard flows by hand.
+- **Design rules:** `tests/e2e/design-rules.spec.js` (one primary action per first screen, short labels don't wrap, skeletons match their content), `layout.spec.js` (one page column, no sideways scroll, readable editor width) and `touch-targets.spec.js` (40px controls at 375px) check what only a real browser can.
 - Bugs get a failing test first, then the fix.
 
 ## Definition of done

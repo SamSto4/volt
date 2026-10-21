@@ -96,7 +96,7 @@ export function Playground({ name }) {
               />
             </div>
             {viewport === "fit" ? (
-              <PreviewSurface theme={previewTheme} className="rounded-md border border-border">
+              <PreviewSurface theme={previewTheme} className="rounded-md border border-border" data-specimen>
                 {/* Remount when props change, so components that only read their
                     starting state (like Tabs' defaultValue) pick up the new props. */}
                 <div key={JSON.stringify(props)} className="w-full max-w-xl">
@@ -177,11 +177,12 @@ function getManifest(name) {
  * The surface a preview sits on. "light" or "dark" force that theme for this
  * subtree only: Volt's tokens are CSS variables scoped to `.light` and `.dark`.
  *
- * @param {{ theme: "page" | "light" | "dark", className?: string, children: import("react").ReactNode }} props
+ * @param {{ theme: "page" | "light" | "dark", className?: string, children: import("react").ReactNode } & Omit<import("react").ComponentProps<"div">, "className" | "children">} props
  */
-function PreviewSurface({ theme, className, children }) {
+function PreviewSurface({ theme, className, children, ...props }) {
   return (
     <div
+      {...props}
       className={cn(
         theme === "page" ? undefined : theme,
         "flex min-h-48 items-center justify-center bg-card p-4 text-card-foreground md:p-6",

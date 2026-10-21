@@ -19,7 +19,7 @@ export function MetricCard({ className } = {}) {
 /** The metric itself, shared with the skeleton demo so the two are the same shape. */
 export function MetricContent() {
   return (
-    <div className="flex flex-col gap-2">
+    <div data-metric className="flex flex-col gap-2">
       <p className="type-small text-muted-foreground">{DEMO_METRIC.label}</p>
       {/* Read in order: label, number, change, comparison. */}
       <p className="flex flex-wrap items-center gap-2">

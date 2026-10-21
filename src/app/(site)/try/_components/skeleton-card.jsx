@@ -46,10 +46,20 @@ export function SkeletonCard({ className } = {}) {
           screen readers to wait for the finished content. */}
       <div aria-live="polite" aria-busy={loading} className="min-h-28">
         {loading ? (
+          // Each row is a box the size of the line it stands in for (small text
+          // is 20px; the number's line is 34px, 42px from 640px), with a shorter
+          // bar centered in it. Same gaps as MetricContent, so every block lands
+          // exactly where the real one will: nothing jumps when the numbers arrive.
           <SkeletonGroup label="Loading this week's numbers">
-            <Skeleton className="h-5 w-2/3" />
-            <Skeleton className="h-10 w-1/2" />
-            <Skeleton className="h-5 w-1/2" />
+            <div data-skeleton-row className="flex h-5 items-center">
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+            <div data-skeleton-row className="flex h-8.5 items-center sm:h-10.5">
+              <Skeleton className="h-6 w-1/2 sm:h-7" />
+            </div>
+            <div data-skeleton-row className="flex h-5 items-center">
+              <Skeleton className="h-3 w-1/2" />
+            </div>
           </SkeletonGroup>
         ) : (
           <MetricContent />
