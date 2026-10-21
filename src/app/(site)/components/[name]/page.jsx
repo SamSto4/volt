@@ -34,7 +34,7 @@ export default async function ComponentPage({ params }) {
   if (!manifest) notFound();
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10">
+    <main className="page-container flex flex-col gap-10 py-10">
       <section className="flex flex-col gap-2">
         <p className="type-label text-muted-foreground">{manifest.category}</p>
         <h1 className="type-heading-1">{manifest.title}</h1>

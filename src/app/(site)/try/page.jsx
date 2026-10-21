@@ -26,8 +26,8 @@ export const metadata = {
   description: "Every Volt component, live: click, type and tab through them before you build with them.",
 };
 
-/** The page's centered column: about 1150px, 16px gutters on phones and 24px from 768px. */
-const CONTAINER = "mx-auto w-full max-w-6xl px-4 md:px-6";
+/** The shared page column (globals.css). */
+const CONTAINER = "page-container";
 
 /**
  * The Try it page: a curated gallery of Volt components, each one live.

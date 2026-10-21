@@ -31,14 +31,15 @@ const steps = [
 export default function Home() {
   return (
     <main className="flex flex-col">
-      <section className="flex flex-col items-center gap-6 px-4 py-16 text-center md:py-24">
+      {/* Left-aligned like every page's hero: the headline and the text under it share one edge. */}
+      <section className="page-container flex flex-col items-start gap-6 py-16 md:py-24">
         <Badge>Early version</Badge>
-        <h1 className="max-w-3xl type-display">Drop real components into real pages</h1>
-        <p className="max-w-prose text-muted-foreground">
+        <h1 className="max-w-4xl type-display">Drop real components into real pages</h1>
+        <p className="max-w-[60ch] text-muted-foreground">
           Then learn exactly how to put them in your project. Every block shows the code it produces, and every
           component is built to be accessible from the start.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           {/* Links that look like buttons: they go somewhere, so they're links. */}
           <Link href="/editor" className={buttonVariants({ size: "lg" })}>
             Open the editor
@@ -49,7 +50,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="how-heading" className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
+      <section aria-labelledby="how-heading" className="page-container flex flex-col gap-6 py-10">
         <h2 id="how-heading" className="type-heading-1">
           How it works
         </h2>
@@ -68,7 +69,7 @@ export default function Home() {
         </ol>
       </section>
 
-      <section aria-labelledby="try-heading" className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
+      <section aria-labelledby="try-heading" className="page-container flex flex-col gap-6 py-10">
         <div className="flex flex-col gap-2">
           <h2 id="try-heading" className="type-heading-1">
             Try a few
@@ -93,7 +94,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="why-heading" className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
+      <section aria-labelledby="why-heading" className="page-container flex flex-col gap-6 py-10">
         <h2 id="why-heading" className="type-heading-1">
           Built to be understood
         </h2>

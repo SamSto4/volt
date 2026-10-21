@@ -17,7 +17,7 @@ export const metadata = {
  */
 export default function SuggestPage() {
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 md:px-6">
+    <main className="page-container flex flex-col gap-10 py-10">
       <div className="flex flex-col items-start gap-4">
         <Link href="/try" className={buttonVariants({ variant: "ghost", size: "sm", className: "-ml-4" })}>
           <ArrowLeft aria-hidden="true" strokeWidth={1.5} />
