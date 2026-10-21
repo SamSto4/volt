@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "./table";
 
 function Plans() {
@@ -45,10 +45,37 @@ describe("Table", () => {
     expect(within(team).getByRole("cell")).toHaveTextContent("Unlimited");
   });
 
-  it("is not interactive: Tab goes past it", async () => {
+  it("when it fits, isn't a Tab stop: Tab goes past it", async () => {
     const user = userEvent.setup();
     render(<Plans />);
+    expect(screen.queryByRole("region")).not.toBeInTheDocument();
     await user.tab();
     expect(screen.getByRole("button", { name: "Next" })).toHaveFocus();
+  });
+
+  describe("when it's wider than its space", () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
+    });
+
+    it("scrolls in a focusable region named by its caption, so the keyboard can scroll it", async () => {
+      // jsdom doesn't lay anything out, so give the box a table twice its width.
+      vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(600);
+      vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          observe() {}
+          disconnect() {}
+        },
+      );
+      const user = userEvent.setup();
+      render(<Plans />);
+      const region = screen.getByRole("region", { name: "Compare plans" });
+      expect(region).toContainElement(screen.getByRole("table"));
+      await user.tab();
+      expect(region).toHaveFocus();
+    });
   });
 });

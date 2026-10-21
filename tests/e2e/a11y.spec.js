@@ -27,6 +27,7 @@ const PAGES = [
   { name: "catalog", path: "/components" },
   { name: "a component page", path: "/components/button" },
   { name: "a component page with a dialog", path: "/components/dialog" },
+  { name: "the Try it gallery", path: "/try" },
 ];
 
 for (const { name, path } of PAGES) {

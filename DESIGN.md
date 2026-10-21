@@ -301,7 +301,7 @@ Build these as shadcn components restyled to Volt. Every component documents its
 
 **Radio group** **[Project addition]**. Native radios sharing a name, in a `fieldset` (`role="radiogroup"`) whose `legend` is the visible question. 20px controls tinted `primary` with `accent-color`, like Checkbox, so forced-colors modes keep working. Two to six options; more belong in a select.
 
-**Table** **[Project addition]**. A real `<table>` with a visible caption as its name. Header cells in `label` style, `ink-muted`; rows divided by `line` hairlines; body rows take the `accent` hover surface. Cell padding `4` / `2`. Each row's first cell is a row header. No zebra stripes, no sideways scrolling box (it would have to be focusable); keep tables to a few short columns.
+**Table** **[Project addition]**. A real `<table>` with a visible caption as its name. Header cells in `label` style, `ink-muted`; rows divided by `line` hairlines; body rows take the `accent` hover surface. Cell padding `4` / `2`. Each row's first cell is a row header. No zebra stripes. When it's wider than its space (phones), it scrolls sideways in its own box, which becomes a focusable region named by the caption only while it overflows, so keyboard users can scroll it and it's no extra Tab stop otherwise.
 
 **Empty state** **[Project addition]**. Dashed `line-strong` border, `radius-md`, centered: a 20px `ink-muted` icon on an `accent` circle, a real heading (`heading-2`), one `small` line of `ink-muted` text, and one action, secondary by default so it doesn't compete with the view's primary button.
 
@@ -382,6 +382,7 @@ No product tour. **[Changed, 2026-10-17]** A first visit opens a **"Start a new 
 
 - Catalog grid: cards with a **live** preview (not screenshots), name in `heading-2`, one-line "when to use" in `small`, an accessibility badge.
 - Component page: Preview | Code tabs, variant and theme toggles, viewport toggle, install command with package-manager tabs, "Copy prompt for your AI agent," then usage guidance, accessibility behavior and keyboard notes.
+- **[Project addition]** Try it (`/try`): a curated gallery, every specimen a live component on local state. Hero with an eyebrow, the page's one `display` headline over a still dot grid (an SVG pattern in `line`, never a gradient), and one ghost link down to the gallery. Groups (Actions, Inputs, Display, Feedback, Overlays, States) are h2 `heading-2`; each specimen is an interactive card (`label` context, h3 name in `body` semibold, the example on a `surface` inset). Column spans are set per card so every row fills at two and three columns, without dense packing (it would scramble Tab order). One primary action outside the specimens, at the end: "Open the editor".
 - Tutorials: max reading width 72ch, `body` type, numbered steps, framework tabs that stay in sync across the page, code blocks with file-name labels, a "You're done when..." check at the end.
 
 ## 13. Accessibility checklist

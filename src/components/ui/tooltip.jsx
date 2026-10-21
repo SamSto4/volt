@@ -78,7 +78,10 @@ export function Tooltip({ content, children, kind = "description", side = "top",
         hidden={!open}
         className={cn(
           "absolute left-1/2 z-50 w-max max-w-64 -translate-x-1/2 rounded-sm bg-foreground px-2 py-1 type-small text-background",
-          side === "top" ? "bottom-full mb-2" : "top-full mt-2",
+          // Fades in as `hidden` lifts, moving 4px toward its trigger's far
+          // side only when motion is allowed.
+          "transition-[opacity,translate] duration-200 ease-out starting:opacity-0",
+          side === "top" ? "bottom-full mb-2 motion-safe:starting:translate-y-1" : "top-full mt-2 motion-safe:starting:-translate-y-1",
         )}
       >
         {content}
