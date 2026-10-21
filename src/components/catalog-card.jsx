@@ -31,7 +31,7 @@ export function CatalogCard({ name }) {
         interactiveCardClasses,
       )}
     >
-      <div className="flex min-h-32 items-center justify-center rounded-md border border-border bg-background p-4">
+      <div data-specimen className="flex min-h-32 items-center justify-center rounded-md border border-border bg-background p-4">
         <LivePreview name={name} preset={preset} />
       </div>
       <PresetChips name={name} current={preset.name} onChange={setPresetName} />

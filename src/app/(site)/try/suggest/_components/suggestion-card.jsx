@@ -21,7 +21,7 @@ export function SuggestionCard({ suggestion }) {
 
   return (
     <li className={cn("flex min-w-0 flex-col gap-4 rounded-md border border-border bg-card p-4", interactiveCardClasses)}>
-      <div className="flex min-h-24 items-center justify-center rounded-md border border-border bg-background p-4">
+      <div data-specimen className="flex min-h-24 items-center justify-center rounded-md border border-border bg-background p-4">
         <LivePreview name={suggestion.name} preset={preset} />
       </div>
       <PresetChips name={suggestion.name} current={preset.name} onChange={setPresetName} />
