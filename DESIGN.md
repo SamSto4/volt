@@ -85,6 +85,8 @@ The editor chrome is dense: panels use `small` for content and `label` for secti
 
 ## 4. Spacing
 
+**Page column [Project addition].** Every public page, and the header and footer content, sit in one column: `page-container` (72rem wide, 16px gutters, 24px from 768px). The logo, each page's headline and the footer therefore share a left edge. Hero sections are left-aligned on every page.
+
 Volt's steps line up exactly with Tailwind's default scale, so use these classes:
 
 | Token | Value | Tailwind | Use |
@@ -356,6 +358,10 @@ Build these as shadcn components restyled to Volt. Every component documents its
 
 Only the container that will actually accept the drop is highlighted. Reflow neighbors when the dragged item's center crosses their edge (100ms). Drop zones are slightly magnetic: accept drops a few pixels outside their edge.
 
+### Touch targets **[Project addition]**
+
+Controls are 32px with a pointer and 40px on phones (under 640px) and on any coarse-pointer device (`max-sm:` and `pointer-coarse:`). Checkboxes and radios are 24px inside a 40px label; a switch keeps its 24px pill with an invisible 40px tap strip; text links in a paragraph are exempt (WCAG 2.5.8 inline exception). `tests/e2e/touch-targets.spec.js` measures this at 375px.
+
 ### Floating action bar
 
 Pill, `surface-raised`, 1px `line` border, ghost icon buttons (24×24px minimum hit area): Move up, Move down, Duplicate, Delete, Select parent. Actions announce their result ("Hero moved to position 1 of 3") and return focus to the triggering button.
@@ -382,8 +388,8 @@ No product tour. **[Changed, 2026-10-17]** A first visit opens a **"Start a new 
 
 - Catalog grid: cards with a **live** preview (not screenshots), name in `heading-2`, one-line "when to use" in `small`, an accessibility badge.
 - Component page: Preview | Code tabs, variant and theme toggles, viewport toggle, install command with package-manager tabs, "Copy prompt for your AI agent," then usage guidance, accessibility behavior and keyboard notes.
-- **[Project addition]** Try it (`/try`): a curated gallery, every specimen a live component on local state. Hero with an eyebrow, the page's one `display` headline over a still dot grid (an SVG pattern in `line`, never a gradient), and one ghost link down to the gallery. Groups (Actions, Inputs, Display, Feedback, Overlays, States) are h2 `heading-2`; each specimen is an interactive card (`label` context, h3 name in `body` semibold, the example on a `surface` inset). Column spans are set per card so every row fills at two and three columns, without dense packing (it would scramble Tab order). One primary action outside the specimens, at the end: "Open the editor".
-- **[Project addition]** Find your components (`/try/suggest`), linked from a band at the top of the Try it gallery. A short questionnaire, one question at a time (what you're making, the main action, what else the page needs, where it's seen), then a results view: which editor template to start from, the page top to bottom, suggested components as live interactive cards (each with its reason and which answers led to it) grouped "Start with" / "Worth considering", design tips, and the plan as copyable text. The advice is plain rules in `src/lib/suggest`, not AI: the same answers always give the same page. Focus moves to the new question (or the results heading) on every step. One primary button per view: Next while answering, "Open the editor" on the results.
+- **[Project addition]** Try it (`/try`): a curated gallery, every specimen a live component on local state. The hero is two columns from 1024px: the eyebrow, the page's one `display` headline, one muted sentence and one ghost link on the left; a live "Page settings" panel (a field, a switch that flips a status badge, a width picker) on the right, so the page shows its promise before the first scroll. It has no primary button. Behind it, a still dot grid (an SVG pattern in `line`, never a gradient). Under the ghost link, one line leads to the finder and says the examples are made up and nothing is saved. Groups (Actions, Inputs, Display, Feedback, Overlays, States) are h2 `heading-2`; each specimen is an interactive card (`label` context, h3 name in `body` semibold, the example on a `surface` inset, no further box around it). Column spans are set per card so every row fills at two and three columns, without dense packing (it would scramble Tab order). One primary action outside the specimens, at the end: "Open the editor".
+- **[Project addition]** Find your components (`/try/suggest`), linked from the Try it hero. A short questionnaire, one question at a time (what you're making, the main action, what else the page needs, where it's seen), then a results view: which editor template to start from, the page top to bottom, suggested components as live interactive cards (each with its reason and which answers led to it) grouped "Start with" / "Worth considering", design tips, and the plan as copyable text. The advice is plain rules in `src/lib/suggest`, not AI: the same answers always give the same page. Focus moves to the new question (or the results heading) on every step. One primary button per view: Next while answering, "Open the editor" on the results.
 - Tutorials: max reading width 72ch, `body` type, numbered steps, framework tabs that stay in sync across the page, code blocks with file-name labels, a "You're done when..." check at the end.
 
 ## 13. Accessibility checklist

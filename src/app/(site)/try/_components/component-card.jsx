@@ -17,7 +17,9 @@ const COMMAND = installCommand("pnpm", packagesFor(accordion));
 export function ComponentCard({ className } = {}) {
   return (
     <ShowcaseCard className={className} id="component-card" title="Component card" context="Catalog · Libraries">
-      <div className="flex flex-col gap-4 rounded-md border border-border bg-card p-4">
+      {/* Straight onto the card's inset: it used to sit in its own bordered
+          box, which made three borders around one thing (card, inset, box). */}
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h4 className="type-heading-2">{accordion.title}</h4>
           <p className="type-small text-muted-foreground">{accordion.usage.whenToUse}</p>
@@ -29,8 +31,8 @@ export function ComponentCard({ className } = {}) {
             </li>
           ))}
         </ul>
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-border bg-background py-1 pr-1 pl-3">
-          <code id="component-card-command" className="min-w-0 type-code break-all text-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-border bg-card py-1 pr-1 pl-3">
+          <code id="component-card-command" className="min-w-0 type-code break-words text-foreground">
             {COMMAND}
           </code>
           <CopyButton text={COMMAND} label="Copy install command" targetId="component-card-command" />
