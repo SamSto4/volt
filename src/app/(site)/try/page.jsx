@@ -63,6 +63,23 @@ export default function TryPage() {
           The names, numbers and pages in these examples are made up, and nothing you do here is saved.
         </p>
 
+        <section
+          aria-labelledby="suggest-title"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-card p-4 md:p-6"
+        >
+          <div className="flex max-w-prose flex-col gap-2">
+            <h2 id="suggest-title" className="type-heading-2">
+              Not sure where to start?
+            </h2>
+            <p className="type-small text-muted-foreground">
+              Answer four short questions and get a page outline, the components to use, and design tips.
+            </p>
+          </div>
+          <Link href="/try/suggest" className={buttonVariants({ variant: "secondary" })}>
+            Find your components
+          </Link>
+        </section>
+
         <ShowcaseGroup id="actions" title="Actions" description="Buttons for doing things, from the one main action to quiet toolbar icons.">
           <ButtonsCard />
           <IconButtonsCard />

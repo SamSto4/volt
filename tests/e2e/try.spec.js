@@ -91,3 +91,34 @@ test("removing a section shows a toast whose Undo puts it back", async ({ page }
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(list.getByRole("listitem")).toHaveText([/Hero/, /Pricing/, /FAQ/]);
 });
+
+test("the component finder works from the keyboard: answer, move on, read the suggestions", async ({ page }) => {
+  await page.getByRole("link", { name: "Find your components" }).click();
+  await expect(page).toHaveURL(/\/try\/suggest$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Question 1 of 4" })).toBeVisible();
+
+  // Tab into the group and choose with the arrow keys: native radio behavior.
+  await page.getByRole("radio", { name: "A landing page" }).focus();
+  await page.keyboard.press("ArrowDown"); // blog
+  await page.keyboard.press("ArrowUp"); // landing again
+  await expect(page.getByRole("radio", { name: "A landing page" })).toBeChecked();
+  await page.getByRole("button", { name: "Next" }).press("Enter");
+
+  // Focus followed us to the second question.
+  await expect(page.getByRole("radio", { name: "Sign up or subscribe" })).toBeFocused();
+  await page.keyboard.press("Space");
+  await page.getByRole("button", { name: "Next" }).press("Enter");
+  await expect(page.getByRole("checkbox", { name: "Collect details in a form" })).toBeFocused();
+  await page.keyboard.press("Space");
+  await page.getByRole("button", { name: "Next" }).press("Enter");
+  await page.getByRole("button", { name: "See my suggestions" }).press("Enter");
+
+  await expect(page.getByRole("heading", { level: 2, name: "Your starting point" })).toBeFocused();
+  await expect(page.getByRole("heading", { level: 3, name: "Start from the landing page" })).toBeVisible();
+  // They asked for a form, so the input is suggested, with their answer as the reason.
+  const input = page.getByRole("heading", { level: 4, name: "Input" }).locator("xpath=ancestor::li");
+  await expect(input).toContainText("Because you chose “Collect details in a form”");
+  // The suggested component is live: type in it.
+  await input.getByRole("textbox").fill("sam@example.com");
+  await expect(input.getByRole("textbox")).toHaveValue("sam@example.com");
+});

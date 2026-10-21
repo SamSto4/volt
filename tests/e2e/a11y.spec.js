@@ -28,6 +28,7 @@ const PAGES = [
   { name: "a component page", path: "/components/button" },
   { name: "a component page with a dialog", path: "/components/dialog" },
   { name: "the Try it gallery", path: "/try" },
+  { name: "the component finder's first question", path: "/try/suggest" },
 ];
 
 for (const { name, path } of PAGES) {
@@ -51,5 +52,22 @@ test("the editor with a template open has no WCAG 2.1 AA violations", async ({ p
   await expect(page.getByRole("dialog", { name: "Start a new page" })).toBeHidden();
   // The canvas is an iframe; axe scans inside it too.
   await expect(page.frameLocator("iframe").first().getByRole("heading").first()).toBeVisible();
+  await expectNoViolations(page);
+});
+
+test("the component finder's results have no WCAG 2.1 AA violations", async ({ page }) => {
+  await page.goto("/try/suggest");
+  // Answer with the real controls, so the results include live components of every kind.
+  await page.getByRole("radio", { name: "A dashboard or app screen" }).check();
+  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("radio", { name: "Find, review or manage things" }).check();
+  await page.getByRole("button", { name: "Next" }).click();
+  for (const need of ["Compare things in rows and columns", "Ask before something risky happens", "Show content that takes a moment to load", "Handle a list that starts empty"]) {
+    await page.getByRole("checkbox", { name: need }).check();
+  }
+  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("radio", { name: "On phones" }).check();
+  await page.getByRole("button", { name: "See my suggestions" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "Your starting point" })).toBeFocused();
   await expectNoViolations(page);
 });
