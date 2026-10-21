@@ -1,5 +1,6 @@
 import { ArrowDown } from "lucide-react";
 import Link from "next/link";
+import { DotGrid } from "@/components/dot-grid";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertsCard } from "./_components/alerts-card";
@@ -26,6 +27,19 @@ export const metadata = {
   title: "Try it · Volt",
   description: "Every Volt component, live: click, type and tab through them before you build with them.",
 };
+
+/**
+ * The gallery's groups, in page order. The jump links below the hero and each
+ * group's section share these ids, so they can't drift apart.
+ */
+const GROUPS = [
+  { id: "actions", title: "Actions" },
+  { id: "inputs", title: "Inputs" },
+  { id: "display", title: "Display" },
+  { id: "feedback", title: "Feedback" },
+  { id: "overlays", title: "Overlays" },
+  { id: "states", title: "States" },
+];
 
 /** The shared page column (globals.css). */
 const CONTAINER = "page-container";
@@ -67,6 +81,16 @@ export default function TryPage() {
       </section>
 
       <div id="showcase" className={cn(CONTAINER, "flex scroll-mt-4 flex-col gap-10 py-10")}>
+        {/* Wayfinding: the page is about five screens tall, so each group is one tap away. Plain links, no sticky bar that could cover a focused control. */}
+        <nav aria-label="Gallery sections" className="flex flex-wrap items-center gap-2">
+          <span className="type-label text-muted-foreground">Jump to</span>
+          {GROUPS.map((group) => (
+            <Link key={group.id} href={`#${group.id}`} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+              {group.title}
+            </Link>
+          ))}
+        </nav>
+
         {/* Column spans are set here, per card, so every row is full at both
             two columns (768px) and three (1280px). Cards stay in reading
             order: no dense packing, which would make Tab jump around. */}
@@ -117,22 +141,5 @@ export default function TryPage() {
         </div>
       </section>
     </main>
-  );
-}
-
-/**
- * A still grid of small dots behind the hero, in the `line` color. An SVG
- * pattern, not a CSS gradient (Volt uses none), and it never moves.
- */
-function DotGrid() {
-  return (
-    <svg aria-hidden="true" className="absolute inset-0 -z-10 size-full text-border">
-      <defs>
-        <pattern id="try-dots" width="24" height="24" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1" fill="currentColor" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#try-dots)" />
-    </svg>
   );
 }

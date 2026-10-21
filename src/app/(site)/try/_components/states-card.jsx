@@ -51,7 +51,7 @@ export function StatesCard({ className } = {}) {
             />
           </Specimen>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-3">
           <InputField label="Default field" placeholder="Type here" />
           <InputField label="Field with an error" defaultValue="pricing page" error="Use lowercase letters and dashes only." />
           <InputField label="Disabled field" defaultValue="Can't be changed" disabled />

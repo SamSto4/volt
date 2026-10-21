@@ -29,7 +29,8 @@ export function FormFieldsCard({ className } = {}) {
       context="Forms · Settings"
       note="The email starts with an error so you can see one. Fix it, then leave the field."
     >
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {/* Two columns once the card itself is about 448px wide (@md), whatever the screen. */}
+      <div className="grid grid-cols-1 gap-4 @md:grid-cols-2">
         <InputField label="Page name" defaultValue="Pricing" description="Shown in the browser tab and in search results." />
         <InputField
           label="Contact email"
