@@ -349,9 +349,10 @@ Build these as shadcn components restyled to Volt. Every component documents its
 | Hover over a block | 1px dashed `ink-muted` outline, block name tag in `label` style |
 | Selected block | 2px solid `primary` outline, 2px offset; floating action bar above it |
 | Empty slot | 1px dashed `line-strong` border, `radius-md`, `ink-muted` hint text, centered "+" button |
+| Possible drop targets (while dragging) | **[Project addition]** Every slot that accepts what's being dragged gets a 1px dashed `primary` outline, so you can see where it can go before reaching it |
 | Valid drop target (while dragging) | 2px `primary` outline + `primary-tint` fill, 350ms fade in |
 | Insertion point | 2px `primary` line with an 8px `primary` circle at the start |
-| Invalid target | No highlight at all (don't show red; just don't accept) |
+| Invalid target | No highlight at all (don't show red; just don't accept). **[Project addition]** A drag that ends without landing says why in a toast and the live region: "Badge wasn't added. Drop it on a highlighted slot: Hero · Above the headline." |
 | Dragged original | `opacity: 0.4` in place |
 | Drag preview | Compact card ≤ 280×280px: `surface-raised`, 1px `primary` border, `radius-md`, component name + icon |
 | Just dropped | `primary-tint` flash that fades out over 700ms, then the block is selected |

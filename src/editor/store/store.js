@@ -15,6 +15,9 @@ import * as ops from "./tree.js";
  * @property {number} announcementId  bumps on every message, so the same sentence twice is still announced
  * @property {{ id: number, message: string } | null} toast  the undo toast after a removal (not history)
  * @property {() => void} dismissToast
+ * @property {{ id: number, message: string } | null} hint  a note after a drag that didn't land (not history)
+ * @property {(message: string) => void} showHint
+ * @property {() => void} dismissHint
  * @property {(id: string | null) => void} select
  * @property {(template: string, index?: number) => string | null} addSection
  * @property {(component: string, target?: import("./tree.js").Target) => string | null} insertBlock
@@ -100,6 +103,7 @@ export function createEditorStore(initial = {}) {
       announcement: "",
       announcementId: 0,
       toast: null,
+      hint: null,
 
       select: (id) => set({ selectedId: id }),
 
@@ -146,6 +150,11 @@ export function createEditorStore(initial = {}) {
       },
 
       dismissToast: () => set({ toast: null }),
+
+      // Says why a drag didn't land: shown as a toast, and announced for
+      // screen readers (they can't see the toast, and can't drag either).
+      showHint: (message) => set({ hint: { id: get().announcementId + 1, message }, ...announce(message) }),
+      dismissHint: () => set({ hint: null }),
 
       updateProps: (nodeId, props, coalesceKey) => {
         const now = Date.now();

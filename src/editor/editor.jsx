@@ -24,6 +24,7 @@ import { bestFitWidth, fitFrame } from "./fit-frame.js";
 import { loadTree, saveTree } from "./persistence.js";
 import { StartChooser } from "./start-chooser";
 import { TEMPLATES } from "./store/example-page.js";
+import { HintToast } from "./hint-toast";
 import { UndoToast } from "./undo-toast";
 import { findParent, getManifest, getSectionTemplate, slotLabel } from "./store/tree.js";
 
@@ -102,6 +103,7 @@ function EditorShell() {
     <div className="flex h-dvh flex-col bg-background">
       <LiveRegion />
       <UndoToast onUndo={() => undo(store)} />
+      <HintToast />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
       <StartChooser open={chooser !== null} onChoose={startPage} onClose={() => setChooser(null)} />
 

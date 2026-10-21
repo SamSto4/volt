@@ -7,6 +7,7 @@ import { fillSlots } from "@/lib/codegen/slots.js";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { manifests } from "@/registry";
+import { missedDropMessage } from "./drop-hint.js";
 import { finalIndex, insertionIndex, insertionLine } from "./drop-position.js";
 import { useDrag, useEditor, useEditorStore, useFocusRequests } from "./editor-context";
 import { renderElement } from "./render-element";
@@ -145,11 +146,16 @@ function CanvasSlot({ sectionId, name, className }) {
  * @param {{ sectionId: string, name: string, className?: string, ids: string[], definition?: import("@/registry/sections/schema").SlotDefinition }} props
  */
 function EditableSlot({ sectionId, name, className, ids, definition }) {
-  const { dropRef, handlers, over } = useDropTarget(sectionId, name, ids);
+  const { dropRef, handlers, over, possible } = useDropTarget(sectionId, name, ids);
   const full = definition ? ids.length >= definition.max : true;
   const label = definition?.title ?? name;
-  // Only the slot that will accept this drop is highlighted (DESIGN.md §11).
-  const highlight = over && "outline-2 outline-solid outline-primary bg-primary-tint transition-colors duration-300";
+  // Only slots that will accept what's being dragged are marked (DESIGN.md §11):
+  // all of them with a dashed outline, so you can see where it can go, and the
+  // one under the pointer with the full highlight. A slot that won't accept it
+  // gets nothing at all.
+  const highlight = over
+    ? "outline-2 outline-solid outline-primary bg-primary-tint transition-colors duration-300"
+    : possible && "outline-1 outline-dashed outline-primary";
   const line = over?.line;
   const indicator = line && (
     <div
@@ -264,7 +270,7 @@ function useDropTarget(sectionId, slot, ids) {
   };
 
   // A drag that ended somewhere else leaves no highlight behind.
-  return { dropRef: ref, handlers, over: payload && accepts ? over : null };
+  return { dropRef: ref, handlers, over: payload && accepts ? over : null, possible: Boolean(payload) && accepts };
 }
 
 /** @param {{ id: string }} props */
@@ -335,7 +341,14 @@ function CanvasBlock({ id }) {
         setDragPreview(event, manifest.title);
         drag.setPayload({ kind: "block", id });
       }}
-      onDragEnd={() => drag.setPayload(null)}
+      onDragEnd={(event) => {
+        drag.setPayload(null);
+        // A block dropped nowhere stays put: say so, and where it can go.
+        if (event.dataTransfer?.dropEffect === "none") {
+          const message = missedDropMessage(store.getState().tree, { kind: "block", id });
+          if (message) store.getState().showHint(message);
+        }
+      }}
       onAnimationEnd={() => drag.setLastDropped(null)}
       className={cn(
         "group relative",
