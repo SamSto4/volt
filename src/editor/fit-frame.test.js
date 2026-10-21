@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitFrame } from "./fit-frame.js";
+import { bestFitWidth, fitFrame } from "./fit-frame.js";
 
 describe("fitFrame", () => {
   it("leaves a frame that fits at full size", () => {
@@ -20,5 +20,36 @@ describe("fitFrame", () => {
     const { scale, height } = fitFrame(available, 1280);
     expect(Number.isFinite(scale) && scale > 0).toBe(true);
     expect(Number.isFinite(height)).toBe(true);
+  });
+});
+
+describe("bestFitWidth", () => {
+  const widths = [375, 768, 1280];
+
+  it("picks the widest width that stays at least 75% size", () => {
+    // 1280 * 0.75 = 960 needed; 768 * 0.75 = 576; 375 * 0.75 = 281.
+    expect(bestFitWidth(1000, widths)).toBe(1280);
+    expect(bestFitWidth(960, widths)).toBe(1280); // exactly 75%
+    expect(bestFitWidth(959, widths)).toBe(768);
+    expect(bestFitWidth(650, widths)).toBe(768);
+    expect(bestFitWidth(576, widths)).toBe(768);
+    expect(bestFitWidth(575, widths)).toBe(375);
+  });
+
+  it("falls back to the narrowest when nothing fits well", () => {
+    expect(bestFitWidth(200, widths)).toBe(375);
+  });
+
+  it("uses the widest while the space is unknown (before layout, or hidden)", () => {
+    expect(bestFitWidth(0, widths)).toBe(1280);
+    expect(bestFitWidth(Number.NaN, widths)).toBe(1280);
+  });
+
+  it("doesn't depend on the order the widths are listed in", () => {
+    expect(bestFitWidth(650, [1280, 375, 768])).toBe(768);
+  });
+
+  it("takes a different threshold", () => {
+    expect(bestFitWidth(650, widths, 0.5)).toBe(1280); // 650 / 1280 = 0.51
   });
 });

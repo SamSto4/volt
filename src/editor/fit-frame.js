@@ -16,3 +16,24 @@ export function fitFrame(available, width) {
   const scale = Math.min(1, available.width / width);
   return { scale, height: available.height / scale };
 }
+
+/**
+ * The widest preview width that still fits without shrinking much, so the
+ * editor opens at a size where the page's text is readable: a 1280px page in
+ * a 650px canvas would be drawn at half size (text around 7px).
+ *
+ * "Without shrinking much" means a scale of at least `minScale`. When none
+ * fits, the narrowest is used. When the space isn't known yet (before
+ * layout), the widest is, which is what the editor always used to open at.
+ *
+ * @param {number} availableWidth  the canvas's width in pixels
+ * @param {number[]} widths        the widths the editor offers, any order
+ * @param {number} [minScale]
+ * @returns {number}
+ */
+export function bestFitWidth(availableWidth, widths, minScale = 0.75) {
+  const sorted = [...widths].sort((a, b) => a - b);
+  if (!(availableWidth > 0)) return sorted[sorted.length - 1];
+  const fitting = sorted.filter((width) => availableWidth / width >= minScale);
+  return fitting.length > 0 ? fitting[fitting.length - 1] : sorted[0];
+}

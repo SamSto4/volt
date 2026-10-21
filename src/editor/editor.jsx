@@ -20,7 +20,7 @@ import { EditorProvider, useEditor, useEditorStore, useHistory } from "./editor-
 import { Frame } from "./frame";
 import { InspectorPanel } from "./inspector-panel";
 import { download } from "./download.js";
-import { fitFrame } from "./fit-frame.js";
+import { bestFitWidth, fitFrame } from "./fit-frame.js";
 import { loadTree, saveTree } from "./persistence.js";
 import { StartChooser } from "./start-chooser";
 import { TEMPLATES } from "./store/example-page.js";
@@ -47,7 +47,12 @@ function EditorShell() {
   const history = useHistory();
   const [mode, setMode] = useState(/** @type {"edit" | "try"} */ ("edit"));
   const [view, setView] = useState(/** @type {"preview" | "code" | "split"} */ ("preview"));
-  const [width, setWidth] = useState(1280);
+  // The canvas width. Until the person picks one it follows the space: the
+  // widest preview that fits without shrinking much (see bestFitWidth), so the
+  // page's text stays readable. Picking a width (top bar or ⌘K) keeps it.
+  const [chosenWidth, setWidth] = useState(/** @type {number | null} */ (null));
+  const [canvasSpace, setCanvasSpace] = useState(/** @type {{ width: number, height: number } | null} */ (null));
+  const width = chosenWidth ?? bestFitWidth(canvasSpace?.width ?? 0, WIDTHS.map((option) => option.value));
   const [showComponents, setShowComponents] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
   const [frameDoc, setFrameDoc] = useState(/** @type {Document | null} */ (null));
@@ -181,7 +186,7 @@ function EditorShell() {
           <SelectionBreadcrumb />
           <div className={`grid min-h-0 flex-1 gap-4 ${view === "split" ? "xl:grid-cols-2" : ""}`}>
             {showCanvas && (
-              <ScaledFrame width={width}>
+              <ScaledFrame width={width} onMeasure={setCanvasSpace}>
                 <Frame title={mode === "edit" ? "Page canvas (editing)" : "Page canvas (try it)"} width={width} onDocument={setFrameDoc}>
                   <SafeCanvas mode={mode} />
                 </Frame>
@@ -357,9 +362,15 @@ function ExportMenu() {
  * 1280px page can be seen whole on a laptop. Media queries inside still see
  * the full chosen width.
  *
- * @param {{ width: number, children: import("react").ReactNode }} props
+ * @param {{
+ *   width: number,
+ *   onMeasure: (space: { width: number, height: number }) => void,
+ *   children: import("react").ReactNode,
+ * }} props
+ *   onMeasure: told the space's size, now and whenever it changes, so the
+ *   editor can pick a width that fits
  */
-function ScaledFrame({ width, children }) {
+function ScaledFrame({ width, onMeasure, children }) {
   const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
   const [available, setAvailable] = useState({ width, height: 640 });
 
@@ -367,11 +378,13 @@ function ScaledFrame({ width, children }) {
     const element = ref.current;
     if (!element || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(([entry]) => {
-      setAvailable({ width: entry.contentRect.width, height: entry.contentRect.height });
+      const space = { width: entry.contentRect.width, height: entry.contentRect.height };
+      setAvailable(space);
+      onMeasure(space);
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [onMeasure]);
 
   const { scale, height } = fitFrame(available, width);
   return (

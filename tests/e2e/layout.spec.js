@@ -44,3 +44,28 @@ test("the editor's component list never cuts off a name or a category", async ({
   );
   expect(clipped).toEqual([]);
 });
+
+test("the editor opens at a preview width where the page is readable", async ({ page }) => {
+  // A laptop: both panels leave about 650px for the canvas. 1280 would be drawn
+  // at half size, so the editor starts at 768 instead.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/editor");
+  await page.getByRole("button", { name: /Landing page/ }).click();
+  await expect(page.getByRole("radio", { name: "768" })).toBeChecked();
+  const scale = async () =>
+    page.locator("iframe").evaluate((frame) => {
+      const transform = getComputedStyle(/** @type {HTMLElement} */ (frame.parentElement)).transform;
+      return transform === "none" ? 1 : Number(transform.slice(7).split(",")[0]);
+    });
+  expect(await scale()).toBeGreaterThanOrEqual(0.75);
+
+  // A big monitor has room for the full desktop width.
+  await page.setViewportSize({ width: 1920, height: 1000 });
+  await expect(page.getByRole("radio", { name: "1280" })).toBeChecked();
+  expect(await scale()).toBeGreaterThanOrEqual(0.75);
+
+  // A width the person picks stays, even when the window grows again.
+  await page.getByRole("radio", { name: "375" }).check({ force: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByRole("radio", { name: "375" })).toBeChecked();
+});
