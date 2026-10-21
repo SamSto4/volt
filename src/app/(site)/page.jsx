@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { AccordionBlock } from "@/components/ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DotGrid } from "@/components/dot-grid";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputField } from "@/components/ui/input";
-import { TabsBlock } from "@/components/ui/tabs";
 import { manifests } from "@/registry";
-import { accordionProps } from "@/registry/accordion";
-import { tabsProps } from "@/registry/tabs";
+import { LiveCodeDemo } from "./_components/live-code-demo";
 
 // Volt's home page. Every claim here is something the app does today
 // (CLAUDE.md: "no README claims the code doesn't back up").
@@ -20,7 +16,7 @@ const steps = [
   },
   {
     title: "Drop in components",
-    description: "Drag them in, click “Add to page”, or use the keyboard. Change any prop in the inspector, and undo anything.",
+    description: "Drag them in, click Add, or use the keyboard. Change any prop in the inspector, and undo anything.",
   },
   {
     title: "Copy the exact code",
@@ -31,29 +27,42 @@ const steps = [
 export default function Home() {
   return (
     <main className="flex flex-col">
-      {/* Left-aligned like every page's hero: the headline and the text under it share one edge. */}
-      <section className="page-container flex flex-col items-start gap-6 py-16 md:py-24">
-        <Badge>Early version</Badge>
-        <h1 className="max-w-4xl type-display">Drop real components into real pages</h1>
-        <p className="max-w-[60ch] text-muted-foreground">
-          Then learn exactly how to put them in your project. Every block shows the code it produces, and every
-          component is built to be accessible from the start.
-        </p>
-        <div className="flex flex-wrap items-center gap-4">
-          {/* Links that look like buttons: they go somewhere, so they're links. */}
-          <Link href="/editor" className={buttonVariants({ size: "lg" })}>
-            Open the editor
-          </Link>
-          <Link href="/components" className={buttonVariants({ variant: "secondary", size: "lg" })}>
-            Browse {manifests.length} components
-          </Link>
+      {/* One thing per screen: the idea, one action, and the proof beside it,
+          a live component with the exact code that makes it. Left-aligned like
+          every page's hero, over the same dot grid as the gallery. */}
+      <section className="relative isolate border-b border-border">
+        <DotGrid />
+        <div className="page-container grid items-center gap-10 py-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:py-16">
+          <div className="flex flex-col items-start gap-6">
+            <Badge>Early version</Badge>
+            <h1 className="type-display">Drop real components into real pages</h1>
+            <p className="max-w-[60ch] text-muted-foreground">
+              Then learn exactly how to put them in your project. Every block shows the code it produces, and every
+              component is built to be accessible from the start.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Links that look like buttons: they go somewhere, so they're links. */}
+              <Link href="/editor" className={buttonVariants({ size: "lg" })}>
+                Open the editor
+              </Link>
+              <Link href="/components" className={buttonVariants({ variant: "secondary", size: "lg" })}>
+                Browse {manifests.length} components
+              </Link>
+            </div>
+          </div>
+          <LiveCodeDemo />
         </div>
       </section>
 
       <section aria-labelledby="how-heading" className="page-container flex flex-col gap-6 py-10">
-        <h2 id="how-heading" className="type-heading-1">
-          How it works
-        </h2>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 id="how-heading" className="type-heading-1">
+            How it works
+          </h2>
+          <Link href="/try" className="inline-flex min-h-10 items-center rounded-sm text-primary underline underline-offset-4">
+            Try every component live
+          </Link>
+        </div>
         <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {steps.map((step, index) => (
             <li key={step.title}>
@@ -67,31 +76,6 @@ export default function Home() {
             </li>
           ))}
         </ol>
-      </section>
-
-      <section aria-labelledby="try-heading" className="page-container flex flex-col gap-6 py-10">
-        <div className="flex flex-col gap-2">
-          <h2 id="try-heading" className="type-heading-1">
-            Try a few
-          </h2>
-          <p className="max-w-prose text-muted-foreground">
-            These are the real components, not pictures. Switch the tabs, open a question, tab through them with the
-            keyboard.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="flex flex-col gap-6 rounded-md border border-border bg-card p-4 md:p-6">
-            <TabsBlock {...tabsProps.parse({})} />
-            <InputField label="Email" type="email" placeholder="you@example.com" description="We'll never share it." />
-          </div>
-          <div className="flex flex-col gap-6 rounded-md border border-border bg-card p-4 md:p-6">
-            <Alert tone="success">
-              <AlertTitle>Page published</AlertTitle>
-              <AlertDescription>Anyone with the link can now see it.</AlertDescription>
-            </Alert>
-            <AccordionBlock {...accordionProps.parse({})} />
-          </div>
-        </div>
       </section>
 
       <section aria-labelledby="why-heading" className="page-container flex flex-col gap-6 py-10">
@@ -131,6 +115,18 @@ export default function Home() {
             </Card>
           </li>
         </ul>
+      </section>
+
+      {/* The bookend: the page ends on the same action it opened with, in the same words. */}
+      <section aria-labelledby="closing-heading" className="border-t border-border">
+        <div className="page-container flex flex-wrap items-center justify-between gap-4 py-10">
+          <h2 id="closing-heading" className="type-heading-2">
+            Ready to put them on a real page?
+          </h2>
+          <Link href="/editor" className={buttonVariants({ size: "lg" })}>
+            Open the editor
+          </Link>
+        </div>
       </section>
     </main>
   );

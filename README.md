@@ -11,7 +11,7 @@ UI/UX creation and learning: drop real components into real pages, then learn ex
   - **step-by-step instructions** for Next.js or Vite, for npm, pnpm, yarn or bun, ending with a "You're done when…" check;
   - a **"Copy prompt for your AI agent"** button, which builds a prompt for Claude Code or Cursor from the same facts.
 - **Compose a page** (`/editor`), a full-screen app. Start from the landing page or blog post example, or a blank page.
-  - **Add** blocks by dragging, by clicking "Add to page", or with the keyboard.
+  - **Add** blocks by dragging, by clicking Add, or with the keyboard.
   - **Change** them in the inspector, or with the floating action bar (move, duplicate, delete). Undo and redo anything, with an undo toast after deletes.
   - **⌘K command palette:** add anything, change the view, or jump to any layer by typing.
   - **Preview** at 375, 768 or 1280 px in an iframe, so breakpoints really respond. Switch to **Try it** to use the page.
