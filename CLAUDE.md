@@ -70,6 +70,7 @@ src/
   editor/               # editor UI: palette, canvas, layers, inspector, toolbar, DnD wiring
   editor/store/         # Zustand store, actions, selectors, history
   lib/codegen/          # PURE JavaScript: tree -> TSX / HTML / registry JSON. No React, no DOM imports
+  lib/suggest/          # PURE JavaScript: the /try/suggest questions and recommendation rules
   lib/ai/               # prompts, schemas, model client, eval fixtures
   db/                   # Drizzle schema, migrations, queries
 content/docs/           # MDX tutorials
