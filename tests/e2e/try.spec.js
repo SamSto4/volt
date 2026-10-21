@@ -66,9 +66,13 @@ test("the dialog traps focus, closes on Escape and gives focus back to its trigg
 });
 
 test("⌘K jumps to the command panel; arrows move and Enter chooses", async ({ page }) => {
-  await page.keyboard.press("ControlOrMeta+k");
   const search = page.getByRole("combobox", { name: "Search the example project" });
-  await expect(search).toBeFocused();
+  // The shortcut's listener is attached after the page hydrates, and a slow CI
+  // runner can press before that. So press, and press again until it lands.
+  await expect(async () => {
+    await page.keyboard.press("ControlOrMeta+k");
+    await expect(search).toBeFocused({ timeout: 500 });
+  }).toPass();
   await search.pressSequentially("phone");
   // Fuzzy matching ranks the word match first; looser matches follow.
   // (Scoped to the panel's list: the page's selects have <option>s too.)
