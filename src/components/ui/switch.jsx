@@ -53,7 +53,10 @@ export function Switch({ label, description, defaultChecked = false, checked, on
         className={cn(
           // 24×44px pill. Off uses line-strong (3:1 against the surface, WCAG
           // 1.4.11); on uses primary.
-          "inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-100",
+          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-100",
+          // The pill stays 24px, but the tap area grows to 40px: an invisible
+          // 8px strip above and below (a pseudo-element counts as the button).
+          "before:absolute before:inset-x-0 before:-inset-y-2 before:content-['']",
           on ? "bg-primary" : "bg-input",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}

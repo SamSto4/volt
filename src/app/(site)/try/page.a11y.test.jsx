@@ -23,7 +23,7 @@ describe("Try it page", () => {
     render(<TryPage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     const groups = screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
-    expect(groups).toEqual(["Not sure where to start?", "Actions", "Inputs", "Display", "Feedback", "Overlays", "States", "Ready to put them on a real page?"]);
+    expect(groups).toEqual(["Actions", "Inputs", "Display", "Feedback", "Overlays", "States", "Ready to put them on a real page?"]);
     const levels = screen.getAllByRole("heading").map((heading) => Number(heading.tagName.slice(1)));
     levels.forEach((level, index) => {
       if (index > 0) expect(level - levels[index - 1]).toBeLessThanOrEqual(1);

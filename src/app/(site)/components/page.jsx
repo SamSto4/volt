@@ -10,7 +10,7 @@ export const metadata = {
 /** The catalog: every component as a card with a live preview (DESIGN.md §12). */
 export default function ComponentsPage() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10">
+    <main className="page-container flex flex-col gap-10 py-10">
       <section className="flex flex-col gap-2">
         <h1 className="type-heading-1">Components</h1>
         <p className="max-w-prose text-muted-foreground">

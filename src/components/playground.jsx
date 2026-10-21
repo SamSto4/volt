@@ -141,7 +141,7 @@ export function Playground({ name }) {
             id={`${codeId}-preset`}
             value={preset}
             onChange={(event) => loadPreset(event.target.value)}
-            className="h-8 w-full rounded-sm border border-input bg-card px-3 type-small"
+            className="h-8 max-sm:h-10 pointer-coarse:h-10 w-full rounded-sm border border-input bg-card px-3 type-small"
           >
             {manifest.variants.map((variant) => (
               <option key={variant.name} value={variant.name}>

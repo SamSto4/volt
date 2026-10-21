@@ -212,21 +212,24 @@ function PaletteItem({ name }) {
         className="flex cursor-grab items-center justify-between gap-2 rounded-md border border-border bg-card p-3 active:cursor-grabbing"
       >
         <GripVertical aria-hidden="true" size={16} strokeWidth={1.5} className="shrink-0 text-muted-foreground" />
+        {/* The name gets the room: the button beside it is short, so no
+            component's name is cut off (it used to be, at 280px wide). */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="type-small font-medium">{manifest.title}</span>
+          <span className="truncate type-small font-medium">{manifest.title}</span>
           <span className="truncate type-small text-muted-foreground">{manifest.category}</span>
         </div>
         <Button
           ref={addButton}
-          variant="secondary"
+          variant="ghost"
           size="sm"
+          // Says "Add" on screen and "Add to page: Button" to assistive tech:
+          // the visible word is the start of the name (WCAG 2.5.3), and the
+          // rest tells the eighteen buttons apart.
+          aria-label={`Add to page: ${manifest.title}`}
           onClick={() => store.getState().insertBlock(manifest.name)}
         >
           <Plus aria-hidden="true" strokeWidth={1.5} />
-          {/* Named "Add to page: Button". The visible words come first, so
-              saying "click Add to page" works (Label in Name, WCAG 2.5.3),
-              and the hidden part tells the many buttons apart. */}
-          Add to page<span className="sr-only">: {manifest.title}</span>
+          Add
         </Button>
       </div>
 

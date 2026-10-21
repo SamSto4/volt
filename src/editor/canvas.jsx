@@ -345,7 +345,7 @@ function CanvasBlock({ id }) {
       )}
     >
       {/* inert: in edit mode the block is one selectable thing. Its own
-          buttons and fields can't take focus or clicks until "Try it" mode. */}
+          buttons and fields can't take focus or clicks until "Interact" mode. */}
       <div inert>{content}</div>
       {/* The selectable block: an empty layer exactly over the content, not
           a wrapper around it. Wrapped, the content's text ("Fast to set up")

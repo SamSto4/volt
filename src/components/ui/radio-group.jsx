@@ -58,7 +58,7 @@ export function RadioGroup({ label, description, name, defaultValue, value, onVa
         aria-required={required || undefined}
         disabled={disabled}
         data-slot="radio-group"
-        className={cn("flex flex-col gap-3 disabled:opacity-50", className)}
+        className={cn("flex flex-col gap-1 disabled:opacity-50", className)}
       >
         <legend className="mb-1 type-small font-medium text-foreground">
           {label}
@@ -110,15 +110,16 @@ export function RadioGroupItem({ value, label, description, id, className, ...pr
           : { defaultChecked: group.defaultValue === value })}
         // Same as Checkbox: the browser's own control, tinted Volt primary,
         // so high-contrast and forced-colors modes keep working.
-        className="mt-0.5 size-5 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
+        className="mt-2 size-6 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
         {...props}
       />
-      <div className="flex flex-col gap-1">
-        <label htmlFor={inputId} className="cursor-pointer type-small font-medium">
+      <div className="flex flex-col">
+        {/* A 40px-tall tap target, with the 24px circle centered on its first line. */}
+        <label htmlFor={inputId} className="flex min-h-10 cursor-pointer items-center type-small font-medium">
           {label}
         </label>
         {description && (
-          <p id={descriptionId} className="type-small text-muted-foreground">
+          <p id={descriptionId} className="-mt-2 pb-2 type-small text-muted-foreground">
             {description}
           </p>
         )}

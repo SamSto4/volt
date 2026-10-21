@@ -61,7 +61,7 @@ export function PresetChips({ name, current, onChange, className }) {
           type="button"
           aria-pressed={variant.name === current}
           onClick={() => onChange(variant.name)}
-          className="h-8 cursor-pointer rounded-full border border-transparent px-3 type-small text-muted-foreground hover:text-foreground aria-pressed:border-input aria-pressed:bg-background aria-pressed:text-foreground"
+          className="h-8 max-sm:h-10 pointer-coarse:h-10 cursor-pointer rounded-full border border-transparent px-3 type-small text-muted-foreground hover:text-foreground aria-pressed:border-input aria-pressed:bg-background aria-pressed:text-foreground"
         >
           {variant.name}
         </button>

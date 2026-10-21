@@ -103,7 +103,7 @@ function TextControl({ field, value, error, onChange, label = field.label }) {
       {multiline ? (
         <textarea {...shared} rows={3} className={cn(controlClass, "py-2")} />
       ) : (
-        <input {...shared} type="text" className={cn(controlClass, "h-8")} />
+        <input {...shared} type="text" className={cn(controlClass, "h-8 max-sm:h-10 pointer-coarse:h-10")} />
       )}
       {error && (
         <p id={errorId} className="type-small text-destructive">
@@ -136,7 +136,7 @@ function ChoiceControl({ field, value, error, onChange }) {
           // index is the value and it's mapped back on change.
           value={String(field.options.indexOf(value))}
           onChange={(event) => onChange(field.options[Number(event.target.value)])}
-          className={cn(controlClass, "h-8")}
+          className={cn(controlClass, "h-8 max-sm:h-10 pointer-coarse:h-10")}
         >
           {field.options.map((option, index) => (
             <option key={String(option)} value={String(index)}>
@@ -163,20 +163,18 @@ function ChoiceControl({ field, value, error, onChange }) {
  * @param {{ field: import("./fields.js").ToggleField, checked: boolean, onChange: (value: boolean) => void }} props
  */
 function ToggleControl({ field, checked, onChange }) {
-  const id = useId();
+  // The box and its words share one <label>, so the whole row is the tap
+  // target: 32px for a pointer, 40px on a phone or touch screen.
   return (
-    <div className="flex items-center gap-2">
+    <label className="flex min-h-8 cursor-pointer items-center gap-2 max-sm:min-h-10 pointer-coarse:min-h-10">
       <input
-        id={id}
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
         className="size-5 shrink-0 cursor-pointer accent-primary"
       />
-      <label htmlFor={id} className="cursor-pointer type-small font-medium">
-        {field.label}
-      </label>
-    </div>
+      <span className="type-small font-medium">{field.label}</span>
+    </label>
   );
 }
 

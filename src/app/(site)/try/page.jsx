@@ -11,6 +11,7 @@ import { ComponentCard } from "./_components/component-card";
 import { DialogCard } from "./_components/dialog-card";
 import { EmptyStateCard } from "./_components/empty-state-card";
 import { FormFieldsCard } from "./_components/form-fields-card";
+import { HeroSpecimen } from "./_components/hero-specimen";
 import { IconButtonsCard } from "./_components/icon-buttons-card";
 import { MetricCard } from "./_components/metric-card";
 import { ShowcaseGroup } from "./_components/showcase";
@@ -26,8 +27,8 @@ export const metadata = {
   description: "Every Volt component, live: click, type and tab through them before you build with them.",
 };
 
-/** The page's centered column: about 1150px, 16px gutters on phones and 24px from 768px. */
-const CONTAINER = "mx-auto w-full max-w-6xl px-4 md:px-6";
+/** The shared page column (globals.css). */
+const CONTAINER = "page-container";
 
 /**
  * The Try it page: a curated gallery of Volt components, each one live.
@@ -38,20 +39,30 @@ export default function TryPage() {
     <main className="flex flex-col">
       <section aria-labelledby="try-title" className="relative isolate border-b border-border">
         <DotGrid />
-        <div className={cn(CONTAINER, "flex flex-col items-start gap-4 py-10")}>
-          <p className="type-label text-muted-foreground">Component gallery</p>
-          <h1 id="try-title" className="max-w-4xl type-display">
-            See how Volt feels before you build with it.
-          </h1>
-          <p className="max-w-[60ch] text-muted-foreground">
-            Every piece here is a real component, not a picture: click it, type in it, tab through it. What you try
-            is exactly what you copy into your project.
-          </p>
-          {/* -ml-4 lines the ghost button's text up with the column above. */}
-          <Link href="#showcase" className={buttonVariants({ variant: "ghost", className: "-ml-4" })}>
-            Browse components
-            <ArrowDown aria-hidden="true" strokeWidth={1.5} />
-          </Link>
+        <div className={cn(CONTAINER, "grid items-center gap-10 py-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]")}>
+          <div className="flex flex-col items-start gap-4">
+            <p className="type-label text-muted-foreground">Component gallery</p>
+            <h1 id="try-title" className="type-display">
+              See how Volt feels before you build with it.
+            </h1>
+            <p className="max-w-[60ch] text-muted-foreground">
+              Every piece here is a real component, not a picture: click it, type in it, tab through it. What you try
+              is exactly what you copy into your project.
+            </p>
+            {/* -ml-4 lines the ghost button's text up with the column above. */}
+            <Link href="#showcase" className={buttonVariants({ variant: "ghost", className: "-ml-4" })}>
+              Browse components
+              <ArrowDown aria-hidden="true" strokeWidth={1.5} />
+            </Link>
+            <p className="max-w-[60ch] type-small text-muted-foreground">
+              Not sure where to start?{" "}
+              <Link href="/try/suggest" className="rounded-sm text-primary underline underline-offset-4">
+                Find your components
+              </Link>
+              . The names and numbers in the examples are made up, and nothing you do here is saved.
+            </p>
+          </div>
+          <HeroSpecimen />
         </div>
       </section>
 
@@ -59,27 +70,6 @@ export default function TryPage() {
         {/* Column spans are set here, per card, so every row is full at both
             two columns (768px) and three (1280px). Cards stay in reading
             order: no dense packing, which would make Tab jump around. */}
-        <p className="max-w-prose type-small text-muted-foreground">
-          The names, numbers and pages in these examples are made up, and nothing you do here is saved.
-        </p>
-
-        <section
-          aria-labelledby="suggest-title"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-card p-4 md:p-6"
-        >
-          <div className="flex max-w-prose flex-col gap-2">
-            <h2 id="suggest-title" className="type-heading-2">
-              Not sure where to start?
-            </h2>
-            <p className="type-small text-muted-foreground">
-              Answer four short questions and get a page outline, the components to use, and design tips.
-            </p>
-          </div>
-          <Link href="/try/suggest" className={buttonVariants({ variant: "secondary" })}>
-            Find your components
-          </Link>
-        </section>
-
         <ShowcaseGroup id="actions" title="Actions" description="Buttons for doing things, from the one main action to quiet toolbar icons.">
           <ButtonsCard />
           <IconButtonsCard />

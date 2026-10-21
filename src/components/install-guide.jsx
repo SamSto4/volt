@@ -67,7 +67,7 @@ export function InstallGuide({ name }) {
                   {step.link && (
                     <a
                       href={step.link.href}
-                      className="inline-flex items-center gap-1 self-start rounded-sm text-primary underline underline-offset-4"
+                      className="inline-flex min-h-10 items-center gap-1 self-start rounded-sm text-primary underline underline-offset-4"
                     >
                       {step.link.label}
                       <ExternalLink aria-hidden="true" size={16} strokeWidth={1.5} />

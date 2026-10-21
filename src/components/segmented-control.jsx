@@ -30,7 +30,7 @@ export function SegmentedControl({ label, options, value, onChange, hideLabel = 
           <label
             key={String(option.value)}
             className={cn(
-              "inline-flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full border border-transparent px-3 type-small whitespace-nowrap text-muted-foreground hover:text-foreground",
+              "inline-flex h-8 min-w-8 max-sm:h-10 pointer-coarse:h-10 cursor-pointer items-center justify-center rounded-full border border-transparent px-3 type-small whitespace-nowrap text-muted-foreground hover:text-foreground",
               // Same selected look as Tabs: a raised fill *and* a 3:1 border.
               "has-[:checked]:border-input has-[:checked]:bg-card has-[:checked]:text-foreground",
               // The radio itself is hidden, so its focus ring is drawn on the label.

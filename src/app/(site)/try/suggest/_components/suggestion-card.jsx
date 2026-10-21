@@ -34,7 +34,7 @@ export function SuggestionCard({ suggestion }) {
       <Link
         href={`/components/${manifest.name}`}
         aria-label={`Code and install guide for ${manifest.title}`}
-        className="w-fit rounded-sm type-small text-primary underline underline-offset-4"
+        className="inline-flex min-h-10 w-fit items-center rounded-sm type-small text-primary underline underline-offset-4"
       >
         Code and install guide
       </Link>
