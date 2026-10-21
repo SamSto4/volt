@@ -305,6 +305,59 @@ describe("Editor", () => {
     });
   });
 
+  describe("canvas width", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    /**
+     * Stands in for the browser's ResizeObserver, which jsdom doesn't have,
+     * and returns a function that reports the canvas as `width` pixels wide.
+     */
+    function stubResizeObserver() {
+      /** @type {Array<(entries: unknown[]) => void>} */
+      const callbacks = [];
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          /** @param {(entries: unknown[]) => void} callback */
+          constructor(callback) {
+            callbacks.push(callback);
+          }
+          observe() {}
+          disconnect() {}
+        },
+      );
+      return (/** @type {number} */ width) =>
+        act(() => {
+          for (const callback of callbacks) callback([{ contentRect: { width, height: 600 } }]);
+        });
+    }
+
+    it("opens at 1280 when it can't measure the space, as it always did", async () => {
+      await setup();
+      expect(screen.getByRole("radio", { name: "1280" })).toBeChecked();
+    });
+
+    it("opens at the widest width that fits the space without shrinking much", async () => {
+      const report = stubResizeObserver();
+      await setup();
+      // A laptop with both panels open leaves about 650px: 1280 would be drawn at half size.
+      report(650);
+      expect(screen.getByRole("radio", { name: "768" })).toBeChecked();
+      // More room, more width; the segmented control follows.
+      report(1100);
+      expect(screen.getByRole("radio", { name: "1280" })).toBeChecked();
+    });
+
+    it("keeps a width the person picks, however the space changes after", async () => {
+      const report = stubResizeObserver();
+      const { user } = await setup();
+      report(650);
+      await user.click(screen.getByRole("radio", { name: "375" }));
+      report(1400);
+      expect(screen.getByRole("radio", { name: "375" })).toBeChecked();
+    });
+  });
+
   describe("command palette", () => {
     it("opens from the top bar, finds by synonym, and Enter runs the command", async () => {
       const { user, status } = await setup();
