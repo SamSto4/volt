@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { manifests } from "@/registry";
 import { sections as sectionTemplates } from "@/registry/sections";
 import { describeBlock, setDragPreview } from "./canvas";
+import { missedDropMessage } from "./drop-hint.js";
 import { useDrag, useEditor, useEditorStore } from "./editor-context";
 import { getManifest, getSection, getSectionTemplate } from "./store/tree.js";
 
@@ -208,7 +209,16 @@ function PaletteItem({ name }) {
           setDragPreview(event, manifest.title);
           drag.setPayload({ kind: "component", name: manifest.name });
         }}
-        onDragEnd={() => drag.setPayload(null)}
+        onDragEnd={(event) => {
+          drag.setPayload(null);
+          // dropEffect is "none" when the drag ended anywhere that didn't take
+          // it. Say why, and where it would fit (the browser only shows a
+          // not-allowed cursor, which doesn't explain anything).
+          if (event.dataTransfer?.dropEffect === "none") {
+            const message = missedDropMessage(store.getState().tree, { kind: "component", name: manifest.name });
+            if (message) store.getState().showHint(message);
+          }
+        }}
         className="flex cursor-grab items-center justify-between gap-2 rounded-md border border-border bg-card p-3 active:cursor-grabbing"
       >
         <GripVertical aria-hidden="true" size={16} strokeWidth={1.5} className="shrink-0 text-muted-foreground" />

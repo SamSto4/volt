@@ -515,6 +515,55 @@ describe("Editor", () => {
       expect(heroActions).not.toHaveClass("bg-primary-tint");
     });
 
+    it("marks every slot that takes what you're dragging, and none that don't", async () => {
+      const { iframe, palette } = await setup();
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Card" }).closest("[draggable=true]"));
+      fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
+
+      // A Card goes in Features' Items and the FAQ's Content: both are outlined, before the pointer is anywhere near.
+      expect(slotIn(iframe, 1, "items")).toHaveClass("outline-dashed");
+      expect(slotIn(iframe, 2, "content")).toHaveClass("outline-dashed");
+      // The hero's Actions takes only actions: no mark at all.
+      expect(slotIn(iframe, 0, "actions")).not.toHaveClass("outline-dashed");
+      expect(slotIn(iframe, 0, "actions")).not.toHaveClass("outline-solid");
+
+      // The marks go away when the drag ends.
+      fireEvent.dragEnd(card, { dataTransfer: { ...dataTransfer(), dropEffect: "copy" } });
+      expect(slotIn(iframe, 1, "items")).not.toHaveClass("outline-dashed");
+    });
+
+    it("says why, and where it would fit, when a drag ends without a drop", async () => {
+      const { palette, status } = await setup();
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Card" }).closest("[draggable=true]"));
+      fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
+      // dropEffect "none" is the browser's way of saying nothing took it.
+      fireEvent.dragEnd(card, { dataTransfer: { ...dataTransfer(), dropEffect: "none" } });
+
+      const message = "Card wasn't added. Drop it on a highlighted slot: Features · Items, FAQ · Content.";
+      // A toast for people who can see it...
+      expect(screen.getByText(message, { selector: "[data-slot=toast] p" })).toBeInTheDocument();
+      // ...and the editor's one live region for people who can't.
+      expect(status()).toHaveTextContent(message);
+    });
+
+    it("says nothing when the drag did land", async () => {
+      const { iframe, palette } = await setup();
+      const card = /** @type {HTMLElement} */ (palette().getByRole("button", { name: "Add to page: Card" }).closest("[draggable=true]"));
+      fireEvent.dragStart(card, { dataTransfer: dataTransfer() });
+      fireEvent.dragOver(slotIn(iframe, 1, "items"), { dataTransfer: dataTransfer() });
+      fireEvent.drop(slotIn(iframe, 1, "items"), { dataTransfer: dataTransfer() });
+      fireEvent.dragEnd(card, { dataTransfer: { ...dataTransfer(), dropEffect: "copy" } });
+      expect(document.querySelector("[data-slot=toast]")).toBeNull();
+    });
+
+    it("tells a block that was dragged nowhere that it stayed where it was", async () => {
+      const { canvas, status } = await setup();
+      const first = canvas().getByRole("button", { name: "Card: Fast to set up" });
+      fireEvent.dragStart(first, { dataTransfer: dataTransfer() });
+      fireEvent.dragEnd(first, { dataTransfer: { ...dataTransfer(), dropEffect: "none" } });
+      expect(status()).toHaveTextContent("Card stayed where it was. Drop it on a highlighted slot: Features · Items, FAQ · Content.");
+    });
+
     it("moves a block by dragging, fading the original, and it's one undo step", async () => {
       const { user, iframe, canvas, status } = await setup();
       const first = canvas().getByRole("button", { name: "Card: Fast to set up" });
