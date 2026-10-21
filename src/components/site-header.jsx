@@ -12,17 +12,17 @@ export function SiteHeader() {
       <div className="page-container flex h-14 items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           {/* No logo yet: the name in Playfair Display 700 (DESIGN.md §8). */}
-          <Link href="/" className="rounded-sm font-display text-xl font-bold">
+          <Link href="/" className="inline-flex h-10 items-center rounded-sm font-display text-xl font-bold">
             Volt
           </Link>
           <nav aria-label="Main" className="flex items-center gap-4">
-            <Link href="/components" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
+            <Link href="/components" className="inline-flex h-10 items-center rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
               Components
             </Link>
-            <Link href="/try" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
+            <Link href="/try" className="inline-flex h-10 items-center rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
               Try it
             </Link>
-            <Link href="/editor" className="rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
+            <Link href="/editor" className="inline-flex h-10 items-center rounded-sm type-small whitespace-nowrap text-muted-foreground hover:text-foreground">
               Editor
             </Link>
           </nav>

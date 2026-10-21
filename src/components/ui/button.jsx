@@ -31,7 +31,9 @@ const spinnerClasses = {
 
 /** @type {Record<ButtonProps["size"], string>} */
 export const sizeClasses = {
-  sm: "h-8 type-small", // 32px
+  // 32px, but 40px on phones and touch screens (DESIGN.md §13: targets for
+  // thumbs). `pointer-coarse` is any device whose main pointer is a finger.
+  sm: "h-8 type-small max-sm:h-10 pointer-coarse:h-10",
   md: "h-10 type-small", // 40px
   lg: "h-12 type-body", // 48px
 };

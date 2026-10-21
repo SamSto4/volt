@@ -36,7 +36,7 @@ export function CatalogCard({ name }) {
           <h2 className="type-heading-2">
             {/* The link is on the title only, so the card's other text isn't
                 read as part of the link (Card a11y notes). */}
-            <Link href={`/components/${manifest.name}`} className="rounded-sm hover:underline">
+            <Link href={`/components/${manifest.name}`} className="inline-flex min-h-10 items-center rounded-sm hover:underline">
               {manifest.title}
             </Link>
           </h2>

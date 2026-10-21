@@ -35,7 +35,7 @@ export function ComponentCard({ className } = {}) {
           </code>
           <CopyButton text={COMMAND} label="Copy install command" targetId="component-card-command" />
         </div>
-        <Link href={`/components/${accordion.name}`} className="w-fit rounded-sm type-small text-primary underline underline-offset-4">
+        <Link href={`/components/${accordion.name}`} className="inline-flex min-h-10 w-fit items-center rounded-sm type-small text-primary underline underline-offset-4">
           Read the {accordion.title} guide
         </Link>
       </div>

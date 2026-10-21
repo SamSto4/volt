@@ -6,7 +6,7 @@ export function SiteFooter() {
         <span className="font-display font-bold">Volt</span>
         <a
           href="https://github.com/SamSto4/volt"
-          className="rounded-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex h-10 items-center rounded-sm text-muted-foreground hover:text-foreground"
         >
           Source on GitHub
         </a>

@@ -28,17 +28,18 @@ export function Checkbox({ label, description, required, className, id, ...props
         type="checkbox"
         required={required}
         aria-describedby={descriptionId}
-        className="mt-0.5 size-5 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-2 size-6 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
         {...props}
       />
-      <div className="flex flex-col gap-1">
-        <label htmlFor={inputId} className="cursor-pointer type-small font-medium">
+      <div className="flex flex-col">
+        {/* The label is a 40px-tall tap target, with the 24px box centered on its first line. */}
+        <label htmlFor={inputId} className="flex min-h-10 cursor-pointer items-center type-small font-medium">
           {label}
           {/* Screen readers hear "required" from the attribute; this copy is for sight. */}
           {required && <span aria-hidden="true" className="text-muted-foreground"> (required)</span>}
         </label>
         {description && (
-          <p id={descriptionId} className="type-small text-muted-foreground">
+          <p id={descriptionId} className="-mt-2 pb-2 type-small text-muted-foreground">
             {description}
           </p>
         )}

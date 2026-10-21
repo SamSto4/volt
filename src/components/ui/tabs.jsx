@@ -138,7 +138,7 @@ export function TabsTrigger({ value, className, onClick, ...props }) {
         tabs.select(value);
       }}
       className={cn(
-        "inline-flex h-8 shrink-0 cursor-pointer items-center rounded-full border border-transparent px-4 type-small font-medium whitespace-nowrap text-muted-foreground transition-colors duration-100 hover:text-foreground",
+        "inline-flex h-8 shrink-0 max-sm:h-10 pointer-coarse:h-10 cursor-pointer items-center rounded-full border border-transparent px-4 type-small font-medium whitespace-nowrap text-muted-foreground transition-colors duration-100 hover:text-foreground",
         // The selected tab gets a raised fill *and* a line-strong border: the
         // fill alone is too close to the track to show state at 3:1.
         "data-[state=active]:border-input data-[state=active]:bg-card data-[state=active]:text-foreground",

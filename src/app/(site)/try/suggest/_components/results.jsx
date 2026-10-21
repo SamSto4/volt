@@ -108,7 +108,7 @@ export function Results({ answers, headingRef, onEdit, onReset }) {
           Take it with you
         </h3>
         <details className="rounded-md border border-border bg-card">
-          <summary className="cursor-pointer rounded-md px-4 py-2 type-small font-medium">Show the plan as text</summary>
+          <summary className="flex min-h-10 cursor-pointer items-center rounded-md px-4 type-small font-medium">Show the plan as text</summary>
           <pre id="plan-text" className="overflow-x-auto px-4 pb-4 type-code whitespace-pre-wrap">
             {plan}
           </pre>
